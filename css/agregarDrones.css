@@ -1,0 +1,136 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+* {
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: #001f38;
+    color: #45f3ff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+    min-height: 100vh;
+}
+
+/* Contenedor principal */
+.container {
+    background-color: #1c1c1c;
+    padding: 40px 50px;
+    border: 2px solid #45f3ff;
+    border-radius: 20px;
+    box-shadow: 0 0 25px rgba(69, 243, 255, 0.4);
+    max-width: 800px; /* Más ancho */
+    width: 100%;
+}
+
+/* Título */
+h2 {
+    font-size: 28px;
+    margin-bottom: 30px;
+    text-align: center;
+    color: #45f3ff;
+}
+
+/* Etiquetas */
+label {
+    display: block;
+    margin-top: 18px;
+    margin-bottom: 6px;
+    font-weight: 500;
+    color: #45f3ff;
+    font-size: 16px;
+}
+
+/* Inputs y select */
+input[type="text"],
+select {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    background-color: #45f3ff;
+    color: #001f38;
+    text-align: center;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+input[type="text"]::placeholder {
+    color: #001f38;
+    opacity: 0.7;
+}
+
+/* Botones */
+.botones {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 35px;
+    flex-wrap: wrap;
+}
+
+.btn,
+input[type="submit"] {
+    padding: 12px 30px;
+    font-weight: bold;
+    border: 2px solid #45f3ff;
+    border-radius: 10px;
+    background-color: transparent;
+    color: #45f3ff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    text-align: center;
+}
+
+.btn:hover,
+input[type="submit"]:hover {
+    background-color: #45f3ff;
+    color: #1c1c1c;
+}
+
+/* Mensajes de éxito y error */
+.mensaje-exito, .mensaje-error {
+    text-align: center;
+    padding: 14px 22px;
+    border-radius: 12px;
+    font-weight: 500;
+    margin-bottom: 25px;
+    max-width: 800px;
+    width: 100%;
+}
+
+.mensaje-exito {
+    background-color: rgba(0, 255, 0, 0.08);
+    border: 2px solid lime;
+    color: lime;
+}
+
+.mensaje-error {
+    background-color: rgba(255, 0, 0, 0.08);
+    border: 2px solid red;
+    color: red;
+}
+
+/* Responsive */
+@media screen and (max-width: 768px) {
+    .container {
+        padding: 30px 25px;
+    }
+
+    .btn,
+    input[type="submit"] {
+        width: 100%;
+    }
+
+    .botones {
+        flex-direction: column;
+        gap: 15px;
+    }
+}

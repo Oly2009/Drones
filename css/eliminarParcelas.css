@@ -1,0 +1,75 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700;800;900&display=swap');
+*
+{
+    margin: 0;
+    text-align: center;
+    font-family: 'Poppins', sans-serif;
+}
+body
+{
+    color: #45f3ff;
+    background: #001f38;
+}
+form
+{
+    display: grid;
+    margin-top: 10px;
+    justify-content: center;
+}
+table, th, td
+{
+    width: 800px;
+    border: 1px solid #45f3ff;
+    background: #1c1c1c;
+    margin-top: 100px;
+}
+input
+{
+    color: #45f3ff;
+    border: 1px solid #45f3ff;
+    cursor: pointer;
+    font-size: 20px;
+    background: #1c1c1c;
+}
+input[name="volverReg"]
+{
+    width: 800px;
+}
+input:hover
+{
+    color: #1c1c1c;
+    background: #45f3ff;
+}
+input[type="CHECKBOX"]
+{
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+    border: 1px solid #888;
+    appearance: none;
+    transition: background-color 0.3s ease-in-out;
+    background-color: none;
+    background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");
+}
+input[type="CHECKBOX"]:checked
+{
+    color: #4b9c0d;
+    background-color: #4b9c0d;    
+    background-position: 0 0;
+}
+li
+{
+    list-style: none;
+}
+a
+{
+    color: #45f3ff;
+    border: 1px solid #45f3ff;
+    background: #1c1c1c;
+    text-decoration: none;
+}
+a:hover
+{
+    color: #1c1c1c;
+    background: #45f3ff;
+}

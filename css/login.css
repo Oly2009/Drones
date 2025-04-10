@@ -1,0 +1,176 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    min-height: 100vh;
+    background: url('https://i.pinimg.com/originals/d2/9b/5b/d29b5bec682f9f0e608fd63c999609a2.gif') no-repeat center center fixed;
+    background-size: cover;
+    background-color: #1a5480;
+    padding: 20px;
+}
+
+/* Logo + eslogan */
+.header-login {
+    position: absolute;
+    top: 40px;
+    left: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.logo-box img {
+    width: 90px;
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+}
+
+.logo-box img:hover {
+    transform: scale(1.05);
+}
+
+.eslogan {
+    font-size: 14px;
+    color: #45f3ff;
+    font-style: italic;
+    max-width: 240px;
+    line-height: 1.4;
+}
+
+/* Formulario */
+.box {
+    width: 420px;
+    height: auto;
+    position: absolute;
+    top: 260px;
+    left: 40px;
+    border-radius: 10px;
+    background: #1c1c1c;
+    padding: 2px;
+    overflow: hidden;
+    z-index: 1;
+}
+
+/* Animación del borde giratorio */
+.box::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(0deg, green, #45f3ff, red, white);
+    animation: spin-border 6s linear infinite;
+    z-index: 1;
+}
+
+@keyframes spin-border {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Interior del formulario */
+.form {
+    position: relative;
+    background: #28292d;
+    border-radius: 8px;
+    z-index: 2;
+    padding: 50px 40px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Inputs */
+.inputBox {
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.inputBox input {
+    width: 100%;
+    height: 44px;
+    padding: 10px;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid #45f3ff;
+    color: white;
+    font-size: 16px;
+    outline: none;
+}
+
+.inputBox span {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    color: #aaa;
+    pointer-events: none;
+    transition: 0.3s;
+}
+
+.inputBox input:focus ~ span,
+.inputBox input:valid ~ span {
+    top: -15px;
+    font-size: 12px;
+    color: #45f3ff;
+}
+
+/* Mostrar contraseña */
+.checkbox-pass {
+    margin-top: -15px;
+    margin-bottom: 30px;
+    font-size: 14px;
+    color: #45f3ff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.checkbox-pass input[type="checkbox"] {
+    transform: scale(1.2);
+    accent-color: #45f3ff;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+/* Botón ENTRAR */
+input[name="enviar"] {
+    background: #45f3ff;
+    border: none;
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.3s ease;
+    width: 100%;
+}
+
+input[name="enviar"]:hover {
+    background-color: #00c8d1;
+}
+
+/* Responsive */
+@media screen and (max-width: 768px) {
+    .box {
+        width: 90%;
+        left: 5%;
+        top: 200px;
+    }
+
+    .header-login {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .logo-box img {
+        width: 60px;
+    }
+}

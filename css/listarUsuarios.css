@@ -1,0 +1,144 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background-color: #001f38;
+    color: #45f3ff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+    min-height: 100vh;
+}
+
+/* Título */
+h2 {
+    font-size: 2.2em;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+/* Formulario de búsqueda */
+.busqueda-form {
+    background-color: #1c1c1c;
+    border: 2px solid #45f3ff;
+    border-radius: 12px;
+    padding: 20px 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 0 18px rgba(69, 243, 255, 0.3);
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.busqueda-form input[type="text"] {
+    padding: 12px 18px;
+    width: 280px;
+    border-radius: 8px;
+    border: 1px solid #45f3ff;
+    font-size: 1em;
+    background-color: #ffffff;
+    color: #1c1c1c;
+}
+
+.busqueda-form input[type="submit"] {
+    padding: 12px 25px;
+    background-color: transparent;
+    border: 2px solid #45f3ff;
+    color: #45f3ff;
+    border-radius: 8px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+}
+
+.busqueda-form input[type="submit"]:hover {
+    background-color: #45f3ff;
+    color: #001f38;
+}
+
+.tabla-container {
+    width: 100%;
+    max-width: 1100px;
+    overflow-x: auto;
+    margin-top: 10px;
+    border-radius: 12px;
+    box-shadow: 0 0 15px rgba(69, 243, 255, 0.2);
+    background-color: #1c1c1c;
+}
+
+/* Estilo tabla general */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+/* Encabezados */
+th {
+    background-color: #0f0f0f;
+    font-weight: 600;
+    font-size: 1em;
+    text-align: center;
+    padding: 16px;
+    border: 1px solid #45f3ff;
+    white-space: nowrap;
+}
+
+/* Celdas */
+td {
+    padding: 16px;
+    text-align: center;
+    vertical-align: middle;
+    border: 1px solid #45f3ff;
+    word-break: break-word;
+}
+
+/* Anchos mínimos para mejorar visualmente */
+th:nth-child(1), td:nth-child(1) { min-width: 150px; }
+th:nth-child(2), td:nth-child(2) { min-width: 200px; }
+th:nth-child(3), td:nth-child(3) { min-width: 120px; }
+th:nth-child(4), td:nth-child(4) { min-width: 300px; }
+
+/* Hover */
+tr:hover {
+    background-color: #2e2e2e;
+}
+
+/* Botón Volver */
+.volver-form {
+    background-color: #1c1c1c;
+    border: 2px solid #45f3ff;
+    padding: 20px 30px;
+    margin-top: 30px;
+    border-radius: 12px;
+    box-shadow: 0 0 15px rgba(69, 243, 255, 0.3);
+    display: flex;
+    justify-content: center;
+}
+
+.volver-form input[type="submit"] {
+    padding: 10px 24px;
+    background: transparent;
+    color: #45f3ff;
+    border: 2px solid #45f3ff;
+    border-radius: 8px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+}
+
+.volver-form input[type="submit"]:hover {
+    background-color: #45f3ff;
+    color: #001f38;
+}

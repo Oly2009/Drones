@@ -1,0 +1,169 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #001f2b;
+    color: #45f3ff;
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+h2, h3 {
+    text-align: center;
+    color: #45f3ff;
+    margin-bottom: 20px;
+}
+
+#mapa {
+    width: 100%;
+    max-width: 900px;
+    height: 450px;
+    margin: 0 auto;
+    border: 3px solid #45f3ff;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+#estado-vuelo {
+    text-align: center;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #21e6c1;
+    margin-bottom: 20px;
+    animation: parpadeo 1.5s infinite;
+}
+
+@keyframes parpadeo {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.lista-trabajos {
+    list-style: none;
+    padding: 0;
+    margin: 0 auto;
+    max-width: 700px;
+}
+
+.lista-trabajos li {
+    background-color: #0b2538;
+    border: 1px solid #45f3ff;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    color: #fff;
+}
+
+.lista-trabajos li div {
+    width: 100%;
+    margin-top: 5px;
+}
+
+.lista-trabajos .btn {
+    background-color: #00f7ff;
+    border: none;
+    color: #000;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-weight: bold;
+    text-decoration: none;
+    cursor: pointer;
+    margin-right: 10px;
+    margin-top: 10px;
+    transition: all 0.2s ease-in-out;
+}
+
+.lista-trabajos .btn:hover {
+    background-color: #02d2d6;
+    transform: scale(1.05);
+}
+
+.btn {
+    background-color: #00f7ff;
+    color: #000;
+    font-weight: bold;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.btn:hover {
+    background-color: #00d1e6;
+    transform: scale(1.05);
+}
+
+.marker-number {
+    background-color: white;
+    color: black;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 5px;
+    width: 22px;
+    height: 22px;
+    line-height: 12px;
+    text-align: center;
+}
+
+.mensaje-exito, .mensaje-error {
+    text-align: center;
+    font-weight: bold;
+    margin: 20px auto;
+    padding: 15px;
+    max-width: 600px;
+    border-radius: 8px;
+}
+
+.mensaje-exito {
+    background-color: #0f5132;
+    color: #d1e7dd;
+    border: 1px solid #198754;
+}
+
+.mensaje-error {
+    background-color: #842029;
+    color: #f8d7da;
+    border: 1px solid #f5c2c7;
+}
+
+@media (max-width: 768px) {
+    #mapa {
+        height: 300px;
+    }
+
+    .titulo {
+        font-size: 1.5em;
+    }
+
+    .lista-trabajos li {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .lista-trabajos .btn {
+        margin-top: 10px;
+        width: 100%;
+    }
+}
+
+/* Animación de ruta del dron */
+.leaflet-interactive {
+    stroke-dasharray: 6;
+    animation: estela 2s linear infinite;
+}
+
+@keyframes estela {
+    0% { stroke-dashoffset: 0; }
+    100% { stroke-dashoffset: 12; }
+}
+.leaflet-marker-icon.no-shadow {
+    box-shadow: none !important;
+    background: none !important;
+}
+

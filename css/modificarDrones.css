@@ -1,0 +1,116 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background-color: #001f38;
+    color: #45f3ff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+    padding: 40px 20px;
+}
+
+h2 {
+    font-size: 32px;
+    margin-bottom: 30px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.container-tabla {
+    width: 90%;
+    max-width: 1100px;
+    background-color: #1c1c1c;
+    border: 2px solid #45f3ff;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(69, 243, 255, 0.4);
+    padding: 20px;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+th {
+    background-color: #002f4b;
+    color: #45f3ff;
+    font-size: 16px;
+    padding: 14px 18px;
+    text-align: center;
+    border-bottom: 2px solid #45f3ff;
+}
+
+td {
+    padding: 12px 18px;
+    text-align: center;
+    border-bottom: 1px solid #45f3ff33;
+    font-size: 15px;
+}
+
+.estado-disponible {
+    color: lime;
+    font-weight: bold;
+}
+
+.estado-estropeado {
+    color: red;
+    font-weight: bold;
+}
+
+select {
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: none;
+    font-weight: bold;
+    background-color: #45f3ff;
+    color: #001f38;
+}
+
+.botones-drones {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 30px;
+}
+
+input[type="submit"] {
+    background-color: transparent;
+    color: #45f3ff;
+    border: 2px solid #45f3ff;
+    padding: 10px 30px;
+    border-radius: 10px;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+input[type="submit"]:hover {
+    background-color: #45f3ff;
+    color: #001f38;
+}
+
+.mensaje-exito {
+    background-color: #0d3b2e;
+    border: 2px solid #45f3ff;
+    color: #45f3ff;
+    padding: 10px 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    text-align: center;
+    width: 90%;
+    max-width: 800px;
+    box-shadow: 0 0 15px rgba(69, 243, 255, 0.3);
+}

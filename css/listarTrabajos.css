@@ -1,0 +1,130 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700;800;900&display=swap');
+body {
+    background-color: #031B2C;
+    color: #eee;
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    padding: 0 20px;
+}
+
+.titulo {
+    text-align: center;
+    color: #45f3ff;
+    font-size: 2em;
+    margin-top: 30px;
+}
+
+.buscador {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.buscador input {
+    width: 50%;
+    padding: 10px;
+    font-size: 16px;
+    border: 2px solid #45f3ff;
+    border-radius: 8px;
+    background-color: #0d1b24;
+    color: #45f3ff;
+    outline: none;
+}
+
+.tabla-parcelas {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    box-shadow: 0 0 15px #45f3ff55;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.tabla-parcelas th {
+    background-color: #003b55;
+    color: #45f3ff;
+    padding: 12px;
+    text-align: center;
+    font-size: 16px;
+}
+
+.tabla-parcelas td {
+    background-color: #1b1b1b;
+    padding: 12px;
+    text-align: center;
+    color: #ddd;
+    font-size: 15px;
+}
+
+.tabla-parcelas tr:nth-child(even) td {
+    background-color: #222;
+}
+
+.estado-ok {
+    color: #00ff88;
+    font-weight: bold;
+}
+
+.estado-alerta {
+    color: red;
+    font-weight: bold;
+}
+
+.btn {
+    background-color: #00f7ff;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 20px;
+    color: black;
+    font-weight: bold;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn:hover {
+    background-color: #03d6e6;
+    transform: scale(1.05);
+}
+
+.mensaje-exito {
+    background-color: #c8facc;
+    color: #000;
+    padding: 10px 20px;
+    border-left: 6px solid green;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    width: 80%;
+    margin: 20px auto;
+    font-size: 16px;
+}
+@media screen and (max-width: 768px) {
+    .tabla-parcelas,
+    .tabla-parcelas thead,
+    .tabla-parcelas tbody,
+    .tabla-parcelas th,
+    .tabla-parcelas td,
+    .tabla-parcelas tr {
+        display: block;
+        width: 100%;
+    }
+
+    .tabla-parcelas thead tr {
+        display: none;
+    }
+
+    .tabla-parcelas td {
+        position: relative;
+        padding-left: 50%;
+        text-align: left;
+        border-top: 1px solid #444;
+    }
+
+    .tabla-parcelas td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 10px;
+        top: 10px;
+        font-weight: bold;
+        color: #45f3ff;
+    }
+}

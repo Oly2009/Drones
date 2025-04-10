@@ -1,0 +1,133 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #0e1a24;
+    color: #00e1ff;
+    margin: 0;
+    padding: 0;
+}
+
+.container-eliminar-usuario {
+    max-width: 90%;
+    margin: 40px auto;
+    padding: 30px;
+    background-color: #162532;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.1);
+}
+
+.titulo-eliminacion {
+    text-align: center;
+    color: #30f2ff;
+    margin-bottom: 20px;
+    font-size: 24px;
+}
+
+.buscador {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.buscador input[type="text"] {
+    padding: 10px;
+    width: 250px;
+    border: 2px solid #30f2ff;
+    background-color: #0e1a24;
+    color: #ffffff;
+    border-radius: 6px;
+    font-size: 16px;
+    outline: none;
+}
+
+.buscador button {
+    padding: 10px 18px;
+    margin-left: 10px;
+    background-color: #3dfbff;
+    border: none;
+    border-radius: 6px;
+    color: #000;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.buscador button:hover {
+    background-color: #2bc6d0;
+}
+
+.tabla-usuarios table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.tabla-usuarios th, .tabla-usuarios td {
+    padding: 12px 15px;
+    text-align: left;
+}
+
+.tabla-usuarios th {
+    background-color: #162532;
+    color: #30f2ff;
+    border-bottom: 2px solid #30f2ff;
+}
+
+.tabla-usuarios tr {
+    border-bottom: 1px solid #1f384b;
+}
+
+.tabla-usuarios select {
+    padding: 6px;
+    border-radius: 6px;
+    background-color: #0e1a24;
+    color: #ffffff;
+    border: 1px solid #30f2ff;
+    font-size: 14px;
+    outline: none;
+}
+
+.btn-eliminar {
+    background-color: #f44336;
+    color: white;
+    padding: 7px 14px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-eliminar:hover {
+    background-color: #d32f2f;
+}
+
+.mensaje-exito {
+    text-align: center;
+    margin-bottom: 20px;
+    background-color: #102d2d;
+    color: #00ffc8;
+    padding: 10px;
+    border-radius: 6px;
+    font-weight: bold;
+    border: 1px solid #00ffc8;
+}
+
+.botones-acciones {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.btn-volver {
+    background-color: #3dfbff;
+    color: #000;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-volver:hover {
+    background-color: #1dd2d6;
+}
