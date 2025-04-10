@@ -258,3 +258,19 @@ button:hover, input[type="submit"]:hover, input[type="button"]:hover, button:hov
         padding: 7px 10px;
     }
 }
+.icono-ayuda {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            font-size: 28px;
+            color: #45f3ff;
+            background: #1c1c1c;
+            border-radius: 50%;
+            padding: 8px;
+            text-decoration: none;
+            z-index: 999;
+        }
+        .icono-ayuda:hover {
+            color: #fff;
+            background: #45f3ff;
+        }

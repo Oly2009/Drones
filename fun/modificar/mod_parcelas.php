@@ -59,6 +59,10 @@ $parcelas = mysqli_query($con, "SELECT * FROM parcelas");
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
     <link rel="stylesheet" href="../../css/modificarParcelas.css">
+    <a href="/Proyecto_Drones_v3-CSS/fun/ayuda/instrucciones.php?origen=mod_parcelas.php" class="icono-ayuda" title="Ayuda">
+    <i class="bi bi-question-circle"></i>
+</a>
+
     <style>
         body { font-family: 'Segoe UI'; background: #0e2c38; color: #fff; text-align: center; }
         #mapa { width: 90%; height: 500px; margin: 20px auto; border: 2px solid #45f3ff; border-radius: 8px; }

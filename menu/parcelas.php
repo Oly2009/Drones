@@ -16,15 +16,13 @@ if (isset($_SESSION['usuario'])) {
 ?>
     <h1>🗺️ MENÚ PARCELAS</h1>
 
-    <!-- Botón hamburguesa para móviles -->
-    <button class="hamburguesa" onclick="toggleMenu()">☰</button>
+ 
 
     <div class="botonera" id="menu">
         <a href="agregar/agr_parcelas.php" class="btn">➕ Añadir parcelas</a>
         <a href="modificar/mod_parcelas.php" class="btn">✏️ Modificar parcela</a>
         <a href="eliminar/eli_parcelas.php" class="btn">🗑️ Eliminar parcelas</a>
         <a href="listar/ver_parcelas.php" class="btn">📍 Agregar ruta</a>
-        <a href="modificar/mod_rutas.php" class="btn">✏️ Modificar ruta</a>
         <a href="../menu.php" class="btn">🔙 Volver al menú</a>
     </div>
 

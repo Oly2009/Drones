@@ -1,4 +1,3 @@
--- Eliminar la base de datos si existe
 DROP DATABASE IF EXISTS agricultura;
 
 -- Crear nueva base de datos
@@ -14,8 +13,7 @@ CREATE TABLE roles (
 -- Insertar roles
 INSERT INTO roles (nombre_rol) VALUES 
 ('Admin'), 
-('Piloto'), 
-('Agricultor');
+('Piloto');
 
 -- Tabla de Usuarios
 CREATE TABLE usuarios (
@@ -36,6 +34,18 @@ CREATE TABLE usuarios_roles (
   FOREIGN KEY (id_rol) REFERENCES roles(id_rol) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
 
+-- Tabla de Tareas
+CREATE TABLE tareas (
+  id_tarea INT AUTO_INCREMENT PRIMARY KEY,
+  nombre_tarea VARCHAR(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
+
+-- Insertar tareas base
+INSERT INTO tareas (nombre_tarea) VALUES 
+('Sembrar'), 
+('Abonar'), 
+('Fumigar');
+
 -- Tabla de Parcelas
 CREATE TABLE parcelas (
   id_parcela INT AUTO_INCREMENT PRIMARY KEY,
@@ -49,7 +59,7 @@ CREATE TABLE parcelas (
 CREATE TABLE parcelas_usuarios (
   id_usr INT NOT NULL,
   id_parcela INT NOT NULL,
-  PRIMARY KEY (id_usr), -- solo una parcela por usuario
+  PRIMARY KEY (id_usr),
   FOREIGN KEY (id_usr) REFERENCES usuarios(id_usr) ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (id_parcela) REFERENCES parcelas(id_parcela) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
@@ -61,22 +71,12 @@ CREATE TABLE drones (
   marca VARCHAR(20) NOT NULL,
   id_usr INT DEFAULT NULL,
   id_parcela INT DEFAULT NULL,
+  id_tarea INT NOT NULL, -- nueva columna para indicar la tarea del dron
   estado ENUM('disponible','estropeado') DEFAULT 'disponible',
   FOREIGN KEY (id_usr) REFERENCES usuarios(id_usr) ON DELETE SET NULL ON UPDATE CASCADE,
-  FOREIGN KEY (id_parcela) REFERENCES parcelas(id_parcela) ON DELETE SET NULL ON UPDATE CASCADE
+  FOREIGN KEY (id_parcela) REFERENCES parcelas(id_parcela) ON DELETE SET NULL ON UPDATE CASCADE,
+  FOREIGN KEY (id_tarea) REFERENCES tareas(id_tarea) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
-
--- Tabla de Tareas
-CREATE TABLE tareas (
-  id_tarea INT AUTO_INCREMENT PRIMARY KEY,
-  nombre_tarea VARCHAR(20) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
-
--- Insertar tareas base
-INSERT INTO tareas (nombre_tarea) VALUES 
-('Sembrar'), 
-('Abonar'), 
-('Fumigar');
 
 -- Tabla de Rutas
 CREATE TABLE ruta (
@@ -91,10 +91,14 @@ CREATE TABLE ruta (
 CREATE TABLE trabajos (
   id_trabajo INT AUTO_INCREMENT PRIMARY KEY,
   fecha DATE DEFAULT NULL,
+  hora TIME DEFAULT NULL,
   id_dron INT DEFAULT NULL,
   id_parcela INT NOT NULL,
+  id_usr INT DEFAULT NULL,
+  estado_general ENUM('pendiente','en curso','finalizado') DEFAULT 'pendiente',
   FOREIGN KEY (id_dron) REFERENCES drones(id_dron) ON DELETE SET NULL ON UPDATE CASCADE,
-  FOREIGN KEY (id_parcela) REFERENCES parcelas(id_parcela) ON DELETE CASCADE ON UPDATE CASCADE
+  FOREIGN KEY (id_parcela) REFERENCES parcelas(id_parcela) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (id_usr) REFERENCES usuarios(id_usr) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
 
 -- Tabla de relación trabajos - tareas (N:M)

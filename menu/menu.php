@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <?php
-    include 'lib/functiones.php';
+    include '../lib/functiones.php';
     session_start();
 ?>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <title>Menú principal - AgroSky</title>
-    <link rel="stylesheet" href="./css/menu.css">
+    <link rel="stylesheet" href="../css/menu.css">
 </head>
 <body>
 <?php
@@ -27,7 +27,7 @@ if (isset($_REQUEST['enviar'])) {
             $_SESSION['usuario'] = mysqli_fetch_assoc($consulta);
         } else {
             echo "<p class='mensaje-error'>❌ Credenciales incorrectas.</p>";
-            echo '<div class="botonera"><a href="login.php" class="btn">🔙 Volver al login</a></div>';
+            echo '<div class="botonera"><a href="index.php" class="btn">🔙 Volver al login</a></div>';
         }
     }
 }
@@ -37,13 +37,14 @@ if (isset($_SESSION['usuario'])) {
     $id_usr = $_SESSION['usuario']['id_usr'];
     $nombre = strtoupper($_SESSION['usuario']['nombre']);
 
-    $administrador = $piloto = $agricultor = false;
+    $administrador = false;
+    $piloto = false;
+
     $roles = mysqli_query($conexion, "SELECT id_rol FROM usuarios_roles WHERE id_usr = $id_usr");
     while ($rol = mysqli_fetch_assoc($roles)) {
         switch ($rol['id_rol']) {
             case 1: $administrador = true; break;
             case 2: $piloto = true; break;
-            case 3: $agricultor = true; break;
         }
     }
 ?>
@@ -52,20 +53,17 @@ if (isset($_SESSION['usuario'])) {
 
 <div class="botonera">
     <?php if ($administrador): ?>
-        <a href="fun/usuarios.php" class="btn">👥 Usuarios</a>
-    <?php endif; ?>
-
-    <?php if ($administrador || $agricultor): ?>
-        <a href="fun/parcelas.php" class="btn">🌾 Parcelas</a>
-        <a href="fun/trabajos.php" class="btn">📋 Trabajos</a>
+        <a href="usuarios.php" class="btn">👥 Usuarios</a>
     <?php endif; ?>
 
     <?php if ($administrador || $piloto): ?>
-        <a href="fun/drones.php" class="btn">🛸 Drones</a>
+        <a href="parcelas.php" class="btn">🌾 Parcelas</a>
+        <a href="trabajos.php" class="btn">📋 Trabajos</a>
+        <a href="drones.php" class="btn">🛸 Drones</a>
     <?php endif; ?>
 
-    <a href="fun/cuenta.php" class="btn">⚙️ Cuenta</a>
-    <a href="login.php" class="btn">❌ Cerrar Sesión</a>
+    <a href="cuenta.php" class="btn">⚙️ Cuenta</a>
+    <a href="../index.php" class="btn">❌ Cerrar Sesión</a>
 </div>
 
 <div class="imagen-menu">
@@ -75,7 +73,7 @@ if (isset($_SESSION['usuario'])) {
 <?php
 } else {
     echo "<p class='mensaje-error'>⛔ Acceso denegado</p>";
-    echo '<div class="botonera"><a href="login.php" class="btn">🔙 Volver</a></div>';
+    echo '<div class="botonera"><a href="../index.php" class="btn">🔙 Volver</a></div>';
     session_destroy();
 }
 ?>

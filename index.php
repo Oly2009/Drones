@@ -20,7 +20,7 @@ if (isset($_POST['enviar'])) {
 
         if (mysqli_num_rows($resultado) === 1) {
             $_SESSION['usuario'] = mysqli_fetch_assoc($resultado);
-            header("Location: menu.php");
+            header("Location: menu/menu.php");
             exit();
         } else {
             $error = "❌ Credenciales incorrectas. Acceso denegado.";
@@ -56,7 +56,7 @@ if (isset($_POST['enviar'])) {
     <!-- Formulario de login -->
     <div class="box">
         <div class="form">
-            <form action="login.php" method="post">
+            <form action="index.php" method="post">
                 <div class="inputBox">
                     <input type="email" name="usu" required placeholder="Correo">
                     <span>Correo</span>
