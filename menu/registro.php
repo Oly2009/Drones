@@ -111,11 +111,6 @@ if (isset($_POST['enviarReg'])) {
 <div class="modal" id="modalExito">
     <div class="modal-content">
         <h3><?= $mensaje ?></h3>
-        <?php if ($registroExitoso): ?>
-            <form action="usuarios.php" method="post">
-                <input type="submit" value="Ir al panel de usuarios">
-            </form>
-        <?php endif; ?>
         <button onclick="cerrarModal()">Cerrar</button>
     </div>
 </div>
