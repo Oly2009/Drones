@@ -3,33 +3,26 @@ include '../../lib/functiones.php';
 session_start();
 
 if (!isset($_SESSION['usuario'])) {
-    header('Location: ../index.php');
+    header('Location: ../../index.php');
     exit();
 }
 
-// Función de eliminación completa (sin borrar drones)
 function eliminarUsuario($id_usuario) {
     $conexion = conectar();
     mysqli_begin_transaction($conexion);
 
     try {
-        // 1. Eliminar roles
         mysqli_query($conexion, "DELETE FROM usuarios_roles WHERE id_usr = $id_usuario");
-
-        // 2. Eliminar relaciones con parcelas
         mysqli_query($conexion, "DELETE FROM parcelas_usuarios WHERE id_usr = $id_usuario");
 
-        // 3. Obtener drones asignados al usuario
         $drones = [];
         $consultaDrones = mysqli_query($conexion, "SELECT id_dron FROM drones WHERE id_usr = $id_usuario");
         while ($row = mysqli_fetch_assoc($consultaDrones)) {
             $drones[] = $row['id_dron'];
         }
 
-        // 4. Eliminar trabajos y tareas asociados a esos drones
         if (!empty($drones)) {
             $idsDrones = implode(",", $drones);
-
             mysqli_query($conexion, "
                 DELETE tt FROM trabajos_tareas tt 
                 INNER JOIN trabajos t ON tt.id_trabajo = t.id_trabajo 
@@ -38,28 +31,18 @@ function eliminarUsuario($id_usuario) {
             mysqli_query($conexion, "DELETE FROM trabajos WHERE id_dron IN ($idsDrones)");
         }
 
-        // 5. Desvincular drones
         mysqli_query($conexion, "UPDATE drones SET id_usr = NULL WHERE id_usr = $id_usuario");
-
-        // 6. Eliminar usuario
         mysqli_query($conexion, "DELETE FROM usuarios WHERE id_usr = $id_usuario");
 
         mysqli_commit($conexion);
-        return [
-            'success' => true,
-            'mensaje' => 'Usuario eliminado correctamente. Drones desvinculados.'
-        ];
+        return ['success' => true, 'mensaje' => '✅ Usuario eliminado correctamente. Drones desvinculados.'];
 
     } catch (Exception $e) {
         mysqli_rollback($conexion);
-        return [
-            'success' => false,
-            'mensaje' => 'Error al eliminar usuario: ' . $e->getMessage()
-        ];
+        return ['success' => false, 'mensaje' => '❌ Error al eliminar usuario: ' . $e->getMessage()];
     }
 }
 
-// Procesar eliminación
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_usuario'])) {
     $id_usuario = intval($_POST['id_usuario']);
     $resultado = eliminarUsuario($id_usuario);
@@ -71,7 +54,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_usuario'])) {
     exit();
 }
 
-// Obtener usuarios que NO sean admin
 $conexion = conectar();
 $usuarios = [];
 $consulta = mysqli_query($conexion, "
@@ -109,105 +91,106 @@ if ($consulta) {
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Eliminar Usuarios - AgroSky</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>👤 Eliminar Usuarios - AgroSky</title>
     <link rel="stylesheet" href="../../css/eliminarUsuarios.css">
 </head>
 <body>
-    <div class="container-eliminar-usuario">
-        <?php 
-        if (isset($_SESSION['mensaje'])) {
-            $tipo_clase = $_SESSION['mensaje_tipo'] === 'exito' ? 'mensaje-exito' : 'mensaje-error';
-            echo "<div class='mensaje {$tipo_clase}'>" . htmlspecialchars($_SESSION['mensaje']) . "</div>";
-            unset($_SESSION['mensaje'], $_SESSION['mensaje_tipo']);
-        }
-        ?>
 
-        <h2 class="titulo-eliminacion">Eliminar Usuarios</h2>
-        
-        <div class="buscador">
-            <input type="text" placeholder="Buscar usuario" id="buscarUsuario">
-            <button>Buscar</button>
-        </div>
+<h1>👤 Eliminar Usuarios</h1>
 
-        <div class="tabla-usuarios">
-            <table>
-                <thead>
+<?php 
+if (isset($_SESSION['mensaje'])) {
+    $tipo_clase = $_SESSION['mensaje_tipo'] === 'exito' ? 'mensaje-exito' : 'mensaje-error';
+    echo "<div class='mensaje {$tipo_clase}'>" . htmlspecialchars($_SESSION['mensaje']) . "</div>";
+    unset($_SESSION['mensaje'], $_SESSION['mensaje_tipo']);
+}
+?>
+
+<div class="formulario-cuenta">
+    <form class="busqueda-form" onsubmit="event.preventDefault();">
+        <input type="text" placeholder="🔍 Buscar por nombre o correo" id="buscarUsuario">
+        <button type="submit">Buscar</button>
+    </form>
+
+    <div class="tabla-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Apellidos</th>
+                    <th>Email</th>
+                    <th>Teléfono</th>
+                    <th>Rol</th>
+                    <th>Parcelas</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if (!empty($usuarios)): ?>
+                    <?php foreach ($usuarios as $usuario): ?>
                     <tr>
-                        <th>Nombre</th>
-                        <th>Apellidos</th>
-                        <th>Email</th>
-                        <th>Teléfono</th>
-                        <th>Rol</th>
-                        <th>Parcelas</th>
-                        <th></th>
+                        <td><?= htmlspecialchars($usuario['nombre']) ?></td>
+                        <td><?= htmlspecialchars($usuario['apellidos']) ?></td>
+                        <td><?= htmlspecialchars($usuario['email']) ?></td>
+                        <td><?= htmlspecialchars($usuario['telefono']) ?></td>
+                        <td><?= htmlspecialchars($usuario['rol'] ?? 'Sin asignar') ?></td>
+                        <td><?= htmlspecialchars($usuario['parcelas'] ?? 'Ninguna') ?></td>
+                        <td>
+                            <form method="post" class="form-eliminar">
+                                <input type="hidden" name="id_usuario" value="<?= $usuario['id_usr'] ?>">
+                                <button type="button" class="btn-accion" onclick="confirmarEliminacion(this)">Eliminar</button>
+                            </form>
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    <?php if (!empty($usuarios)): ?>
-                        <?php foreach ($usuarios as $usuario): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($usuario['nombre']) ?></td>
-                            <td><?= htmlspecialchars($usuario['apellidos']) ?></td>
-                            <td><?= htmlspecialchars($usuario['email']) ?></td>
-                            <td><?= htmlspecialchars($usuario['telefono']) ?></td>
-                            <td><?= htmlspecialchars($usuario['rol'] ?? 'Sin asignar') ?></td>
-                            <td><?= htmlspecialchars($usuario['parcelas'] ?? 'Ninguna') ?></td>
-                            <td>
-                                <form method="post" action="">
-                                    <input type="hidden" name="id_usuario" value="<?= $usuario['id_usr'] ?>">
-                                    <button type="button" class="btn-eliminar" onclick="confirmarEliminacion(this)">Eliminar</button>
-                                </form>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <tr>
-                            <td colspan="7">No hay usuarios disponibles para eliminar.</td>
-                        </tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="botones-acciones">
-            <a href="../usuarios.php" class="btn-volver">Volver</a>
-        </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <tr><td colspan="7">No hay usuarios disponibles para eliminar.</td></tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
     </div>
 
-    <!-- Modal Confirmación -->
-    <div id="modalConfirmacion" class="modal-confirmacion" style="display:none;">
-        <div class="modal-contenido">
-            <h3>Confirmar Eliminación</h3>
-            <p>¿Estás seguro de que deseas eliminar este usuario?</p>
-            <div class="modal-botones">
-                <button class="btn-cancelar" onclick="cerrarModal()">Cancelar</button>
-                <button class="btn-eliminar" id="btnConfirmarEliminacion">Eliminar</button>
-            </div>
+    <a href="../../menu/usuarios.php" class="btn">🔙 Volver al menú de usuarios</a>
+</div>
+
+<!-- Modal -->
+<div id="modalConfirmacion" class="modal" style="display:none;">
+    <div class="modal-content">
+        <h3>Confirmar Eliminación</h3>
+        <p>¿Estás seguro de que deseas eliminar este usuario?</p>
+        <div class="modal-botones">
+            <button class="btn-cancelar" onclick="cerrarModal()">Cancelar</button>
+            <button class="btn-accion" id="btnConfirmarEliminacion">Eliminar</button>
         </div>
     </div>
+</div>
 
-    <script>
-    function confirmarEliminacion(boton) {
-        const modal = document.getElementById('modalConfirmacion');
-        const formulario = boton.closest('form');
-        document.getElementById('btnConfirmarEliminacion').onclick = function () {
-            formulario.submit();
-        };
-        modal.style.display = 'flex';
+<script>
+let formularioParaEliminar = null;
+
+function confirmarEliminacion(boton) {
+    formularioParaEliminar = boton.closest('form');
+    document.getElementById('modalConfirmacion').style.display = 'flex';
+}
+
+function cerrarModal() {
+    document.getElementById('modalConfirmacion').style.display = 'none';
+    formularioParaEliminar = null;
+}
+
+document.getElementById('btnConfirmarEliminacion').addEventListener('click', function () {
+    if (formularioParaEliminar) {
+        formularioParaEliminar.submit();
     }
+});
 
-    function cerrarModal() {
-        document.getElementById('modalConfirmacion').style.display = 'none';
-    }
-
-    document.getElementById('buscarUsuario').addEventListener('input', function () {
-        const filtro = this.value.toLowerCase();
-        document.querySelectorAll('.tabla-usuarios tbody tr').forEach(fila => {
-            fila.style.display = fila.textContent.toLowerCase().includes(filtro) ? '' : 'none';
-        });
+document.getElementById('buscarUsuario').addEventListener('input', function () {
+    const filtro = this.value.toLowerCase();
+    document.querySelectorAll('.tabla-responsive tbody tr').forEach(fila => {
+        fila.style.display = fila.textContent.toLowerCase().includes(filtro) ? '' : 'none';
     });
-    </script>
+});
+</script>
+
 </body>
 </html>

@@ -1,75 +1,160 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700;800;900&display=swap');
-*
-{
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+* {
     margin: 0;
-    text-align: center;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
     font-family: 'Poppins', sans-serif;
+    background: url('../../img/dron_fondo2.png') no-repeat center center fixed;
+    background-size: 100% 100%;
+    background-color: #f1f8e9;
+    padding: 40px;
+    color: #1b5e20;
 }
-body
-{
-    color: #45f3ff;
-    background: #001f38;
+
+h1 {
+    text-align: center;
+    color: #388e3c;
+    margin-top: 20px;
+    margin-bottom: 40px;
+    font-size: 2.5rem;
 }
-form
-{
-    display: grid;
-    margin-top: 10px;
-    justify-content: center;
+
+.formulario-cuenta {
+    width: 95%;
+    max-width: 1400px;
+    margin: 0 auto;
+    background: #ffffffee;
+    padding: 35px;
+    border-radius: 20px;
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.05);
 }
-table, th, td
-{
-    width: 800px;
-    border: 1px solid #45f3ff;
-    background: #1c1c1c;
-    margin-top: 100px;
+
+/* Tabla */
+.tabla-responsive {
+    overflow-x: auto;
+    margin-top: 20px;
 }
-input
-{
-    color: #45f3ff;
-    border: 1px solid #45f3ff;
-    cursor: pointer;
-    font-size: 20px;
-    background: #1c1c1c;
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
 }
-input[name="volverReg"]
-{
-    width: 800px;
+
+thead th {
+    background-color: #e8f5e9;
+    color: #388e3c;
+    font-size: 1rem;
 }
-input:hover
-{
-    color: #1c1c1c;
-    background: #45f3ff;
+
+th, td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #c8e6c9;
 }
-input[type="CHECKBOX"]
-{
-    width: 22px;
-    height: 22px;
-    cursor: pointer;
-    border: 1px solid #888;
-    appearance: none;
-    transition: background-color 0.3s ease-in-out;
-    background-color: none;
-    background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");
+
+td {
+    background-color: #f9fbe7;
+    color: #33691e;
 }
-input[type="CHECKBOX"]:checked
-{
-    color: #4b9c0d;
-    background-color: #4b9c0d;    
-    background-position: 0 0;
-}
-li
-{
-    list-style: none;
-}
-a
-{
-    color: #45f3ff;
-    border: 1px solid #45f3ff;
-    background: #1c1c1c;
+
+/* Botones */
+.btn,
+.btn-accion {
+    display: inline-block;
+    background-color: #66bb6a;
+    color: white;
+    border: none;
+    padding: 5px 20px;
+    font-weight: bold;
+    font-size: 1rem;
+    border-radius: 12px;
     text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 20px;
 }
-a:hover
-{
-    color: #1c1c1c;
-    background: #45f3ff;
+
+.btn:hover,
+.btn-accion:hover {
+    background-color: #2e7d32;
+}
+
+.acciones {
+    text-align: center;
+    margin-top: 30px;
+}
+
+/* Mensajes */
+.mensaje-exito, .mensaje-error {
+    text-align: center;
+    padding: 20px;
+    border-radius: 15px;
+    font-weight: bold;
+    margin: 20px auto;
+    max-width: 700px;
+}
+
+.mensaje-exito {
+    background-color: #dcedc8;
+    color: #1b5e20;
+}
+
+.mensaje-error {
+    background-color: #ffcdd2;
+    color: #b71c1c;
+}
+
+.archivo-ok {
+    color: #1b5e20;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.archivo-alerta {
+    color: #f57f17;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.total-eliminadas {
+    text-align: center;
+    font-size: 1.1rem;
+    color: #2e7d32;
+    font-weight: bold;
+    margin-top: 20px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .formulario-cuenta {
+        padding: 20px;
+        width: 98%;
+    }
+
+    table, th, td {
+        font-size: 0.9rem;
+    }
+
+    .btn, .btn-accion {
+        width: 100%;
+        margin-top: 10px;
+    }
+}
+.acciones {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px; /* espacio entre botones */
+    margin-top: 30px;
+    flex-wrap: wrap;
+}
+
+.acciones .btn,
+.acciones .btn-accion {
+    margin-top: 0; /* Elimina margen extra que desalineaba */
 }

@@ -125,7 +125,7 @@ $usuariosResult = mysqli_query($conexion, $usuariosQuery);
                 <?php endwhile; ?>
             </tbody>
         </table>
-        <a href="../menu.php" class="btn">🔙 Volver al menú</a>
+        <a href="../menu/menu.php" class="btn">🔙 Volver al menú</a>
     </div>
 
     <div id="modal" class="modal" style="display:none;">

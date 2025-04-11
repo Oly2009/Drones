@@ -53,60 +53,43 @@ $parcelas = mysqli_query($con, "SELECT * FROM parcelas");
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Modificar parcelas</title>
+    <title>✏️ Modificar parcelas - AgroSky</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../../css/modificarParcelas.css">
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
-    <link rel="stylesheet" href="../../css/modificarParcelas.css">
-    <a href="/Proyecto_Drones_v3-CSS/fun/ayuda/instrucciones.php?origen=mod_parcelas.php" class="icono-ayuda" title="Ayuda">
-    <i class="bi bi-question-circle"></i>
-</a>
-
-    <style>
-        body { font-family: 'Segoe UI'; background: #0e2c38; color: #fff; text-align: center; }
-        #mapa { width: 90%; height: 500px; margin: 20px auto; border: 2px solid #45f3ff; border-radius: 8px; }
-        .btn { padding: 10px 20px; margin: 10px; background: #45f3ff; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
-        select, option { padding: 8px; }
-        h2 { color: #45f3ff; margin-top: 20px; }
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); }
-        .modal-contenido {
-            background-color: #0e2c38;
-            margin: 15% auto;
-            padding: 20px;
-            border: 2px solid #45f3ff;
-            width: 60%;
-            color: white;
-            border-radius: 8px;
-        }
-        .modal-success { border-color: #45f3ff; }
-        .modal-error { border-color: red; }
-        .cerrar { float: right; font-size: 20px; font-weight: bold; cursor: pointer; }
-    </style>
 </head>
 <body>
 
-<h2>✏️ Modificar parcelas</h2>
+<a href="../../fun/ayuda/instrucciones.php?origen=mod_parcelas.php" class="icono-ayuda" title="Ayuda">
+    <i class="bi bi-question-circle-fill"></i>
+</a>
 
-<form method="POST" id="formulario" onsubmit="return validarAntesDeGuardar();">
-    <label for="id_parcela">Selecciona una parcela:</label>
-    <select name="id_parcela" id="id_parcela" onchange="mostrarParcela()">
-        <option value="">-- Elegir --</option>
-        <?php while ($row = mysqli_fetch_assoc($parcelas)): ?>
-            <option value="<?= $row['id_parcela'] ?>" data-fichero="<?= htmlspecialchars($row['fichero']) ?>">
-                <?= htmlspecialchars($row['ubicacion']) ?>
-            </option>
-        <?php endwhile; ?>
-    </select>
+<h1>✏️ Modificar parcelas</h1>
 
-    <div id="mapa"></div>
-    <textarea id="geojson" name="geojson" hidden></textarea>
-    <button type="submit" class="btn">✅ Guardar cambios</button>
-</form>
+<div class="formulario-cuenta">
+    <form method="POST" id="formulario" onsubmit="return validarAntesDeGuardar();">
+        <label for="id_parcela">Selecciona una parcela:</label>
+        <select name="id_parcela" id="id_parcela" onchange="mostrarParcela()">
+            <option value="">-- Elegir --</option>
+            <?php while ($row = mysqli_fetch_assoc($parcelas)): ?>
+                <option value="<?= $row['id_parcela'] ?>" data-fichero="<?= htmlspecialchars($row['fichero']) ?>">
+                    <?= htmlspecialchars($row['ubicacion']) ?>
+                </option>
+            <?php endwhile; ?>
+        </select>
 
-<form action="../parcelas.php" method="post">
-    <button class="btn">⬅ Volver</button>
-</form>
+        <div id="mapa"></div>
+        <textarea id="geojson" name="geojson" hidden></textarea>
+
+        <div class="acciones">
+            <button type="submit" class="btn-accion">✅ Guardar cambios</button>
+            <a href="../../menu/parcelas.php" class="btn">⬅ Volver</a>
+        </div>
+    </form>
+</div>
 
 <!-- Modal -->
 <div id="modal" class="modal">
@@ -155,15 +138,11 @@ function mostrarParcela() {
     if (!fichero) return;
 
     fetch(`../agregar/parcelas/${fichero}?t=${Date.now()}`)
-        .then(res => {
-            if (!res.ok) throw new Error("No se puede cargar el archivo GeoJSON");
-            return res.json();
-        })
+        .then(res => res.json())
         .then(data => {
             let capa = L.geoJSON(data, {
                 style: { color: '#45f3ff', weight: 3, fillOpacity: 0.3 }
             });
-            drawnItems.clearLayers();
             drawnItems.addLayer(capa);
             mapa.fitBounds(capa.getBounds());
             actualizarGeoJSON();
@@ -178,7 +157,6 @@ function mostrarModal(mensaje, tipo) {
     const modal = document.getElementById("modal");
     const contenido = document.getElementById("modal-contenido");
     const texto = document.getElementById("mensaje");
-
     contenido.className = "modal-contenido modal-" + tipo;
     texto.textContent = mensaje;
     modal.style.display = "block";

@@ -8,23 +8,24 @@
 
 body {
     font-family: 'Poppins', sans-serif;
+    width: 100vw;
     height: 100vh;
-    background: url('../img/dron_fondo.png') no-repeat right center fixed;
-    background-size: contain;
-    background-color: #001f3f; /* Fallback oscuro */
-    overflow-x: hidden;
+    background: url('../img/dron_fondo2.png') no-repeat center center fixed;
+    background-size: 100% 100%;
+    background-color: #e8f5e9;
     display: flex;
     justify-content: flex-start;
     align-items: center;
-    padding: 20px;
+    overflow: hidden;
+    color: #1b5e20;
 }
 
-/* Bolas flotantes */
+/* Bolas decorativas */
 .bola {
     position: absolute;
     width: 30px;
     height: 30px;
-    background: white;
+    background: #e8f5e9;
     border-radius: 50%;
     box-shadow: 0 0 10px white;
     opacity: 0.85;
@@ -43,6 +44,12 @@ body {
     animation: flotarBola2 6s infinite alternate ease-in-out;
 }
 
+.bola3 {
+    top: 93%;
+    left: 88%;
+    animation: flotarBola2 7s infinite alternate ease-in-out;
+}
+
 @keyframes flotarBola1 {
     from { transform: translate(0, 0); }
     to { transform: translate(-20px, -25px); }
@@ -53,42 +60,42 @@ body {
     to { transform: translate(15px, -20px); }
 }
 
-/* Contenedor principal adaptable */
+/* Contenedor principal */
 .contenido-pagina {
     position: relative;
     z-index: 2;
     width: 100%;
-    max-width: 600px;
-    margin-left: 4%;
+    max-width: 500px;
+    margin-left: 5%;
 }
 
 .registro-container {
     background-color: rgba(15, 15, 15, 0.95);
-    padding: 2.8rem;
+    padding: 2rem 1.8rem;
     border-radius: 25px;
-    box-shadow: 0 0 30px rgba(0, 234, 255, 0.4);
+    box-shadow: 0 0 30px rgba(139, 195, 74, 0.4);
     width: 100%;
 }
 
 /* Título */
 .titulo-registro {
     text-align: center;
-    font-size: 2rem;
-    color: #00eaff;
-    margin-bottom: 1.5rem;
+    font-size: 1.6rem;
+    color: #66bb6a;
+    margin-bottom: 1rem;
 }
 
 .titulo-registro span {
-    font-size: 1.1rem;
-    color: white;
+    font-size: 1rem;
+    color: #dcedc8;
 }
 
 /* Inputs */
 .registro-form label {
     display: block;
-    margin-top: 15px;
+    margin-top: 10px;
     font-weight: 500;
-    color: #b2dfff;
+    color: #66bb6a;
 }
 
 .registro-form input[type="text"],
@@ -96,63 +103,62 @@ body {
 .registro-form input[type="tel"],
 .registro-form input[type="password"] {
     width: 100%;
-    padding: 14px;
+    padding: 10px 12px;
     border: none;
     border-radius: 10px;
-    background-color: #00eaff;
-    color: #002a38;
+    background-color: #aed581;
+    color: #1b5e20;
     font-weight: bold;
-    margin-top: 5px;
-    margin-bottom: 12px;
+    margin-top: 4px;
+    margin-bottom: 8px;
     outline: none;
-    box-shadow: inset 0 0 5px #003340;
-    font-size: 1rem;
+    box-shadow: inset 0 0 5px #33691e;
+    font-size: 0.95rem;
 }
 
 /* Botones */
 .botones-accion {
     display: flex;
     justify-content: space-between;
-    margin-top: 25px;
+    margin-top: 20px;
     flex-wrap: wrap;
     gap: 10px;
 }
 
 .btn {
-    padding: 12px 24px;
+    padding: 10px 20px;
     border-radius: 10px;
     font-weight: bold;
     cursor: pointer;
     transition: all 0.3s ease-in-out;
-    font-size: 1rem;
+    font-size: 0.95rem;
 }
 
 .btn-primary {
-    background-color: #00eaff;
-    color: #002a38;
+    background-color: #66bb6a;
+    color: white;
     border: none;
 }
 
 .btn-primary:hover {
-    background-color: #00cfe3;
+    background-color: #43a047;
 }
 
 .btn-secundario {
     background-color: transparent;
-    color: #00eaff;
-    border: 2px solid #00eaff;
+    color: #66bb6a;
+    border: 2px solid #66bb6a;
 }
 
 .btn-secundario:hover {
-    background-color: #00eaff;
-    color: #002a38;
+    background-color: #66bb6a;
+    color: white;
 }
 
 /* Modal */
 .modal {
     position: fixed;
-    top: 0;
-    left: 0;
+    top: 0; left: 0;
     width: 100%;
     height: 100%;
     background-color: rgba(0,0,0,0.75);
@@ -163,33 +169,108 @@ body {
 }
 
 .modal-content {
-    background-color: #262626;
+    background-color: #33691e;
     padding: 2rem;
     border-radius: 15px;
-    box-shadow: 0 0 15px #00eaff99;
+    box-shadow: 0 0 15px #a5d6a7;
     text-align: center;
-    color: #fff;
+    color: white;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
     body {
+        flex-direction: column;
         justify-content: center;
-        background-position: center;
         background-size: cover;
-        padding: 10px;
+        padding: 20px;
     }
 
     .contenido-pagina {
         margin-left: 0;
+        max-width: 90%;
     }
 
     .registro-container {
-        padding: 2rem;
+        padding: 1.5rem;
     }
 
     .botones-accion {
         flex-direction: column;
         align-items: stretch;
     }
+}
+.modal {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    animation: fadeIn 0.4s ease-in-out;
+}
+
+.modal-content {
+    background-color: #2e7d32;
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 0 25px rgba(102, 187, 106, 0.7);
+    text-align: center;
+    color: white;
+    max-width: 400px;
+    width: 90%;
+    position: relative;
+    animation: zoomIn 0.4s ease-in-out;
+}
+
+.modal-content h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* Botones dentro del modal */
+.modal-content form input[type="submit"],
+.modal-content button {
+    padding: 10px 20px;
+    margin-top: 0.6rem;
+    margin-bottom: 0.3rem;
+    font-size: 0.95rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    background-color: #a5d6a7;
+    color: #1b5e20;
+    transition: all 0.3s ease-in-out;
+}
+
+.modal-content form input[type="submit"]:hover,
+.modal-content button:hover {
+    background-color: #81c784;
+    transform: scale(1.05);
+}
+
+/* Icono */
+.modal-content h3::before {
+    content: "✅";
+    font-size: 1.4rem;
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes zoomIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
 }

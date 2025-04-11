@@ -9,12 +9,16 @@ session_start();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Agregar parcela</title>
     <link rel="stylesheet" href="../../css/agregarParcelas.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css"/>
     <script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
 </head>
 <body>
+<a href="../ayuda/instrucciones.php?origen=agr_parcelas.php" class="icono-ayuda" title="Ayuda">
+    <i class="bi bi-question-circle-fill"></i>
+</a>
 <?php
 if (isset($_SESSION['usuario'])) {
     if (isset($_POST['anhadir'])) {
@@ -40,8 +44,8 @@ if (isset($_SESSION['usuario'])) {
                 $nextId = ($maxId !== null) ? $maxId + 1 : 1;
 
                 $nombreFichero = preg_replace('/[^A-Za-z0-9_\-]/', '_', $ubicacion) . "-" . $nextId . ".geojson";
-                $directorioRelativo = "parcelas/";
-                $directorioAbsoluto = __DIR__ . "/parcelas/";
+                $directorioRelativo = "../agregar/parcelas/";
+                $directorioAbsoluto = __DIR__ . "/../agregar/parcelas/";
 
                 if (!file_exists($directorioAbsoluto)) {
                     mkdir($directorioAbsoluto, 0755, true);
@@ -90,7 +94,8 @@ if (isset($_SESSION['usuario'])) {
                     }).addTo(map);
                     map.fitBounds(capa.getBounds());
                 </script>";
-                echo "<div class='botones-navegacion'><a href='agr_parcelas.php' class='boton'>Insertar otra parcela</a><a href='../parcelas.php' class='boton'>Volver al menú</a></div>";
+                echo "<div class='botones-navegacion'><a href='agr_parcelas.php' class='boton'>Insertar otra parcela</a>"
+                . "<a href='../../menu/parcelas.php' class='boton'>Volver al menú</a></div>";
 
             } catch (Exception $e) {
                 echo "<div class='mensaje-error'><h3>Error al procesar la parcela:</h3><p>" . htmlspecialchars($e->getMessage()) . "</p><a href='agr_parcelas.php' class='boton-volver'>Volver</a></div>";
@@ -119,7 +124,7 @@ if (isset($_SESSION['usuario'])) {
             <input type="submit" name="anhadir" value="Insertar parcela" class="boton-principal">
         </div>
     </form>
-    <form action="../parcelas.php" method="post">
+    <form action="../../menu/parcelas.php" method="post">
         <input type="submit" name="volverReg" value="Volver" class="boton-secundario">
     </form>
 </div>
@@ -205,7 +210,9 @@ function guardarGeoJSON() {
 <?php
     }
 } else {
-    echo "<div class='mensaje-error'><h2>Acceso denegado</h2><p>No tienes permisos para acceder a esta página. Por favor, inicia sesión.</p><a href='javascript:history.back()' class='boton-volver'>Volver</a></div>";
+    echo "<div class='mensaje-error'><h2>Acceso denegado</h2>"
+    . "<p>No tienes permisos para acceder a esta página. Por favor, inicia sesión.</p>"
+            . "<a href='javascript:history.back()' class='boton-volver'>Volver</a></div>";
     session_destroy();
 }
 ?>

@@ -2,26 +2,29 @@
 <html lang="es">
 <head>
    <meta charset="UTF-8">
-   <title>Eliminar parcela</title>
-   <link rel="stylesheet" type="text/css" href="/Proyecto_Drones_v3-CSS/css/eliminarParcelas.css">
+   <title>🗑️ Eliminar Parcelas - AgroSky</title>
+   <link rel="stylesheet" href="../../css/eliminarParcelas.css">
 </head>
 <body>
+
 <?php
 include '../../lib/functiones.php';
 session_start();
 
 if (isset($_SESSION['usuario'])) {
+    echo "<h1>🗑️ Eliminar Parcelas</h1>";
+    echo "<div class='formulario-cuenta'>";
+
     if (isset($_REQUEST['eliminar'])) {
         $borrar = $_REQUEST['borrar'] ?? [];
 
         if (count($borrar) > 0) {
             $nfilas = count($borrar);
-
+            echo "<div class='mensaje-exito'>";
             for ($i = 0; $i < $nfilas; $i++) {
                 $id = intval($borrar[$i]);
                 $conexion = conectar();
 
-                // Obtener info del archivo
                 $instruccion = "SELECT * FROM parcelas WHERE id_parcela = $id";
                 $consulta = mysqli_query($conexion, $instruccion) or die("Fallo en la consulta");
                 $resultado = mysqli_fetch_array($consulta);
@@ -29,51 +32,46 @@ if (isset($_SESSION['usuario'])) {
                 $nombreArchivo = $resultado['fichero'];
                 $rutaArchivo = realpath(__DIR__ . "/../agregar/parcelas/" . $nombreArchivo);
 
-                echo "<h3>Parcela eliminada:</h3>";
-                echo "<ul>";
-                echo "<li>ID: " . $resultado['id_parcela'] . "</li>";
-                echo "<li>Ubicación: " . $resultado['ubicacion'] . "</li>";
-                echo "<li>Fichero: " . $nombreArchivo . "</li>";
-                echo "</ul>";
+                echo "<strong>Parcela eliminada:</strong><ul>";
+                echo "<li>ID: {$resultado['id_parcela']}</li>";
+                echo "<li>Ubicación: {$resultado['ubicacion']}</li>";
+                echo "<li>Fichero: $nombreArchivo</li></ul>";
 
-                // Eliminar archivo del sistema si existe
                 if ($rutaArchivo && file_exists($rutaArchivo)) {
                     unlink($rutaArchivo);
-                    echo "<p style='color:lime;'>Archivo <strong>$nombreArchivo</strong> eliminado correctamente.</p>";
+                    echo "<p class='archivo-ok'>✅ Archivo <strong>$nombreArchivo</strong> eliminado correctamente.</p>";
                 } else {
-                    echo "<p style='color:orange;'>Archivo <strong>$nombreArchivo</strong> no encontrado o ruta inválida.</p>";
+                    echo "<p class='archivo-alerta'>⚠️ Archivo <strong>$nombreArchivo</strong> no encontrado.</p>";
                 }
 
-                // Eliminar relaciones en otras tablas
                 mysqli_query($conexion, "DELETE FROM ruta WHERE id_parcela = $id");
                 mysqli_query($conexion, "DELETE FROM trabajos WHERE id_parcela = $id");
                 mysqli_query($conexion, "UPDATE drones SET id_parcela = NULL WHERE id_parcela = $id");
-
-                // Eliminar de la BD
-                $eliminar = "DELETE FROM parcelas WHERE id_parcela = $id";
-                mysqli_query($conexion, $eliminar) or die("Fallo en la eliminación");
+                mysqli_query($conexion, "DELETE FROM parcelas WHERE id_parcela = $id") or die("Fallo al eliminar la parcela");
             }
 
-            echo "<p style='color:lime;'>Número total de parcelas eliminadas: $nfilas</p>";
+            echo "<p class='total-eliminadas'>🧹 Parcelas eliminadas: <strong>$nfilas</strong></p>";
+            echo "</div>";
         } else {
-            echo "<p>No se ha seleccionado ninguna parcela para eliminar.</p>";
+            echo "<div class='mensaje-error'>⚠️ No se seleccionó ninguna parcela para eliminar.</div>";
         }
 
-        echo "<form action='eli_parcelas.php' method='post'>";
-        echo "<input type='submit' value='Eliminar más parcelas'>";
+        echo "<form method='post' action='eli_parcelas.php'>";
+        echo "<div class='acciones'>";
+        echo "<button class='btn-accion'>Eliminar más parcelas</button>";
+        echo "<a href='../../menu/parcelas.php' class='btn'>🔙 Volver al menú de parcelas</a>";
+        echo "</div>";
         echo "</form>";
+
     } else {
         $conexion = conectar();
         $instruccion = "SELECT * FROM parcelas ORDER BY id_parcela ASC";
         $consulta = mysqli_query($conexion, $instruccion) or die("Fallo en la consulta");
 
-        $nfilas = mysqli_num_rows($consulta);
-
-        if ($nfilas > 0) {
-            echo "<h2>Selecciona las parcelas a eliminar</h2>";
-            echo "<form action='eli_parcelas.php' method='post'>";
-            echo "<table border='1' cellspacing='0' cellpadding='10'>";
-            echo "<tr><th>ID</th><th>Ubicación</th><th>Fichero</th><th>Eliminar</th></tr>";
+        if (mysqli_num_rows($consulta) > 0) {
+            echo "<form method='post' action='eli_parcelas.php'>";
+            echo "<div class='tabla-responsive'><table>";
+            echo "<thead><tr><th>ID</th><th>Ubicación</th><th>Fichero</th><th>Eliminar</th></tr></thead><tbody>";
 
             while ($resultado = mysqli_fetch_array($consulta)) {
                 echo "<tr>";
@@ -84,23 +82,25 @@ if (isset($_SESSION['usuario'])) {
                 echo "</tr>";
             }
 
-            echo "</table><br>";
-            echo "<input type='submit' name='eliminar' value='Eliminar parcela'>";
+            echo "</tbody></table></div>";
+            echo "<div class='acciones'>";
+            echo "<button type='submit' name='eliminar' class='btn-accion'>Eliminar parcela</button>";
+            echo "<a href='../../menu/parcelas.php' class='btn'>🔙 Volver al menú de parcelas</a>";
+            echo "</div>";
             echo "</form>";
         } else {
-            echo "<p>No hay parcelas disponibles para eliminar.</p>";
+            echo "<p class='mensaje-error'>📭 No hay parcelas disponibles para eliminar.</p>";
+            echo "<div class='acciones'><a href='../../menu/parcelas.php' class='btn'>🔙 Volver al menú de parcelas</a></div>";
         }
     }
 
-    echo "<form action='../parcelas.php' method='post' style='margin-top: 20px;'>";
-    echo "<input type='submit' name='volverReg' value='Volver'>";
-    echo "</form>";
-
+    echo "</div>";
 } else {
-    echo '<p>Acceso denegado</p>';
-    echo '<a href="javascript:history.back()"><button>Volver</button></a>';
+    echo "<div class='mensaje-error'>⛔ Acceso denegado</div>";
+    echo "<div class='acciones'><a href='../../index.php' class='btn'>Volver al login</a></div>";
     session_destroy();
 }
 ?>
+
 </body>
 </html>

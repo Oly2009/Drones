@@ -1,51 +1,38 @@
+<!DOCTYPE html>
 <?php
 include '../lib/functiones.php';
 session_start();
 ?>
-
-<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Menú Drones</title>
-    <link rel="stylesheet" href="../css/drones.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menú Drones - AgroSky</title>
+    <link rel="stylesheet" href="../css/menu.css">
 </head>
 <body>
+<?php if (isset($_SESSION['usuario'])): ?>
+    <h1>🚁 MENÚ DRONES</h1>
 
-<?php
-if (isset($_SESSION['usuario'])) {
-?>
-    <h1>🛰️ <span class="titulo-azul">MENÚ DRONES</span></h1>
-
-    <div class="botones-menu">
-        <form action="agregar/agr_drones.php" method="post">
-            <button type="submit">➕ Añadir drones</button>
-        </form>
-        <form action="eliminar/eli_drones.php" method="post">
-            <button type="submit">🗑️ Eliminar drones</button>
-        </form>
-        <form action="listar/lis_drones.php" method="post">
-            <button type="submit">📋 Listar drones</button>
-        </form>
-        <form action="modificar/mod_drones.php" method="post">
-            <button type="submit">⚙️ Modificar drones</button>
-        </form>
-        <form action="../menu.php" method="post">
-            <button type="submit">🔙 Volver al menú</button>
-        </form>
+    <div class="botonera">
+        <a href="../fun/agregar/agr_drones.php" class="btn">➕ Añadir drones</a>
+        <a href="../fun/modificar/mod_drones.php" class="btn">⚙️ Modificar drones</a>
+        <a href="../fun/eliminar/eli_drones.php" class="btn">🗑️ Eliminar drones</a>
+        <a href="../fun/listar/lis_drones.php" class="btn">📋 Listar drones</a>
+        <a href="../menu/menu.php" class="btn">🔙 Volver al menú</a>
     </div>
 
     <div class="imagen-dron">
         <img src="https://oesteyeste.com/wp-content/uploads/2019/10/dron-grabaciones-aereas.gif" alt="Dron animado">
     </div>
 
-<?php
-} else {
-    echo "<p>⛔ Acceso denegado</p>";
-    echo '<a href="../login.php"><button>Volver</button></a>';
-    session_destroy();
-}
-?>
+<?php else: ?>
+    <p class="mensaje-error">⛔ Acceso denegado</p>
+    <div class="botonera">
+        <a href="../index.php" class="btn">🔙 Volver</a>
+    </div>
+    <?php session_destroy(); ?>
+<?php endif; ?>
 
 </body>
 </html>

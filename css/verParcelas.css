@@ -1,276 +1,189 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700;800;900&display=swap');
-
-* {
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f1f8e9;
     margin: 0;
     padding: 0;
-    font-family: 'Poppins', sans-serif;
-    box-sizing: border-box;
 }
 
-body {
-    color: #45f3ff;
-    background: #001f38;
-    padding: 20px 10px 50px;
-    min-height: 100vh;
-    text-align: center;
-}
-
-/* Títulos */
 .titulo-principal {
-    width: 100%;
-    margin: 25px auto 15px;
     text-align: center;
+    color: #2e7d32;
+    margin: 40px 0 20px;
 }
 
-h2 {
-    margin-bottom: 15px;
-    font-size: 1.8rem;
-    text-align: center;
+.contenedor-flex {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    padding: 0 30px;
+    justify-content: space-between;
 }
 
-h3 {
-    margin-bottom: 15px;
-    font-size: 1.4rem;
-    text-align: center;
-}
-
-/* Tablas */
-.tabla-contenedor {
-    width: 90%;
-    max-width: 800px;
-    margin: 0 auto 30px;
-}
-
-table {
-    border-collapse: collapse;
-    width: 100%;
-    margin: 10px auto 20px;
-}
-
-table, th, td {
-    border: 1px solid #45f3ff;
-    padding: 10px;
-    background: #1c1c1c;
-}
-
-th {
-    text-align: center;
-    font-weight: 600;
-}
-
-td {
-    text-align: center;
-}
-
-td form {
-    margin: 0;
-}
-
-/* Mensajes */
-.mensaje-error, .info-ruta {
-    background: #1c1c1c;
-    border: 1px solid #45f3ff;
-    border-radius: 10px;
-    padding: 15px 20px;
-    margin: 20px auto;
-    max-width: 800px;
-    width: 90%;
-}
-
-.mensaje-error {
-    border-color: #ff4545;
-    color: #ff4545;
-}
-
-.info-ruta.existente {
-    border-color: #4caf50;
-}
-
-.info-ruta.existente h3 {
-    color: #4caf50;
-}
-
-/* Mapa */
-.mapa-contenedor {
-    width: 90%;
-    max-width: 600px;
-    margin: 20px auto;
-    border: 2px solid #45f3ff;
-    border-radius: 10px;
-    overflow: hidden;
-}
-
-#map {
-    height: 580px;
-    width: 100%;
-}
-
-/* Instrucciones */
-.instrucciones {
-    background: #1c1c1c;
-    border: 1px solid #45f3ff;
-    border-radius: 10px;
+.bloque {
+    flex: 1 1 45%;
+    background-color: #f1f8e9;
     padding: 20px;
-    margin: 20px auto;
-    max-width: 600px;
-    width: 90%;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
-.instrucciones ol {
-    margin-left: 25px;
-    text-align: left;
-    padding-left: 15px;
+.bloque label,
+.bloque select {
+    display: block;
+    margin: 10px 0;
+    width: 100%;
 }
 
-.instrucciones li {
-    margin-bottom: 10px;
-    text-align: left;
+#map,
+#mapa {
+    width: 100%;
+    height: 500px;
+    border-radius: 10px;
+    margin-top: 10px;
 }
 
-.instrucciones p {
-    margin-top: 15px;
-    text-align: center;
-}
-
-#puntos-seleccionados {
-    font-weight: bold;
-    color: #45f3ff;
-}
-
-/* Botones */
-button, input[type="submit"], input[type="button"], button {
-    min-width: 150px;
-    padding: 10px 15px;
-    border: 1px solid #45f3ff;
-    border-radius: 5px;
-    background: #1c1c1c;
-    color: #45f3ff;
-    cursor: pointer;
-    font-size: 16px;
-    transition: all 0.3s ease;
-    margin: 5px;
-}
-
-button:hover, input[type="submit"]:hover, input[type="button"]:hover, button:hover {
-    background: #45f3ff;
-    color: #1c1c1c;
+.botones-globales,
+.botones-contenedor,
+.volver-form {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin: 30px 0;
+    flex-wrap: wrap;
 }
 
 .botones-contenedor {
-    margin: 20px auto;
+    order: 1;
+    margin-top: 40px;
+    margin-bottom: 10px;
+}
+
+.botones-globales .btn,
+.botones-globales .btn-accion,
+.botones-contenedor input,
+.volver-form input,
+.volver-form button {
+    background-color: #66bb6a;
+    color: white;
+    font-weight: bold;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    transition: background-color 0.3s;
+}
+.boton-ancho-total {
+    background-color: #66bb6a;
+    color: white;
+    font-weight: bold;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    width: 300px; 
+    max-width: 90%;
+    transition: background-color 0.3s;
+}
+
+.boton-ancho-total:hover {
+    background-color: #388e3c;
+}
+
+.botones-globales .btn:hover,
+.botones-globales .btn-accion:hover,
+.botones-contenedor input:hover,
+.volver-form input:hover,
+.volver-form button:hover {
+    background-color: #388e3c;
+}
+
+.instrucciones,
+.info-ruta {
+    text-align: center;
+    margin: 20px;
+    background-color: #e8f5e9;
+    padding: 15px;
+    border-radius: 8px;
+    color: #2e7d32;
+    font-weight: bold;
+}
+
+.marker-number,
+.marker-number-existente {
+    background-color: #2e7d32;
+    color: white;
+    font-weight: bold;
+    border-radius: 50%;
+    padding: 4px 8px;
+    font-size: 0.9rem;
+}
+
+.tabla-contenedor {
+    overflow-x: auto;
+    margin-top: 20px;
+}
+
+.tabla-contenedor table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fffde7;
     text-align: center;
 }
 
-.volver-form {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    flex-wrap: wrap;
-    margin: 25px auto;
-    max-width: 800px;
+.tabla-contenedor th,
+.tabla-contenedor td {
+    padding: 10px;
+    border: 1px solid #c5e1a5;
+    color: #2e7d32;
 }
 
-.volver-form form {
-    margin: 0;
-}
-
-.botones-final {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    margin-top: 30px;
-}
-
-.botones-final form {
-    margin: 0;
-}
-
-/* Marcadores en el mapa */
-.marker-number {
-    background-color: transparent;
-    border: none;
-    color: red;
+.tabla-contenedor th {
+    background-color: #dcedc8;
     font-weight: bold;
-    font-size: 14px;
-    text-shadow: 1px 1px 1px black;
 }
 
-.marker-number-existente {
-    background-color: transparent;
-    border: none;
-    color: green;
-    font-weight: bold;
-    font-size: 14px;
-    text-shadow: 1px 1px 1px black;
+.mensaje-error {
+    background-color: #ffebee;
+    color: #c62828;
+    padding: 15px;
+    margin: 30px auto;
+    border-radius: 10px;
+    text-align: center;
+    max-width: 600px;
 }
 
-/* Media queries */
-@media (max-width: 768px) {
-    h2 {
-        font-size: 1.6rem;
-    }
-    
-    h3 {
-        font-size: 1.3rem;
-    }
-    
-    #map {
-        height: 450px;
-    }
-    
-    .instrucciones {
-        padding: 15px;
-    }
-    
-    button, input[type="submit"], input[type="button"], button {
-        min-width: 140px;
-        font-size: 15px;
-        padding: 8px 12px;
-    }
-}
-
-@media (max-width: 480px) {
-    h2 {
-        font-size: 1.4rem;
-    }
-    
-    table, th, td {
-        padding: 8px 5px;
-        font-size: 14px;
-    }
-    
-    #map {
-        height: 350px;
-    }
-    
-    .instrucciones {
-        padding: 15px 10px;
-    }
-    
-    .instrucciones ol {
-        padding-left: 10px;
-    }
-    
-    button, input[type="submit"], input[type="button"], button {
-        min-width: 120px;
-        font-size: 14px;
-        padding: 7px 10px;
-    }
-}
 .icono-ayuda {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            font-size: 28px;
-            color: #45f3ff;
-            background: #1c1c1c;
-            border-radius: 50%;
-            padding: 8px;
-            text-decoration: none;
-            z-index: 999;
-        }
-        .icono-ayuda:hover {
-            color: #fff;
-            background: #45f3ff;
-        }
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    color: #2e7d32;
+    font-size: 24px;
+    text-decoration: none;
+}
+
+.icono-ayuda:hover {
+    color: #388e3c;
+}
+
+@media (max-width: 900px) {
+    .contenedor-flex {
+        flex-direction: column;
+    }
+
+    .bloque {
+        flex: 1 1 100%;
+    }
+
+    .botones-globales {
+        flex-direction: column;
+        align-items: center;
+    }
+}

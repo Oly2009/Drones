@@ -73,6 +73,7 @@ if (isset($_POST['enviarReg'])) {
 <!-- Bolas decorativas -->
 <div class="bola bola1"></div>
 <div class="bola bola2"></div>
+<div class="bola bola3"></div>
 
 <!-- Contenido principal con formulario -->
 <div class="contenido-pagina">

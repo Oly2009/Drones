@@ -12,12 +12,11 @@ session_start();
     <script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link rel="stylesheet" type="text/css" href="../../css/verParcelas.css">
-  
 </head>
 <body>
 
 <!-- Icono de ayuda -->
-<a href="/Proyecto_Drones_v3-CSS/fun/ayuda/instrucciones.php?origen=ver_parcelas.php" class="icono-ayuda" title="Ayuda">
+<a href="../fun/ayuda/instrucciones.php?origen=ver_parcelas.php" class="icono-ayuda" title="Ayuda">
     <i class="bi bi-question-circle"></i>
 </a>
 
@@ -51,83 +50,89 @@ if (isset($_SESSION['usuario'])) {
         $consulta = mysqli_query($conexion, $instruccion);
 
         if ($resultado = mysqli_fetch_array($consulta)) {
-            echo "<div class='titulo-principal'><h2>Agregar / Modificar ruta</h2></div>";
-            echo "<div class='tabla-contenedor'><table><tr><th>ID Parcela</th><th>Ubicación</th></tr>";
-            echo "<tr><td>{$resultado['id_parcela']}</td><td>{$resultado['ubicacion']}</td></tr></table></div>";
-
             $fichero = '../agregar/parcelas/' . $resultado['fichero'];
             $geojson = file_exists($fichero) ? file_get_contents($fichero) : null;
-
-            if (!$geojson) {
-                echo "<div class='mensaje-error'><p>⚠ Error: No se pudo cargar el archivo GeoJSON de la parcela.</p></div>";
-            }
 
             $sqlRutas = "SELECT COUNT(*) as total FROM ruta WHERE id_parcela = $parcela";
             $consultaRutas = mysqli_query($conexion, $sqlRutas);
             $hayRutas = (mysqli_fetch_assoc($consultaRutas)['total'] > 0);
 
+            echo "<div class='titulo-principal'><h2>Agregar / Modificar ruta</h2></div>";
+            echo "<div class='contenedor-flex'>";
+
+            echo "<div class='bloque'>";
+            echo "<div class='tabla-contenedor'><table><tr><th>ID Parcela</th><th>Ubicación</th></tr>";
+            echo "<tr><td>{$resultado['id_parcela']}</td><td>{$resultado['ubicacion']}</td></tr></table></div>";
+
+            if ($hayRutas) {
+                echo "<div class='info-ruta existente'><h3>Ruta existente</h3><p>Esta parcela ya tiene una ruta definida. Si agregas una nueva, reemplazará la actual.</p></div>";
+            }
+
+            echo "<div class='instrucciones'><h3>Puntos seleccionados: <span id='puntos-seleccionados'>0</span></h3></div>";
+            echo "</div>"; 
+            echo "<div class='bloque'><div id='map'></div></div>";
+            echo "</div>";
             echo "<form action='ruta.php' id='mi_formulario' method='post'>";
             echo "<input type='hidden' name='parcela' value='{$parcela}'>";
             echo "<input type='hidden' id='vacio' name='vacio' value='0'>";
-?>
+            echo "<div class='botones-globales'>";
+            echo "<input type='submit' name='ruta' value='Guardar nueva ruta' class='boton-ancho-total'>";
 
-<div class="titulo-principal"><h2>Mapa de la parcela</h2></div>
-<div class="mapa-contenedor"><div id="map"></div></div>
+            echo "</div>";
+            echo "</form>";
 
-<?php if ($hayRutas): ?>
-<div class="info-ruta existente">
-    <h3>Ruta existente</h3>
-    <p>Esta parcela ya tiene una ruta definida. Si agregas una nueva, reemplazará la actual.</p>
-</div>
-<?php endif; ?>
+            echo "<div class='volver-form'>
+                    <form action='ver_parcelas.php' method='post'>
+                        <input type='submit' value='Seleccionar otra parcela'>
+                    </form>
+                    <form action='../../menu/parcelas.php' method='post'>
+                        <input type='submit' value='Volver'>
+                    </form>
+                </div>";
 
-<div class="instrucciones">
-    <h3>Puntos seleccionados: <span id="puntos-seleccionados">0</span></h3>
-</div>
-
-<script>
+            echo "<script>
 let puntosSeleccionados = 0;
 let map = L.map('map').setView([40.24, -3.7038], 6);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
 
 setTimeout(() => map.invalidateSize(), 100);
+";
 
-<?php if ($geojson): ?>
-let geojsonLayer = L.geoJSON(<?= $geojson ?>, {
-    style: { color: '#45f3ff', weight: 3, opacity: 0.7, fillColor: '#45f3ff', fillOpacity: 0.3 }
-}).addTo(map);
-map.fitBounds(geojsonLayer.getBounds());
-<?php endif; ?>
+            if ($geojson) {
+                echo "let geojsonLayer = L.geoJSON($geojson, {
+                    style: { color: '#45f3ff', weight: 3, opacity: 0.7, fillColor: '#45f3ff', fillOpacity: 0.3 }
+                }).addTo(map);
+                map.fitBounds(geojsonLayer.getBounds());\n";
+            }
 
-let rutaLinea = L.polyline([], {
-    color: '#ff4545',
-    weight: 3,
-    opacity: 0.7,
-    dashArray: '5, 10'
-}).addTo(map);
+            echo "let rutaLinea = L.polyline([], {
+                color: '#ff4545',
+                weight: 3,
+                opacity: 0.7,
+                dashArray: '5, 10'
+            }).addTo(map);
+";
 
-<?php if ($hayRutas): ?>
-let rutaExistente = [
-    <?php
-    $sqlPuntos = "SELECT latitud, longitud FROM ruta WHERE id_parcela = $parcela ORDER BY id_ruta";
-    $consultaPuntos = mysqli_query($conexion, $sqlPuntos);
-    while ($p = mysqli_fetch_assoc($consultaPuntos)) {
-        echo "[{$p['latitud']}, {$p['longitud']}],";
-    }
-    ?>
-];
+            if ($hayRutas) {
+                echo "let rutaExistente = [";
+                $sqlPuntos = "SELECT latitud, longitud FROM ruta WHERE id_parcela = $parcela ORDER BY id_ruta";
+                $consultaPuntos = mysqli_query($conexion, $sqlPuntos);
+                while ($p = mysqli_fetch_assoc($consultaPuntos)) {
+                    echo "[{$p['latitud']}, {$p['longitud']}],";
+                }
+                echo "];
 L.polyline(rutaExistente, { color: '#4caf50', weight: 4, opacity: 0.8 }).addTo(map);
 rutaExistente.forEach((p, i) => {
     L.marker(p, { title: 'Punto existente ' + (i+1) })
      .bindTooltip((i+1).toString(), { permanent: true, direction: 'center', className: 'marker-number-existente' })
      .addTo(map);
-});
-<?php endif; ?>
+});\n";
+            }
 
-map.on('click', function (e) {
+            echo "map.on('click', function (e) {
     let latlng = e.latlng;
     if (geojsonLayer.getBounds().contains(latlng)) {
-        document.getElementById('vacio').value = "1";
+        document.getElementById('vacio').value = \"1\";
         puntosSeleccionados++;
 
         L.marker(latlng, { title: 'Punto ' + puntosSeleccionados })
@@ -146,28 +151,13 @@ map.on('click', function (e) {
             form.appendChild(input);
         });
     } else {
-        alert("Por favor, selecciona un punto dentro de la parcela.");
+        alert(\"Por favor, selecciona un punto dentro de la parcela.\");
     }
 });
-</script>
-
-<div class="botones-contenedor">
-    <input type="submit" name="ruta" value="Guardar nueva ruta">
-</form>
-</div>
-
-<div class="volver-form">
-    <form action="ver_parcelas.php" method="post">
-        <input type="submit" value="Seleccionar otra parcela">
-    </form>
-    <form action="../parcelas.php" method="post">
-        <input type="submit" value="Volver">
-    </form>
-</div>
-
-<?php
+</script>";
         }
     } else {
+        // listado de parcelas
         $sql = $esAdmin ?
             "SELECT p.*, (SELECT COUNT(*) FROM ruta r WHERE r.id_parcela = p.id_parcela) as tiene_ruta FROM parcelas p" :
             "SELECT p.*, (SELECT COUNT(*) FROM ruta r WHERE r.id_parcela = p.id_parcela) as tiene_ruta FROM parcelas p INNER JOIN parcelas_usuarios pu ON p.id_parcela = pu.id_parcela WHERE pu.id_usr = '$idUsr'";
@@ -199,7 +189,7 @@ map.on('click', function (e) {
 
         echo "</table></div>";
         echo "<div class='volver-form'>
-                <form action='../parcelas.php' method='post'>
+                <form action='../../menu/parcelas.php' method='post'>
                     <input type='submit' value='Volver al menú'>
                 </form>
               </div>";

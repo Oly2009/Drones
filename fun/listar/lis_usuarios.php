@@ -1,22 +1,22 @@
+<?php
+session_start();
+include '../../lib/functiones.php';
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Listado de usuarios</title>
+    <title>👨‍🌾 Listado de Usuarios - AgroSky</title>
     <link rel="stylesheet" href="../../css/listarUsuarios.css">
 </head>
 <body>
 
 <?php
-include '../../lib/functiones.php';
-session_start();
-
 if (isset($_SESSION['usuario'])) {
     $conexion = conectar();
-
-    // Verificar si el usuario actual es admin
     $idUsr = $_SESSION['usuario']['id_usr'];
     $esAdmin = false;
+
     $rolConsulta = mysqli_query($conexion, "SELECT id_rol FROM usuarios_roles WHERE id_usr = $idUsr");
     while ($rol = mysqli_fetch_assoc($rolConsulta)) {
         if ($rol['id_rol'] == 1) {
@@ -26,20 +26,17 @@ if (isset($_SESSION['usuario'])) {
     }
 
     if (!$esAdmin) {
-        echo "<div class='mensaje-error'><h2>Acceso restringido</h2><p>No tienes permisos para ver esta sección.</p></div>";
-        echo "<div class='volver-form'><a href='../../menu.php'><button>Volver</button></a></div>";
+        echo "<div class='mensaje-error'><h2>⛔ Acceso restringido</h2><p>No tienes permisos para ver esta sección.</p></div>";
+        echo "<div class='volver-form'><a href='../../menu.php'><button>Volver al menú</button></a></div>";
         exit;
     }
 
-    // Filtro de búsqueda (opcional)
     $whereBusqueda = "";
     if (isset($_POST['buscar'])) {
-        $keywords = trim($_POST['keywords']);
-        $keywords = mysqli_real_escape_string($conexion, $keywords);
+        $keywords = mysqli_real_escape_string($conexion, trim($_POST['keywords']));
         $whereBusqueda = "WHERE u.nombre LIKE '$keywords%' OR u.apellidos LIKE '$keywords%'";
     }
 
-    // Consulta usuarios excluyendo admins
     $sql = "
         SELECT u.nombre, u.apellidos, u.email, u.telefono, r.nombre_rol,
                GROUP_CONCAT(p.ubicacion SEPARATOR ', ') AS parcelas
@@ -53,59 +50,56 @@ if (isset($_SESSION['usuario'])) {
     ";
 
     $resultado = mysqli_query($conexion, $sql);
+    ?>
 
-    echo "<h2>Listado de usuarios</h2>";
+    <h1 class="titulo">👨‍🌾 Listado de Usuarios</h1>
 
-    // Formulario búsqueda
-    echo "<form method='post' action='lis_usuarios.php' class='busqueda-form'>
-            <input type='text' name='keywords' placeholder='🔎 Buscar por nombre o apellidos' required>
-            <input type='submit' name='buscar' value='Buscar'>
-          </form>";
+    <div class="contenedor">
+        <form method="post" class="busqueda-form">
+            <input type="text" name="keywords" placeholder="🔍 Buscar por nombre o apellidos" required>
+            <button type="submit" name="buscar">Buscar</button>
+        </form>
 
-    // Mostrar resultados
-    if (mysqli_num_rows($resultado) > 0) {
-        echo "<div class='tabla-container'>";
-        echo "<table>";
-        echo "<tr>
-                <th>Nombre</th>
-                <th>Apellidos</th>
-                <th>Email</th>
-                <th>Teléfono</th>
-                <th>Rol</th>
-                <th>Parcelas</th>
-              </tr>";
+        <?php if (mysqli_num_rows($resultado) > 0): ?>
+            <div class="tabla-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Apellidos</th>
+                            <th>Email</th>
+                            <th>Teléfono</th>
+                            <th>Rol</th>
+                            <th>Parcelas</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <?php while ($fila = mysqli_fetch_assoc($resultado)): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($fila['nombre']) ?></td>
+                            <td><?= htmlspecialchars($fila['apellidos']) ?></td>
+                            <td><?= htmlspecialchars($fila['email']) ?></td>
+                            <td><?= $fila['telefono'] ?? '—' ?></td>
+                            <td><?= $fila['nombre_rol'] ?? 'Sin rol' ?></td>
+                            <td><?= $fila['parcelas'] ?? 'Ninguna' ?></td>
+                        </tr>
+                    <?php endwhile; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php else: ?>
+            <p class="sin-resultados">No se encontraron usuarios.</p>
+        <?php endif; ?>
 
-        while ($fila = mysqli_fetch_array($resultado)) {
-            $rol = $fila['nombre_rol'] ?? 'Sin asignar';
-            $parcelas = $fila['parcelas'] ?? 'Ninguna';
-            $telefono = $fila['telefono'] ?? '—';
+        <a href="../../menu/usuarios.php" class="btn">🔙 Volver al menú de usuarios</a>
+    </div>
 
-            echo "<tr>";
-            echo "<td>" . htmlspecialchars($fila['nombre']) . "</td>";
-            echo "<td>" . htmlspecialchars($fila['apellidos']) . "</td>";
-            echo "<td>" . htmlspecialchars($fila['email']) . "</td>";
-            echo "<td>$telefono</td>";
-            echo "<td>$rol</td>";
-            echo "<td>$parcelas</td>";
-            echo "</tr>";
-        }
-
-        echo "</table>";
-        echo "</div>";
-    } else {
-        echo "<p style='text-align: center;'>No se encontraron usuarios.</p>";
-    }
-
-    echo "<form action='../usuarios.php' method='post' class='volver-form'>
-            <input type='submit' name='volverReg' value='Volver'>
-          </form>";
-
+<?php
 } else {
-    echo "<p>Acceso denegado</p>";
-    echo '<a href="../../login.php"><button>Volver</button></a>';
+    echo "<p class='mensaje-error'>Acceso denegado. Inicia sesión primero.</p>";
+    echo "<div class='volver-form'><a href='../../index.php'><button>Volver al login</button></a></div>";
     session_destroy();
 }
 ?>
-
 </body>
 </html>

@@ -34,7 +34,7 @@ if (isset($_POST['enviar'])) {
 <head>
     <meta charset="UTF-8">
     <title>Inicio de Sesión</title>
-    <link rel="stylesheet" href="./css/login.css">
+    <link rel="stylesheet" href="./css/index.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap">
 </head>
 <body>
@@ -75,9 +75,8 @@ if (isset($_POST['enviar'])) {
                 <input type="submit" name="enviar" value="Entrar">
             </form>
 
-            <div style="text-align:center; margin-top: 15px;">
-                <a href="./fun/recuperar.php" style="color:#45f3ff; text-decoration:none; font-weight:500;">🔁 Recuperar contraseña</a>
-            </div>
+            <a href="./fun/recuperar.php">🔁 Recuperar contraseña</a>
+
         </div>
     </div>
 
