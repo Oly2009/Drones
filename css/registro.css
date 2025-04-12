@@ -8,17 +8,17 @@
 }
 
 body {
-    font-family: 'Poppins', sans-serif;
-    width: 100vw;
-    height: 100vh;
-    background: url('../img/dron_fondo2.png') no-repeat center center fixed;
-    background-size: 100% 100%;
+   font-family: 'Poppins', sans-serif;
     background-color: #f1f8e9;
+    background-image: url('../img/dron_volando.png');
+    background-repeat: no-repeat;
+    background-position: right bottom;
+    background-size: auto 100%;
     display: flex;
-    justify-content: flex-start;
     align-items: center;
-    overflow: hidden;
-    color: #1b5e20;
+    justify-content: flex-start;
+    height: 100vh;
+    padding-left: 5%;
 }
 
 .bola {

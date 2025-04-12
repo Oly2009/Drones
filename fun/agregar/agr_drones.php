@@ -7,17 +7,20 @@ session_start();
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Agregar Dron</title>
+    <title>➕ Agregar Dron - AgroSky</title>
     <link rel="stylesheet" href="../../css/agregarDrones.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap">
 </head>
 <body>
 
 <?php
+$mensaje = null;
+$tipo = null;
+
 if (isset($_SESSION['usuario'])) {
     $conexion = conectar();
     $idUsr = $_SESSION['usuario']['id_usr'];
 
-    // Verificar si es admin
     $rolCheck = mysqli_query($conexion, "SELECT id_rol FROM usuarios_roles WHERE id_usr = $idUsr");
     $esAdmin = false;
     while ($rol = mysqli_fetch_assoc($rolCheck)) {
@@ -28,60 +31,63 @@ if (isset($_SESSION['usuario'])) {
     }
 
     if (!$esAdmin) {
-        echo "<div class='error'>⛔ Acceso denegado. Solo los administradores pueden agregar drones.</div>";
-        echo '<div class="botones"><a href="../menu.php" class="btn">Volver al menú</a></div>';
+        echo "<div class='mensaje-error'>⛔ Acceso denegado. Solo los administradores pueden agregar drones.</div>";
+        echo '<div class="botones"><a href="../menu.php" class="btn-secundario">Volver al menú</a></div>';
         exit();
     }
 
-    // Procesar formulario
     if (isset($_POST['anhadir'])) {
-        $nombre = trim($_POST['nombre']);
         $marca = trim($_POST['marca']);
+        $modelo = trim($_POST['modelo']);
+        $numero_serie = trim($_POST['numero_serie']);
+        $tipo_dron = trim($_POST['tipo']);
         $id_parcela = intval($_POST['parcela']);
+        $id_tarea = intval($_POST['tarea']);
 
-        // Verificar duplicados por nombre o marca
-        $existe = mysqli_query($conexion, "SELECT * FROM drones WHERE nombre='$nombre' OR marca='$marca'");
-        if (mysqli_num_rows($existe) > 0) {
-            $mensaje = "⚠ Ya existe un dron con ese nombre o marca.";
+        // Validaciones
+        $existeSerie = mysqli_query($conexion, "SELECT * FROM drones WHERE numero_serie='$numero_serie'");
+        if (mysqli_num_rows($existeSerie) > 0) {
+            $mensaje = "⚠ Ya existe un dron con ese número de serie.";
             $tipo = "error";
         } else {
-            // Verificar si ya está asignado ese dron a esa parcela
-            $yaAsignado = mysqli_query($conexion, "SELECT * FROM drones WHERE id_parcela = $id_parcela AND nombre = '$nombre'");
-            if (mysqli_num_rows($yaAsignado) > 0) {
-                $mensaje = "⚠ El dron ya está asignado a esa parcela.";
-                $tipo = "error";
+            $insert = "INSERT INTO drones (marca, modelo, numero_serie, tipo, id_usr, id_parcela, id_tarea, estado)
+                       VALUES ('$marca', '$modelo', '$numero_serie', '$tipo_dron', $idUsr, $id_parcela, $id_tarea, 'disponible')";
+            if (mysqli_query($conexion, $insert)) {
+                $mensaje = "✅ Dron añadido correctamente.";
+                $tipo = "exito";
             } else {
-                $insert = "INSERT INTO drones (nombre, marca, id_usr, estado, id_parcela)
-                           VALUES ('$nombre', '$marca', $idUsr, 'disponible', $id_parcela)";
-                if (mysqli_query($conexion, $insert)) {
-                    $mensaje = "✅ Dron añadido correctamente y asignado a la parcela.";
-                    $tipo = "exito";
-                } else {
-                    $mensaje = "❌ Error al insertar el dron.";
-                    $tipo = "error";
-                }
+                $mensaje = "❌ Error al insertar el dron.";
+                $tipo = "error";
             }
         }
+    }
 
-        echo "<div class='mensaje-$tipo'>$mensaje</div>";
-        echo '<div class="botones"><a href="agr_drones.php" class="btn">Agregar otro</a> <a href="../drones.php" class="btn">Volver</a></div>';
-
-    } else {
-        // Obtener todas las parcelas
-        $parcelas = mysqli_query($conexion, "SELECT * FROM parcelas");
+    $parcelas = mysqli_query($conexion, "SELECT * FROM parcelas");
+    $tareas = mysqli_query($conexion, "SELECT * FROM tareas");
 ?>
 
-<div class="container">
-    <h2>➕ Agregar Dron y Asignar Parcela</h2>
+<div class="formulario-container">
+    <h1>🛸 Agregar Dron</h1>
 
-    <form action="agr_drones.php" method="post" class="form-agregar">
-        <label>Nombre del dron:</label>
-        <input type="text" name="nombre" required placeholder="Nombre del dron">
-
-        <label>Marca del dron:</label>
+    <form action="agr_drones.php" method="post" class="formulario">
+        <label>🏷️ Marca</label>
         <input type="text" name="marca" required placeholder="Marca del dron">
 
-        <label>Asignar a parcela:</label>
+        <label>📦 Modelo</label>
+        <input type="text" name="modelo" required placeholder="Modelo del dron">
+
+        <label>🔢 Número de serie</label>
+        <input type="text" name="numero_serie" required placeholder="Número de serie único">
+
+        <label>🧬 Tipo</label>
+        <select name="tipo" required>
+            <option value="">-- Selecciona tipo --</option>
+            <option value="eléctrico">Eléctrico</option>
+            <option value="combustible">Combustible</option>
+            <option value="híbrido">Híbrido</option>
+        </select>
+
+        <label>📍 Asignar a parcela</label>
         <select name="parcela" required>
             <option value="">-- Selecciona una parcela --</option>
             <?php while ($fila = mysqli_fetch_array($parcelas)) {
@@ -89,19 +95,39 @@ if (isset($_SESSION['usuario'])) {
             } ?>
         </select>
 
+        <label>🛠️ Tarea específica</label>
+        <select name="tarea" required>
+            <option value="">-- Selecciona una tarea --</option>
+            <?php while ($fila = mysqli_fetch_array($tareas)) {
+                echo "<option value='{$fila['id_tarea']}'>{$fila['nombre_tarea']}</option>";
+            } ?>
+        </select>
+
         <div class="botones">
-            <input type="submit" name="anhadir" value="Agregar" class="btn">
-            <a href="../drones.php" class="btn">Volver</a>
+            <button type="submit" name="anhadir" class="btn btn-primario">Agregar</button>
+            <a href="../../menu/drones.php" class="btn btn-secundario">Volver</a>
         </div>
     </form>
 </div>
 
-<?php
-    }
+<?php if ($mensaje): ?>
+<div class="modal" id="modalMensaje">
+  <div class="modal-contenido <?= $tipo === 'exito' ? 'exito' : 'error' ?>">
+    <h2><?= $mensaje ?></h2>
+    <button onclick="cerrarModal()">Cerrar</button>
+  </div>
+</div>
+<script>
+function cerrarModal() {
+    document.getElementById("modalMensaje").style.display = "none";
+}
+</script>
+<?php endif; ?>
 
+<?php
 } else {
-    echo "<p>⚠ Acceso denegado</p>";
-    echo '<a href="../../login.php"><button>Volver</button></a>';
+    echo "<p class='mensaje-error'>⛔ Acceso denegado</p>";
+    echo '<a href="../../index.php" class="btn-secundario">Volver</a>';
     session_destroy();
 }
 ?>

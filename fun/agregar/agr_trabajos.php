@@ -3,172 +3,143 @@ include '../../lib/functiones.php';
 session_start();
 
 if (!isset($_SESSION['usuario'])) {
-    echo "<p>⛔ Acceso denegado</p>";
-    exit;
+    $_SESSION['mensaje'] = "Acceso denegado";
+    $_SESSION['tipo'] = "error";
+    header("Location: ../../index.php");
+    exit();
 }
 
-$con = conectar();
-$mensaje = "";
+$conexion = conectar();
+$idUsr = $_SESSION['usuario']['id_usr'];
 
-// Si se ha enviado el formulario para asignar trabajo
-if (isset($_POST['asignar_trabajo'])) {
-    $id_parcela = intval($_POST['parcela']);
-    $id_dron = intval($_POST['dron']);
-    $tarea = mysqli_real_escape_string($con, $_POST['tarea']);
-    $id_usuario = $_SESSION['usuario']['id_usr'];
-
-    // Verificar si el dron tiene trabajos activos en curso
-    $verifica_q = "SELECT 1 
-                   FROM trabajos t
-                   JOIN trabajos_tareas tt ON t.id_trabajo = tt.id_trabajo
-                   WHERE t.id_dron = $id_dron 
-                   AND (t.estado_general = 'en curso' 
-                        OR (t.estado_general = 'pendiente' AND tt.estado = 'en curso'))";
-    $verifica_result = mysqli_query($con, $verifica_q);
-
-    if ($verifica_result && mysqli_num_rows($verifica_result) > 0) {
-        $nombre_parcela = mysqli_fetch_assoc(mysqli_query($con, "SELECT ubicacion FROM parcelas WHERE id_parcela = $id_parcela"))['ubicacion'];
-        $marca_dron = mysqli_fetch_assoc(mysqli_query($con, "SELECT marca FROM drones WHERE id_dron = $id_dron"))['marca'];
-        $mensaje = "⚠ No se puede asignar un nuevo trabajo. El dron de marca <strong>$marca_dron</strong> tiene un trabajo en curso.";
-    } else {
-        // Insertar el trabajo con id_usr del usuario logueado
-        mysqli_query($con, "INSERT INTO trabajos (id_parcela, id_dron, fecha, estado_general, id_usr) 
-                            VALUES ($id_parcela, $id_dron, CURDATE(), 'pendiente', $id_usuario)");
-        $id_trabajo = mysqli_insert_id($con);
-
-        mysqli_query($con, "INSERT INTO trabajos_tareas (id_trabajo, id_tarea, estado)
-                            VALUES ($id_trabajo, 
-                                    (SELECT id_tarea FROM tareas WHERE nombre_tarea = '$tarea'),
-                                    'pendiente')");
-
-        mysqli_query($con, "UPDATE drones SET estado = 'en uso' WHERE id_dron = $id_dron");
-
-        $nombre_parcela = mysqli_fetch_assoc(mysqli_query($con, "SELECT ubicacion FROM parcelas WHERE id_parcela = $id_parcela"))['ubicacion'];
-        $marca_dron = mysqli_fetch_assoc(mysqli_query($con, "SELECT marca FROM drones WHERE id_dron = $id_dron"))['marca'];
-
-        $mensaje = "✅ Trabajo de <strong>$tarea</strong> asignado a <strong>$nombre_parcela</strong> con un dron <strong>$marca_dron</strong>.";
+// Verificar si es admin
+$esAdmin = false;
+$rolCheck = mysqli_query($conexion, "SELECT id_rol FROM usuarios_roles WHERE id_usr = $idUsr");
+while ($rol = mysqli_fetch_assoc($rolCheck)) {
+    if ($rol['id_rol'] == 1) {
+        $esAdmin = true;
+        break;
     }
 }
 
-// Consulta de drones disponibles con más flexibilidad
-$drones_q = "SELECT d.id_dron, d.id_parcela, d.marca
-             FROM drones d
-             WHERE d.estado = 'disponible'
-             AND NOT EXISTS (
-                SELECT 1 FROM trabajos t 
-                JOIN trabajos_tareas tt ON t.id_trabajo = tt.id_trabajo
-                WHERE t.id_dron = d.id_dron 
-                AND (t.estado_general = 'en curso' 
-                     OR (t.estado_general = 'pendiente' AND tt.estado = 'en curso'))
-             )";
-$drones_result = mysqli_query($con, $drones_q);
-$drones_por_parcela = [];
-while ($dron = mysqli_fetch_assoc($drones_result)) {
-    $drones_por_parcela[$dron['id_parcela']][] = $dron;
+if (!$esAdmin) {
+    $_SESSION['mensaje'] = "Acceso denegado. Solo los administradores pueden añadir trabajos.";
+    $_SESSION['tipo'] = "error";
+    header("Location: ../menu.php");
+    exit();
 }
 
-// Parcelas con ruta asignada
-$parcelas_q = "SELECT p.id_parcela, p.ubicacion,
-                      IF(r.id_parcela IS NULL, 'Sin ruta asignada', 'Ruta asignada') AS ruta_estado
-               FROM parcelas p
-               LEFT JOIN ruta r ON p.id_parcela = r.id_parcela
-               GROUP BY p.id_parcela
-               HAVING ruta_estado = 'Ruta asignada'";
-$parcelas = mysqli_query($con, $parcelas_q);
+if (isset($_POST['insertar'])) {
+    $id_parcela = intval($_POST['parcela']);
+    $id_dron = intval($_POST['dron']);
+    $id_usuario = intval($_POST['usuario']);
 
-// Tareas disponibles
-$tareas_q = mysqli_query($con, "SELECT nombre_tarea FROM tareas");
-$tareas = [];
-while ($fila = mysqli_fetch_assoc($tareas_q)) {
-    $tareas[] = $fila['nombre_tarea'];
+    // Obtener la tarea asignada al dron
+    $tareaQuery = mysqli_query($conexion, "SELECT id_tarea FROM drones WHERE id_dron = $id_dron");
+    $row = mysqli_fetch_assoc($tareaQuery);
+    $id_tarea = intval($row['id_tarea']);
+
+    $insert = "INSERT INTO trabajos (id_parcela, id_dron, id_tarea, id_usr, estado_general, fecha, hora)
+               VALUES ($id_parcela, $id_dron, $id_tarea, $id_usuario, 'pendiente', CURDATE(), CURTIME())";
+
+    if (mysqli_query($conexion, $insert)) {
+        $_SESSION['mensaje'] = "✅ Trabajo añadido correctamente.";
+        $_SESSION['tipo'] = "exito";
+    } else {
+        $_SESSION['mensaje'] = "❌ Error al añadir el trabajo.";
+        $_SESSION['tipo'] = "error";
+    }
+    header("Location: agr_trabajo.php");
+    exit();
 }
+
+$drones = mysqli_query($conexion, "
+    SELECT d.id_dron, d.marca, d.modelo, d.numero_serie, d.id_tarea, d.id_parcela, d.estado, t.nombre_tarea, p.ubicacion
+    FROM drones d
+    JOIN tareas t ON d.id_tarea = t.id_tarea
+    JOIN parcelas p ON d.id_parcela = p.id_parcela
+");
+
 ?>
 
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Asignar trabajo</title>
-    <link rel="stylesheet" href="../../css/agregarTrabajos.css">
+    <title>Añadir Trabajo</title>
+    <link rel="stylesheet" href="../../css/listarDrones.css">
 </head>
 <body>
-    <h2 class="titulo">🛠️ Asignar trabajo a parcelas</h2>
+<h2 class="titulo">Añadir Trabajo</h2>
 
-    <?php if ($mensaje): ?>
-        <div class="mensaje-exito"><?= $mensaje ?></div>
-    <?php endif; ?>
-
-    <div class="buscador">
-        <input type="text" id="filtro" placeholder="🔍 Buscar parcela..." onkeyup="filtrarTabla()">
+<?php if (isset($_SESSION['mensaje'])): ?>
+    <div class="modal <?= $_SESSION['tipo'] ?>">
+        <?= $_SESSION['mensaje'] ?>
     </div>
+    <?php unset($_SESSION['mensaje'], $_SESSION['tipo']); ?>
+<?php endif; ?>
 
-    <table class="tabla-parcelas" id="tablaParcelas">
-        <thead>
-            <tr>
-                <th>Ubicación</th>
-                <th>Ruta</th>
-                <th>Drones disponibles</th>
-                <th>Asignar trabajo</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php while ($parcela = mysqli_fetch_assoc($parcelas)) {
-                $id = $parcela['id_parcela'];
-                $ubicacion = $parcela['ubicacion'];
-                $ruta = $parcela['ruta_estado'];
-                $drones = isset($drones_por_parcela[$id]) ? $drones_por_parcela[$id] : null;
+<div class="tabla-container">
+    <form method="post">
+        <table>
+            <thead>
+                <tr>
+                    <th>Dron</th>
+                    <th>Tarea</th>
+                    <th>Parcela Asignada</th>
+                    <th>Estado</th>
+                    <th>Asignar a Piloto</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($dron = mysqli_fetch_assoc($drones)): ?>
+                <?php
+                    $pilotos = mysqli_query($conexion, "
+                        SELECT u.id_usr, u.nombre, u.apellidos
+                        FROM usuarios u
+                        JOIN usuarios_roles ur ON u.id_usr = ur.id_usr AND ur.id_rol = 2
+                        JOIN parcelas_usuarios pu ON pu.id_usr = u.id_usr
+                        WHERE pu.id_parcela = " . $dron['id_parcela'] . "
+                    ");
                 ?>
                 <tr>
-                    <td><?= $ubicacion ?></td>
-                    <td class="<?= $ruta === 'Ruta asignada' ? 'estado-ok' : 'estado-alerta' ?>"><?= $ruta ?></td>
+                    <input type="hidden" name="dron" value="<?= $dron['id_dron'] ?>">
+                    <input type="hidden" name="parcela" value="<?= $dron['id_parcela'] ?>">
+                    <td><?= htmlspecialchars($dron['marca'] . ' ' . $dron['modelo']) ?></td>
+                    <td><?= htmlspecialchars($dron['nombre_tarea']) ?></td>
+                    <td><?= htmlspecialchars($dron['ubicacion']) ?></td>
+                    <td><?= htmlspecialchars(ucfirst($dron['estado'])) ?></td>
                     <td>
-                        <?php if ($drones): ?>
-                            <select class="styled-select">
-                                <?php foreach ($drones as $d): ?>
-                                    <option><?= $d['marca'] ?></option>
-                                <?php endforeach; ?>
+                        <?php if (mysqli_num_rows($pilotos) > 0): ?>
+                            <select name="usuario" required>
+                                <option value="">Seleccionar piloto</option>
+                                <?php while ($piloto = mysqli_fetch_assoc($pilotos)): ?>
+                                    <option value="<?= $piloto['id_usr'] ?>">
+                                        <?= $piloto['nombre'] ?> <?= $piloto['apellidos'] ?>
+                                    </option>
+                                <?php endwhile; ?>
                             </select>
                         <?php else: ?>
-                            <span style="color: gray;">Drones no disponibles</span>
+                            <span style="color: red; font-weight: bold">Sin pilotos asignados</span>
                         <?php endif; ?>
                     </td>
                     <td>
-                        <?php if ($ruta === 'Ruta asignada' && $drones): ?>
-                            <form method="post" class="form-asignar">
-                                <input type="hidden" name="parcela" value="<?= $id ?>">
-                                <input type="hidden" name="dron" value="<?= $drones[0]['id_dron'] ?>">
-                                <select name="tarea" class="styled-select" required>
-                                    <?php foreach ($tareas as $t): ?>
-                                        <option value="<?= $t ?>"><?= $t ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                                <button type="submit" name="asignar_trabajo" class="btn">Asignar</button>
-                            </form>
+                        <?php if ($dron['estado'] == 'disponible' && mysqli_num_rows($pilotos) > 0): ?>
+                            <button type="button" class="btn btn-secundario">Agregar</button>
                         <?php else: ?>
-                            <span style="color:gray;">No disponible</span>
+                            ---
                         <?php endif; ?>
                     </td>
                 </tr>
-            <?php } ?>
-        </tbody>
-    </table>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+    </form>
+</div>
 
-    <div style="text-align: center; margin-top: 20px;">
-        <form action="../trabajos.php" method="post">
-            <button type="submit" class="btn">⬅ Volver</button>
-        </form>
-    </div>
-
-    <script>
-    function filtrarTabla() {
-        let input = document.getElementById("filtro").value.toLowerCase();
-        let filas = document.querySelectorAll("#tablaParcelas tbody tr");
-
-        filas.forEach(fila => {
-            let nombre = fila.cells[0].textContent.toLowerCase();
-            fila.style.display = nombre.includes(input) ? "" : "none";
-        });
-    }
-    </script>
+<div class="volver-contenedor">
+    <a href="../../menu/trabajos.php" class="btn btn-secundario">Volver</a>
+</div>
 </body>
 </html>

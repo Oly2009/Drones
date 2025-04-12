@@ -1,7 +1,7 @@
 DROP DATABASE IF EXISTS agricultura;
 
 -- Crear nueva base de datos
-CREATE DATABASE agricultura CHARACTER SET utf8mb4 COLLATE utf8mb4_spanish_ci;
+CREATE DATABASE agricultura CHARACTER SET utf8mb4 COLLATE=utf8mb4_spanish_ci;
 USE agricultura;
 
 -- Tabla de Roles
@@ -67,12 +67,15 @@ CREATE TABLE parcelas_usuarios (
 -- Tabla de Drones
 CREATE TABLE drones (
   id_dron INT AUTO_INCREMENT PRIMARY KEY,
-  nombre VARCHAR(20) NOT NULL UNIQUE,
-  marca VARCHAR(20) NOT NULL,
+  marca VARCHAR(30) NOT NULL,
+  modelo VARCHAR(30) NOT NULL,
+  numero_serie VARCHAR(50) NOT NULL UNIQUE,
+  tipo VARCHAR(30) NOT NULL,
   id_usr INT DEFAULT NULL,
   id_parcela INT DEFAULT NULL,
-  id_tarea INT NOT NULL, -- nueva columna para indicar la tarea del dron
-  estado ENUM('disponible','estropeado') DEFAULT 'disponible',
+  id_tarea INT NOT NULL,
+  estado ENUM('disponible', 'en uso', 'en reparación', 'fuera de servicio') DEFAULT 'disponible',
+  numero_vuelos INT DEFAULT 0,
   FOREIGN KEY (id_usr) REFERENCES usuarios(id_usr) ON DELETE SET NULL ON UPDATE CASCADE,
   FOREIGN KEY (id_parcela) REFERENCES parcelas(id_parcela) ON DELETE SET NULL ON UPDATE CASCADE,
   FOREIGN KEY (id_tarea) REFERENCES tareas(id_tarea) ON DELETE RESTRICT ON UPDATE CASCADE
