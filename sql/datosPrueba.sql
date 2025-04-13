@@ -112,3 +112,18 @@ CREATE TABLE trabajos_tareas (
   FOREIGN KEY (id_trabajo) REFERENCES trabajos(id_trabajo) ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (id_tarea) REFERENCES tareas(id_tarea) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
+
+-- Vista para evitar asignar tareas distintas a drones
+CREATE VIEW vista_tarea_invalida AS
+SELECT t.id_trabajo, d.id_dron, tt.id_tarea, d.id_tarea AS tarea_dron
+FROM trabajos t
+JOIN trabajos_tareas tt ON t.id_trabajo = tt.id_trabajo
+JOIN drones d ON d.id_dron = t.id_dron
+WHERE tt.id_tarea != d.id_tarea;
+
+-- Vista para trabajos activos por dron
+CREATE VIEW vista_trabajos_activos AS
+SELECT id_dron, COUNT(*) AS trabajos_activos
+FROM trabajos
+WHERE estado_general != 'finalizado'
+GROUP BY id_dron;

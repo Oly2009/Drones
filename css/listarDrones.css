@@ -24,37 +24,6 @@ body {
     gap: 10px;
 }
 
-.buscador-container {
-    text-align: center;
-    margin-bottom: 1.5rem;
-}
-
-.buscador-container input[type="text"] {
-    padding: 10px 15px;
-    border: 2px solid #c8e6c9;
-    border-radius: 10px;
-    width: 300px;
-    font-size: 1rem;
-    background-color: #e9f7ef;
-    color: #1b5e20;
-}
-
-.buscador-container button {
-    padding: 10px 20px;
-    background-color: #66bb6a;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    margin-left: 10px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.3s;
-}
-
-.buscador-container button:hover {
-    background-color: #43a047;
-}
-
 .tabla-container {
     overflow-x: auto;
     background: white;
@@ -88,12 +57,10 @@ tr:nth-child(even) {
     color: green;
     font-weight: bold;
 }
-
 .estado-en-uso {
     color: orange;
     font-weight: bold;
 }
-
 .estado-en-reparación,
 .estado-fuera-de-servicio {
     color: red;
@@ -119,72 +86,15 @@ tr:nth-child(even) {
     background-color: transparent;
     color: #66bb6a;
     border: 2px solid #66bb6a;
+    transition: all 0.3s ease-in-out;
 }
-
 .btn-secundario:hover {
     background-color: #66bb6a;
     color: white;
 }
 
-.modal {
-    text-align: center;
-    margin: 1rem auto;
-    padding: 1rem;
-    border-radius: 15px;
-    max-width: 500px;
-    font-weight: bold;
-    font-size: 1.1rem;
-}
-
-   #confirmModal {
-        position: fixed;
-        inset: 0;
-        background-color: rgba(0, 0, 0, 0.5);
-        display: none;
-        justify-content: center;
-        align-items: center;
-        z-index: 999;
-    }
-    #confirmModal .modal-content {
-        background-color: #fff;
-        padding: 2rem;
-        border-radius: 15px;
-        max-width: 500px;
-        width: 90%;
-        text-align: center;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-    }
-    #confirmAceptar {
-        background-color: #66bb6a;
-        color: white;
-        border: none;
-    }
-    #confirmAceptar:hover {
-        background-color: #43a047;
-    }
-    #confirmModal button {
-        margin: 0 10px;
-        padding: 10px 20px;
-        font-weight: bold;
-        border-radius: 10px;
-        cursor: pointer;
-         margin-top: 10px;
-    }
-    .modal.exito {
-        background-color: #d0f0d8;
-        border: 2px solid #81c784;
-        color: #2e7d32;
-       
-        
-    }
-    .modal.error {
-        background-color: #ffebee;
-        border: 2px solid #e57373;
-        color: #c62828;
-    }
-    /* Estilo bonito para los select */
 select {
-    padding: 3px;
+    padding: 8px 10px;
     border: 2px solid #c8e6c9;
     border-radius: 10px;
     background-color: #e9f7ef;
@@ -196,10 +106,102 @@ select {
     max-width: 200px;
     appearance: none;
 }
-
 select:focus {
     border-color: #66bb6a;
     outline: none;
 }
 
+/* MODAL estilo JS (éxito o error) */
+.modal {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
 
+.modal-content {
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 15px;
+    max-width: 500px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.2);
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+/* Tipos */
+.modal.exito .modal-content {
+    background-color: #e8f5e9;
+    border: 2px solid #66bb6a;
+    color: #2e7d32;
+}
+
+.modal.error .modal-content {
+    background-color: #ffebee;
+    border: 2px solid #e57373;
+    color: #c62828;
+}
+
+/* Botón del modal */
+.modal-content button {
+    margin-top: 1rem;
+    padding: 10px 25px;
+    font-size: 1rem;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    background-color: #66bb6a;
+    color: white;
+    transition: background-color 0.3s ease-in-out;
+}
+
+.modal-content button:hover {
+    background-color: #43a047;
+}
+.buscador-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+        }
+
+        #filtro {
+            padding: 10px 15px;
+            border: 2px solid #c8e6c9;
+            border-radius: 10px;
+            width: 300px;
+            font-size: 1rem;
+            background-color: #e9f7ef;
+            color: #1b5e20;
+        }
+
+        .btn-buscar {
+            background-color: transparent;
+            color: #66bb6a;
+            border: 2px solid #66bb6a;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease-in-out;
+        }
+
+        .btn-buscar:hover {
+            background-color: #66bb6a;
+            color: white;
+        }
+
+        .volver-contenedor {
+            display: flex;
+            justify-content: center;
+            margin-top: 2rem;
+        }
