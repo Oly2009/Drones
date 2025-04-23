@@ -50,66 +50,66 @@ $consulta = mysqli_query($conexion, $sql);
 <head>
     <meta charset="UTF-8">
     <title>Listado Completo de Drones</title>
-    <link rel="stylesheet" href="../../css/listarDrones.css">
+     <link rel="stylesheet" href="../../css/listarUsuarios.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap">
 </head>
 <body>
-    <h2 class="titulo">🛰️ Listado de Drones</h2>
+    <h1 class="titulo">🛰️ Listado de Drones</h1>
 
-    <div class="buscador-container">
-        <form method="get" action="">
+    <div class="contenedor">
+        <form method="get" class="busqueda-form">
             <input type="text" name="buscar" placeholder="🔍 Buscar por marca, modelo ..." value="<?= htmlspecialchars($_GET['buscar'] ?? '') ?>">
             <button type="submit">Buscar</button>
         </form>
-    </div>
 
-    <?php if (mysqli_num_rows($consulta) > 0): ?>
-        <div class="tabla-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Marca</th>
-                        <th>Modelo</th>
-                        <th>N.º Serie</th>
-                        <th>Tipo</th>
-                        <th>Estado</th>
-                        <th>Vuelos</th>
-                        <th>Parcela</th>
-                        <th>Tarea asignada</th>
-                        <th>Responsable</th>
-                        <th>Fecha</th>
-                        <th>Hora</th>
-                        <th>Estado Trabajo</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php while ($fila = mysqli_fetch_assoc($consulta)): ?>
+        <?php if (mysqli_num_rows($consulta) > 0): ?>
+            <div class="tabla-responsive">
+                <table>
+                    <thead>
                         <tr>
-                            <td><?= htmlspecialchars($fila['marca']) ?></td>
-                            <td><?= htmlspecialchars($fila['modelo']) ?></td>
-                            <td><?= htmlspecialchars($fila['numero_serie']) ?></td>
-                            <td><?= ucfirst($fila['tipo']) ?></td>
-                            <td class="estado <?= str_replace(' ', '-', strtolower($fila['estado'])) ?>">
-                                <?= ucfirst($fila['estado']) ?>
-                            </td>
-                            <td><?= $fila['numero_vuelos'] ?></td>
-                            <td><?= htmlspecialchars($fila['parcela'] ?? 'Sin asignar') ?></td>
-                            <td><?= htmlspecialchars($fila['tarea'] ?? 'Sin tarea') ?></td>
-                            <td><?= htmlspecialchars($fila['usuario_nombre'] . ' ' . $fila['usuario_apellidos']) ?></td>
-                            <td><?= $fila['fecha'] ?? '---' ?></td>
-                            <td><?= $fila['hora'] ?? '---' ?></td>
-                            <td><?= ucfirst($fila['estado_general'] ?? '---') ?></td>
+                            <th>Marca</th>
+                            <th>Modelo</th>
+                            <th>N.º Serie</th>
+                            <th>Tipo</th>
+                            <th>Estado</th>
+                            <th>Vuelos</th>
+                            <th>Parcela</th>
+                            <th>Tarea asignada</th>
+                            <th>Responsable</th>
+                            <th>Fecha</th>
+                            <th>Hora</th>
+                            <th>Estado Trabajo</th>
                         </tr>
-                    <?php endwhile; ?>
-                </tbody>
-            </table>
-        </div>
-    <?php else: ?>
-        <div class='modal error'><p>❌ No se encontraron resultados.</p></div>
-    <?php endif; ?>
+                    </thead>
+                    <tbody>
+                        <?php while ($fila = mysqli_fetch_assoc($consulta)): ?>
+                            <tr>
+                                <td><?= htmlspecialchars($fila['marca']) ?></td>
+                                <td><?= htmlspecialchars($fila['modelo']) ?></td>
+                                <td><?= htmlspecialchars($fila['numero_serie']) ?></td>
+                                <td><?= ucfirst($fila['tipo']) ?></td>
+                                <td class="estado <?= str_replace(' ', '-', strtolower($fila['estado'])) ?>">
+                                    <?= ucfirst($fila['estado']) ?>
+                                </td>
+                                <td><?= $fila['numero_vuelos'] ?></td>
+                                <td><?= htmlspecialchars($fila['parcela'] ?? 'Sin asignar') ?></td>
+                                <td><?= htmlspecialchars($fila['tarea'] ?? 'Sin tarea') ?></td>
+                                <td><?= htmlspecialchars($fila['usuario_nombre'] . ' ' . $fila['usuario_apellidos']) ?></td>
+                                <td><?= $fila['fecha'] ?? '---' ?></td>
+                                <td><?= $fila['hora'] ?? '---' ?></td>
+                                <td><?= ucfirst($fila['estado_general'] ?? '---') ?></td>
+                            </tr>
+                        <?php endwhile; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php else: ?>
+            <div class="mensaje-error">
+                ❌ No se encontraron resultados.
+            </div>
+        <?php endif; ?>
 
-    <div class="volver-contenedor">
-        <a href="../../menu/drones.php" class="btn btn-secundario">⬅ Volver al menú</a>
+        <a href="../../menu/drones.php" class="btn">⬅ Volver al menú</a>
     </div>
 </body>
 </html>

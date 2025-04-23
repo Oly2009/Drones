@@ -1,38 +1,50 @@
-<!DOCTYPE html>
 <?php
-    include '../lib/functiones.php';
-    session_start();
+include '../lib/functiones.php';
+session_start();
 ?>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Menú de parcelas - AgroSky</title>
-    <link rel="stylesheet" href="../css/menu.css">
-</head>
-<body>
-<?php
-if (isset($_SESSION['usuario'])) {
-?>
-    <h1>📏 MENÚ PARCELAS</h1>
+<div class="d-flex flex-column min-vh-100">
+  <?php include '../componentes/header.php'; ?>
 
-    <div class="botonera">
-        <a href="../fun/agregar/agr_parcelas.php" class="btn">➕ Añadir parcelas</a>
-        <a href="../fun/modificar/mod_parcelas.php" class="btn">✏️ Modificar parcela</a>
-        <a href="../fun/eliminar/eli_parcelas.php" class="btn">🗑️ Eliminar parcelas</a>
-        <a href="../fun/listar/ver_parcelas.php" class="btn">📍 Agregar ruta</a>
-        <a href="../menu/menu.php" class="btn">🔙 Volver al menú</a>
-    </div>
+  <main class="flex-grow-1 bg-light-green text-center py-4">
+    <?php if (isset($_SESSION['usuario'])): ?>
+      <section class="container">
+        <h1 class="fw-bold mb-5 fs-1" style="color: #2c3e50;">
+          <i class="bi bi-tree-fill me-2" style="color: #00b894;"></i> MENÚ PARCELAS
+        </h1>
 
-    <div class="imagen-menu">
-        <img src="../img/drones-agricultura.jpeg" alt="Drones en agricultura">
-    </div>
-<?php
-} else {
-    echo "<p class='mensaje-error'>⛔ Acceso denegado</p>";
-    echo '<div class="botonera"><a href="../index.php" class="btn">🔙 Volver</a></div>';
-    session_destroy();
-}
-?>
-</body>
-</html>
+        <div class="btn-container d-flex flex-wrap justify-content-center">
+          <a href="../fun/agregar/agr_parcelas.php" class="btn custom-btn shadow rounded-pill px-4 py-2">
+            <i class="bi bi-plus-circle-fill me-2 text-success"></i>Añadir
+          </a>
+          <a href="../fun/modificar/mod_parcelas.php" class="btn custom-btn shadow rounded-pill px-4 py-2">
+            <i class="bi bi-pencil-square me-2 text-warning"></i>Modificar
+          </a>
+          <a href="../fun/eliminar/eli_parcelas.php" class="btn custom-btn shadow rounded-pill px-4 py-2">
+            <i class="bi bi-trash-fill me-2 text-danger"></i>Eliminar
+          </a>
+          <a href="../fun/listar/ver_parcelas.php" class="btn custom-btn shadow rounded-pill px-4 py-2">
+            <i class="bi bi-geo-alt-fill me-2 text-primary"></i>Agregar ruta
+          </a>
+          <a href="../menu/menu.php" class="btn btn-danger shadow rounded-pill px-4 py-2">
+            <i class="bi bi-arrow-left-circle-fill me-2"></i>Volver
+          </a>
+        </div>
+
+        <div class="image-container px-2">
+          <img src="../img/drones-agricultura.jpeg"
+               alt="Drones en agricultura" class="img-fluid rounded shadow">
+        </div>
+      </section>
+    <?php else: ?>
+      <div class="alert alert-danger">⛔ Acceso denegado</div>
+      <div class="text-center mt-4">
+        <a href='../index.php' class='btn btn-danger btn-lg rounded-pill px-4'>
+          <i class="bi bi-arrow-left-circle me-2"></i>Volver
+        </a>
+      </div>
+      <?php if (session_status() === PHP_SESSION_ACTIVE) session_destroy(); ?>
+    <?php endif; ?>
+  </main>
+
+  <?php include '../componentes/footer.php'; ?>
+</div>

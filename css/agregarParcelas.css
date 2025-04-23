@@ -1,186 +1,221 @@
-/* Estilo general */
-body {
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+* {
     margin: 0;
     padding: 0;
-    font-family: 'Segoe UI', sans-serif;
-    background-color: #eef7eb;
-}
-
-/* Título */
-.titulo-principal {
-    text-align: center;
-    font-size: 1.5rem;
-    margin: 1rem 0 2rem;
-    color: #2e7d32;
-    font-weight: bold;
-}
-
-/* Botón de ayuda */
-.icono-ayuda {
-    position: fixed;
-    top: 15px;
-    right: 20px;
-    color: #2e7d32;
-    font-size: 1.6rem;
-    text-decoration: none;
-    z-index: 999;
-}
-
-/* Contenedor del formulario */
-.formulario-contenedor {
-    background: #fff;
-    width: 95%;
-    max-width: 1500px;
-    margin: 0 auto 1rem;
-    padding: 1rem 1rem;
-    border-radius: 10px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.08);
     box-sizing: border-box;
 }
 
-/* Campos */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-size: 100% 100%;
+    background-color: #f1f8e9;
+    padding: 40px;
+    color: #1b5e20;
+}
+
+h1.titulo, .titulo-principal h2 {
+    text-align: center;
+    color: #388e3c;
+    margin-top: 20px;
+    margin-bottom: 40px;
+    font-size: 2.5rem;
+}
+
+.contenedor, .formulario-mapa-wrapper {
+    width: 95%;
+    max-width: 1400px;
+    margin: 0 auto;
+    background: #ffffffee;
+    padding: 35px;
+    border-radius: 20px;
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.05);
+}
+
+.formulario-mapa-wrapper {
+    display: flex;
+    justify-content: space-between;
+    gap: 30px;
+    flex-wrap: wrap;
+    margin-bottom: 40px;
+    align-items: flex-start;
+}
+
+.formulario-lado {
+    flex: 1;
+    min-width: 320px;
+    max-width: 600px;
+}
+
+.mapa-lado {
+    flex: 1;
+    min-width: 320px;
+    display: flex;
+    flex-direction: column;
+}
+
+.mapa-informacion {
+    margin-bottom: 10px;
+    background-color: #f1f8e9;
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid #c8e6c9;
+    font-size: 0.95rem;
+    color: #2e7d32;
+}
+
+.mapa-informacion strong {
+    display: inline-block;
+    width: 140px;
+    color: #1b5e20;
+}
+
+#map {
+    width: 100%;
+    height: 450px;
+    border: 2px solid #c8e6c9;
+    border-radius: 15px;
+    margin-top: 10px;
+}
+
 .campo-form {
-    margin-bottom: 1rem;
+    margin-bottom: 15px;
 }
 
 .campo-form label {
-    font-weight: bold;
-    color: #2e7d32;
     display: block;
-    margin-bottom: 0.5rem;
+    font-weight: 600;
+    margin-bottom: 5px;
 }
 
-.campo-busqueda {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+.campo-form input[type="text"],
+.campo-form input[type="number"],
+.campo-form textarea {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #a5d6a7;
+    border-radius: 10px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    background-color: #f1f8e9;
 }
 
-.campo-busqueda input[type="text"] {
-    flex: 1;
-    padding: 0.5rem;
-    border: 1px solid #a5d6a7;
-    border-radius: 8px;
-    
+.campo-form input[readonly] {
+    background-color: #e8f5e9;
+    font-weight: 600;
+    color: #2e7d32;
 }
 
 .boton-buscar {
+    padding: 10px 16px;
     background-color: #66bb6a;
     color: white;
+    font-weight: bold;
     border: none;
-    padding: 0.5rem 1.1rem;
     border-radius: 8px;
     cursor: pointer;
-    font-weight: bold;
-    transition: background 0.3s;
+    margin-top: 10px;
 }
 
 .boton-buscar:hover {
     background-color: #388e3c;
 }
 
-.texto-coordenadas {
-    display: inline-block;
-    margin-top: 0.3rem;
-    color: #33691e;
-    
-}
-
-/* Botones */
 .botones-form {
     display: flex;
     justify-content: center;
+    margin-top: 20px;
     gap: 20px;
-    flex-wrap: wrap;
-    margin-top: 1 rem;
 }
 
-.boton-principal,
-.boton-secundario,
-.boton {
+.boton-principal {
     background-color: #66bb6a;
     color: white;
     border: none;
-    padding: 0.4rem 1.2rem;
-    border-radius: 10px;
+    padding: 12px 30px;
+    border-radius: 12px;
     font-weight: bold;
     cursor: pointer;
-    font-size: 1rem;
-    transition: background 0.3s;
-    min-width: 120px;
-    text-align: center;
+    transition: background-color 0.3s ease;
 }
 
-.boton-secundario {
-    background-color: #81c784;
-}
-
-.boton-principal:hover,
-.boton-secundario:hover,
-.boton:hover {
+.boton-principal:hover {
     background-color: #388e3c;
 }
 
-/* Contenedor del mapa */
-.mapa-contenedor {
-    width: 95%;
-    max-width: 1500px;
-    margin: 0 auto 1rem;
+.boton-secundario {
+    background-color: #ffffff;
+    color: #388e3c;
     border: 2px solid #a5d6a7;
-    border-radius: 10px;
-    overflow: hidden;
-    height: 485px;
+    padding: 12px 30px;
+    border-radius: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
 }
 
-/* ID del mapa */
-#map {
-    width: 100%;
-    height: 100%;
-}
-
-/* Mensajes */
-.mensaje-error,
-.mensaje-exito {
-    width: 95%;
-    max-width: 1000px;
-    margin: 2rem auto;
-    padding: 1.5rem;
-    border-radius: 10px;
-    box-sizing: border-box;
-}
-
-.mensaje-error {
-    background-color: #ffcdd2;
-    color: #b71c1c;
-}
-
-.mensaje-exito {
+.boton-secundario:hover {
     background-color: #c8e6c9;
+}
+
+.icono-ayuda {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    font-size: 1.5rem;
+    color: #66bb6a;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.icono-ayuda:hover {
+    color: #388e3c;
+}
+
+.texto-coordenadas {
+    display: block;
+    font-weight: 600;
+    padding: 6px 10px;
+    background-color: #e8f5e9;
+    border-radius: 10px;
+    margin-top: 5px;
+    font-size: 0.95rem;
     color: #1b5e20;
+    border: 1px solid #c8e6c9;
 }
 
-.mensaje-error h3,
-.mensaje-exito h2 {
-    margin-top: 0;
+.modal {
+    text-align: center;
+    padding: 20px;
+    margin: 20px auto;
+    border-radius: 15px;
+    max-width: 700px;
+    font-weight: bold;
 }
 
-/* Responsive */
-@media screen and (max-width: 768px) {
-    .formulario-contenedor {
-        padding: 1rem;
-    }
+.modal.exito {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border: 2px solid #66bb6a;
+}
 
-    .campo-busqueda {
+.modal.error {
+    background-color: #ffebee;
+    color: #c62828;
+    border: 2px solid #e57373;
+}
+
+@media (max-width: 768px) {
+    .formulario-mapa-wrapper {
         flex-direction: column;
-        align-items: stretch;
     }
 
     .botones-form {
         flex-direction: column;
-        align-items: center;
     }
 
-    .mapa-contenedor {
-        height: 350px;
+    .boton-principal,
+    .boton-secundario {
+        width: 100%;
     }
 }

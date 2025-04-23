@@ -4,126 +4,135 @@ DROP DATABASE IF EXISTS agricultura;
 CREATE DATABASE agricultura CHARACTER SET utf8mb4 COLLATE=utf8mb4_spanish_ci;
 USE agricultura;
 
--- Tabla de Roles
+-- Eliminar y recrear la base de datos
+DROP DATABASE IF EXISTS agricultura;
+CREATE DATABASE agricultura CHARACTER SET utf8mb4 COLLATE utf8mb4_spanish_ci;
+USE agricultura;
+
+-- Crear tabla: roles
 CREATE TABLE roles (
-  id_rol INT AUTO_INCREMENT PRIMARY KEY,
-  nombre_rol VARCHAR(20) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
+  id_rol INT(11) NOT NULL AUTO_INCREMENT,
+  nombre_rol VARCHAR(20) NOT NULL,
+  PRIMARY KEY (id_rol)
+);
 
--- Insertar roles
-INSERT INTO roles (nombre_rol) VALUES 
-('Admin'), 
-('Piloto');
+INSERT INTO roles (id_rol, nombre_rol) VALUES
+(1, 'Admin'),
+(2, 'Piloto');
 
--- Tabla de Usuarios
+-- Crear tabla: usuarios
 CREATE TABLE usuarios (
-  id_usr INT AUTO_INCREMENT PRIMARY KEY,
+  id_usr INT(11) NOT NULL AUTO_INCREMENT,
   nombre VARCHAR(50) NOT NULL,
   apellidos VARCHAR(100) NOT NULL,
   contrasena VARCHAR(100) NOT NULL,
   telefono VARCHAR(12) NOT NULL,
-  email VARCHAR(50) NOT NULL UNIQUE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
+  email VARCHAR(50) NOT NULL UNIQUE,
+  PRIMARY KEY (id_usr)
+);
 
--- Tabla de Usuarios-Roles (N:M)
+
+
+-- Crear tabla: usuarios_roles
 CREATE TABLE usuarios_roles (
-  id_usr INT NOT NULL,
-  id_rol INT NOT NULL,
+  id_usr INT(11) NOT NULL,
+  id_rol INT(11) NOT NULL,
   PRIMARY KEY (id_usr, id_rol),
   FOREIGN KEY (id_usr) REFERENCES usuarios(id_usr) ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (id_rol) REFERENCES roles(id_rol) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+INSERT INTO usuarios_roles (id_usr, id_rol) VALUES
+
+
+
+CREATE TABLE `parcelas` (
+  `id_parcela` INT(11) NOT NULL AUTO_INCREMENT,
+  `nombre` VARCHAR(100) DEFAULT NULL, -- Nombre corto o identificador de la parcela
+  `ubicacion` VARCHAR(150) NOT NULL,  -- Dirección más detallada
+  `tipo_cultivo` VARCHAR(100) DEFAULT NULL, -- Tipo de cultivo: trigo, maíz, olivar, etc.
+  `area_m2` DECIMAL(10,2) DEFAULT NULL, -- Superficie estimada en metros cuadrados
+  `latitud` DECIMAL(10,8) DEFAULT NULL,
+  `longitud` DECIMAL(11,8) DEFAULT NULL,
+  `fichero` VARCHAR(100) NOT NULL, -- Archivo GeoJSON
+  `estado` ENUM('activa','inactiva','en descanso') DEFAULT 'activa', -- Estado de la parcela
+  `fecha_registro` DATETIME DEFAULT CURRENT_TIMESTAMP, -- Registro de alta
+  `observaciones` TEXT DEFAULT NULL, -- Notas adicionales
+  PRIMARY KEY (`id_parcela`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
 
--- Tabla de Tareas
-CREATE TABLE tareas (
-  id_tarea INT AUTO_INCREMENT PRIMARY KEY,
-  nombre_tarea VARCHAR(20) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
 
--- Insertar tareas base
-INSERT INTO tareas (nombre_tarea) VALUES 
-('Sembrar'), 
-('Abonar'), 
-('Fumigar');
+-- (Aquí puedes insertar todos los datos de parcelas que compartiste...)
 
--- Tabla de Parcelas
-CREATE TABLE parcelas (
-  id_parcela INT AUTO_INCREMENT PRIMARY KEY,
-  ubicacion VARCHAR(100) NOT NULL,
-  fichero VARCHAR(100) NOT NULL,
-  latitud DECIMAL(10,8),
-  longitud DECIMAL(11,8)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
-
--- Tabla intermedia: Parcelas - Usuarios (1:N)
+-- Crear tabla: parcelas_usuarios
 CREATE TABLE parcelas_usuarios (
-  id_usr INT NOT NULL,
-  id_parcela INT NOT NULL,
-  PRIMARY KEY (id_usr),
+  id_usr INT(11) NOT NULL,
+  id_parcela INT(11) NOT NULL,
+  PRIMARY KEY (id_usr, id_parcela),
   FOREIGN KEY (id_usr) REFERENCES usuarios(id_usr) ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (id_parcela) REFERENCES parcelas(id_parcela) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
+);
 
--- Tabla de Drones
+-- Crear tabla: tareas
+CREATE TABLE tareas (
+  id_tarea INT(11) NOT NULL AUTO_INCREMENT,
+  nombre_tarea VARCHAR(20) NOT NULL,
+  PRIMARY KEY (id_tarea)
+);
+
+INSERT INTO tareas (id_tarea, nombre_tarea) VALUES
+(1, 'Sembrar'),
+(2, 'Abonar'),
+(3, 'Fumigar');
+
+-- Crear tabla: drones
 CREATE TABLE drones (
-  id_dron INT AUTO_INCREMENT PRIMARY KEY,
+  id_dron INT(11) NOT NULL AUTO_INCREMENT,
   marca VARCHAR(30) NOT NULL,
   modelo VARCHAR(30) NOT NULL,
   numero_serie VARCHAR(50) NOT NULL UNIQUE,
-  tipo VARCHAR(30) NOT NULL,
-  id_usr INT DEFAULT NULL,
-  id_parcela INT DEFAULT NULL,
-  id_tarea INT NOT NULL,
-  estado ENUM('disponible', 'en uso', 'en reparación', 'fuera de servicio') DEFAULT 'disponible',
-  numero_vuelos INT DEFAULT 0,
+  tipo ENUM('eléctrico','gasolina','híbrido','otro') NOT NULL,
+  id_usr INT(11) DEFAULT NULL,
+  id_parcela INT(11) DEFAULT NULL,
+  id_tarea INT(11) NOT NULL,
+  estado ENUM('disponible','en uso','en reparación','fuera de servicio') DEFAULT 'disponible',
+  numero_vuelos INT(11) DEFAULT 0,
+  PRIMARY KEY (id_dron),
   FOREIGN KEY (id_usr) REFERENCES usuarios(id_usr) ON DELETE SET NULL ON UPDATE CASCADE,
   FOREIGN KEY (id_parcela) REFERENCES parcelas(id_parcela) ON DELETE SET NULL ON UPDATE CASCADE,
-  FOREIGN KEY (id_tarea) REFERENCES tareas(id_tarea) ON DELETE RESTRICT ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
+  FOREIGN KEY (id_tarea) REFERENCES tareas(id_tarea) ON UPDATE CASCADE
+);
 
--- Tabla de Rutas
+-- Crear tabla: ruta
 CREATE TABLE ruta (
-  id_ruta INT AUTO_INCREMENT PRIMARY KEY,
+  id_ruta INT(11) NOT NULL AUTO_INCREMENT,
   latitud DECIMAL(10,8) NOT NULL,
   longitud DECIMAL(11,8) NOT NULL,
-  id_parcela INT NOT NULL,
+  id_parcela INT(11) NOT NULL,
+  PRIMARY KEY (id_ruta),
   FOREIGN KEY (id_parcela) REFERENCES parcelas(id_parcela) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
+);
 
--- Tabla de Trabajos
+-- Crear tabla: trabajos
 CREATE TABLE trabajos (
-  id_trabajo INT AUTO_INCREMENT PRIMARY KEY,
+  id_trabajo INT(11) NOT NULL AUTO_INCREMENT,
   fecha DATE DEFAULT NULL,
   hora TIME DEFAULT NULL,
-  id_dron INT DEFAULT NULL,
-  id_parcela INT NOT NULL,
-  id_usr INT DEFAULT NULL,
+  id_dron INT(11) DEFAULT NULL,
+  id_parcela INT(11) NOT NULL,
+  id_usr INT(11) DEFAULT NULL,
   estado_general ENUM('pendiente','en curso','finalizado') DEFAULT 'pendiente',
+  PRIMARY KEY (id_trabajo),
   FOREIGN KEY (id_dron) REFERENCES drones(id_dron) ON DELETE SET NULL ON UPDATE CASCADE,
   FOREIGN KEY (id_parcela) REFERENCES parcelas(id_parcela) ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (id_usr) REFERENCES usuarios(id_usr) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
+);
 
--- Tabla de relación trabajos - tareas (N:M)
+-- Crear tabla: trabajos_tareas
 CREATE TABLE trabajos_tareas (
-  id_trabajo INT NOT NULL,
-  id_tarea INT NOT NULL,
+  id_trabajo INT(11) NOT NULL,
+  id_tarea INT(11) NOT NULL,
   PRIMARY KEY (id_trabajo, id_tarea),
   FOREIGN KEY (id_trabajo) REFERENCES trabajos(id_trabajo) ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (id_tarea) REFERENCES tareas(id_tarea) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
-
--- Vista para evitar asignar tareas distintas a drones
-CREATE VIEW vista_tarea_invalida AS
-SELECT t.id_trabajo, d.id_dron, tt.id_tarea, d.id_tarea AS tarea_dron
-FROM trabajos t
-JOIN trabajos_tareas tt ON t.id_trabajo = tt.id_trabajo
-JOIN drones d ON d.id_dron = t.id_dron
-WHERE tt.id_tarea != d.id_tarea;
-
--- Vista para trabajos activos por dron
-CREATE VIEW vista_trabajos_activos AS
-SELECT id_dron, COUNT(*) AS trabajos_activos
-FROM trabajos
-WHERE estado_general != 'finalizado'
-GROUP BY id_dron;
+);

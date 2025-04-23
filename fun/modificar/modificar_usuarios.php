@@ -24,6 +24,7 @@ if (!$esAdmin) {
 }
 
 $mensaje = "";
+$tipo = "";
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["usuario"], $_POST["rol"], $_POST["parcela"])) {
     $idUsuario = intval($_POST["usuario"]);
     $nuevoRol = intval($_POST["rol"]);
@@ -37,9 +38,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["usuario"], $_POST["ro
         mysqli_query($conexion, "INSERT INTO parcelas_usuarios (id_usr, id_parcela) VALUES ($idUsuario, $nuevaParcela)");
         mysqli_commit($conexion);
         $mensaje = "✅ Usuario actualizado correctamente.";
+        $tipo = "exito";
     } catch (Exception $e) {
         mysqli_rollback($conexion);
         $mensaje = "❌ Error al modificar: " . $e->getMessage();
+        $tipo = "error";
     }
 }
 
@@ -68,10 +71,6 @@ $parcelasArray = mysqli_query($conexion, "SELECT * FROM parcelas");
 <body>
 
 <h1>👤 Modificar Usuarios</h1>
-
-<?php if (!empty($mensaje)): ?>
-    <div class="mensaje-exito"><?= htmlspecialchars($mensaje) ?></div>
-<?php endif; ?>
 
 <div class="formulario-cuenta">
     <form class="busqueda-form" onsubmit="event.preventDefault();">
@@ -134,6 +133,14 @@ $parcelasArray = mysqli_query($conexion, "SELECT * FROM parcelas");
     <a href="../../menu/usuarios.php" class="btn">🔙 Volver al menú de usuarios</a>
 </div>
 
+<!-- Modal de mensaje -->
+<div id="alertModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:999; justify-content:center; align-items:center;">
+    <div id="alertBox" style="background:white; padding:30px 40px; border-radius:15px; text-align:center; max-width:500px; box-shadow:0 0 15px rgba(0,0,0,0.3); border:2px solid;">
+        <p id="alertText" style="font-weight:bold; font-size:1rem; margin-bottom:20px;"></p>
+        <button id="alertCerrar" class="btn">Cerrar</button>
+    </div>
+</div>
+
 <script>
 document.getElementById('buscarUsuario')?.addEventListener('input', function () {
     const filtro = this.value.toLowerCase();
@@ -143,6 +150,33 @@ document.getElementById('buscarUsuario')?.addEventListener('input', function () 
         fila.style.display = texto.includes(filtro) ? '' : 'none';
     });
 });
+
+// Mostrar mensaje si hay
+window.onload = function () {
+    const msg = <?= json_encode($mensaje) ?>;
+    const tipo = <?= json_encode($tipo) ?>;
+    if (msg) {
+        const alertBox = document.getElementById("alertModal");
+        const alertText = document.getElementById("alertText");
+        const alertInner = document.getElementById("alertBox");
+
+        alertText.textContent = msg;
+
+        if (tipo === 'exito') {
+            alertInner.style.borderColor = "#66bb6a";
+            alertText.style.color = "#2e7d32";
+        } else {
+            alertInner.style.borderColor = "#e57373";
+            alertText.style.color = "#c62828";
+        }
+
+        alertBox.style.display = "flex";
+    }
+
+    document.getElementById("alertCerrar").onclick = function () {
+        document.getElementById("alertModal").style.display = "none";
+    };
+};
 </script>
 
 </body>

@@ -15,7 +15,6 @@ session_start();
 </head>
 <body>
 
-<!-- Icono de ayuda -->
 <a href="../fun/ayuda/instrucciones.php?origen=ver_parcelas.php" class="icono-ayuda" title="Ayuda">
     <i class="bi bi-question-circle"></i>
 </a>
@@ -61,8 +60,8 @@ if (isset($_SESSION['usuario'])) {
             echo "<div class='contenedor-flex'>";
 
             echo "<div class='bloque'>";
-            echo "<div class='tabla-contenedor'><table><tr><th>ID Parcela</th><th>Ubicación</th></tr>";
-            echo "<tr><td>{$resultado['id_parcela']}</td><td>{$resultado['ubicacion']}</td></tr></table></div>";
+            echo "<div class='tabla-contenedor'><table><tr><th>Ubicación</th></tr>";
+            echo "<tr><td>{$resultado['ubicacion']}</td></tr></table></div>";
 
             if ($hayRutas) {
                 echo "<div class='info-ruta existente'><h3>Ruta existente</h3><p>Esta parcela ya tiene una ruta definida. Si agregas una nueva, reemplazará la actual.</p></div>";
@@ -72,29 +71,27 @@ if (isset($_SESSION['usuario'])) {
             echo "</div>"; 
             echo "<div class='bloque'><div id='map'></div></div>";
             echo "</div>";
+
             echo "<form action='ruta.php' id='mi_formulario' method='post'>";
             echo "<input type='hidden' name='parcela' value='{$parcela}'>";
             echo "<input type='hidden' id='vacio' name='vacio' value='0'>";
-            echo "<div class='botones-globales'>";
-            echo "<input type='submit' name='ruta' value='Guardar nueva ruta' class='boton-ancho-total'>";
 
-            echo "</div>";
+            echo "<div class='fila-botones'>";
+            echo "<input type='submit' name='ruta' value='Guardar nueva ruta' class='boton-ancho-total'>";
             echo "</form>";
 
-            echo "<div class='volver-form'>
-                    <form action='ver_parcelas.php' method='post'>
-                        <input type='submit' value='Seleccionar otra parcela'>
-                    </form>
-                    <form action='../../menu/parcelas.php' method='post'>
-                        <input type='submit' value='Volver'>
-                    </form>
-                </div>";
+            echo "<form action='ver_parcelas.php' method='post'>
+                    <input type='submit' value='Seleccionar otra parcela' class='boton-ancho-total'>
+                  </form>";
+            echo "<form action='../../menu/parcelas.php' method='post'>
+                    <input type='submit' value='Volver' class='boton-ancho-total'>
+                  </form>";
+            echo "</div>";
 
             echo "<script>
 let puntosSeleccionados = 0;
 let map = L.map('map').setView([40.24, -3.7038], 6);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
-
 setTimeout(() => map.invalidateSize(), 100);
 ";
 
@@ -110,8 +107,7 @@ setTimeout(() => map.invalidateSize(), 100);
                 weight: 3,
                 opacity: 0.7,
                 dashArray: '5, 10'
-            }).addTo(map);
-";
+            }).addTo(map);";
 
             if ($hayRutas) {
                 echo "let rutaExistente = [";
@@ -157,37 +153,57 @@ rutaExistente.forEach((p, i) => {
 </script>";
         }
     } else {
-        // listado de parcelas
-        $sql = $esAdmin ?
-            "SELECT p.*, (SELECT COUNT(*) FROM ruta r WHERE r.id_parcela = p.id_parcela) as tiene_ruta FROM parcelas p" :
-            "SELECT p.*, (SELECT COUNT(*) FROM ruta r WHERE r.id_parcela = p.id_parcela) as tiene_ruta FROM parcelas p INNER JOIN parcelas_usuarios pu ON p.id_parcela = pu.id_parcela WHERE pu.id_usr = '$idUsr'";
+        echo "<div class='titulo-principal'><h2>Listado de parcelas</h2></div>";
+
+        echo "<div class='buscador'>
+                <form method='post'>
+                    <input type='text' name='busqueda' placeholder='Buscar ubicación...' class='input-busqueda'>
+                    <input type='submit' name='buscar' value='Buscar' class='boton-buscar'>
+                </form>
+              </div>";
+
+        $busqueda = isset($_POST['busqueda']) ? trim($_POST['busqueda']) : '';
+
+        $sql = ($busqueda !== '') ?
+            ($esAdmin ?
+                "SELECT p.*, (SELECT COUNT(*) FROM ruta r WHERE r.id_parcela = p.id_parcela) as tiene_ruta 
+                 FROM parcelas p WHERE p.ubicacion LIKE '%$busqueda%'" :
+                "SELECT p.*, (SELECT COUNT(*) FROM ruta r WHERE r.id_parcela = p.id_parcela) as tiene_ruta 
+                 FROM parcelas p INNER JOIN parcelas_usuarios pu ON p.id_parcela = pu.id_parcela 
+                 WHERE pu.id_usr = '$idUsr' AND p.ubicacion LIKE '%$busqueda%'") :
+            ($esAdmin ?
+                "SELECT p.*, (SELECT COUNT(*) FROM ruta r WHERE r.id_parcela = p.id_parcela) as tiene_ruta FROM parcelas p" :
+                "SELECT p.*, (SELECT COUNT(*) FROM ruta r WHERE r.id_parcela = p.id_parcela) as tiene_ruta 
+                 FROM parcelas p INNER JOIN parcelas_usuarios pu ON p.id_parcela = pu.id_parcela 
+                 WHERE pu.id_usr = '$idUsr'");
 
         $consulta = mysqli_query($conexion, $sql);
 
-        echo "<div class='titulo-principal'><h2>Listado de parcelas</h2></div>";
+        echo "<div class='caja-contenedora'>";
         echo "<div class='tabla-contenedor'><table>";
-        echo "<tr><th>ID</th><th>Ubicación</th><th>Ruta</th><th>Acciones</th></tr>";
+        echo "<tr><th>Ubicación</th><th>Ruta</th><th>Acciones</th></tr>";
 
         if (mysqli_num_rows($consulta) > 0) {
             while ($fila = mysqli_fetch_array($consulta)) {
                 $estadoRuta = $fila['tiene_ruta'] > 0 ? "✅ Sí" : "❌ No";
                 echo "<tr>
-                        <td>{$fila['id_parcela']}</td>
                         <td>{$fila['ubicacion']}</td>
                         <td>$estadoRuta</td>
                         <td>
                             <form method='post'>
                                 <input type='hidden' name='parcela' value='{$fila['id_parcela']}'>
-                                <input type='submit' name='ver' value='Ver / Modificar'>
+                                <input type='submit' name='ver' value='Ver / Modificar' class='btn-ver'>
                             </form>
                         </td>
                       </tr>";
             }
         } else {
-            echo "<tr><td colspan='4'>No hay parcelas disponibles</td></tr>";
+            echo "<tr><td colspan='3'>No hay parcelas disponibles</td></tr>";
         }
 
         echo "</table></div>";
+        echo "</div>";
+
         echo "<div class='volver-form'>
                 <form action='../../menu/parcelas.php' method='post'>
                     <input type='submit' value='Volver al menú'>

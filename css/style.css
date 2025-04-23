@@ -1,0 +1,126 @@
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  height: 100%;
+}
+
+html {
+  height: 100%;
+  margin: 0;
+}
+
+/*************HEADER*******************/
+header .dropdown-toggle {
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+header .dropdown-menu {
+  min-width: 180px;
+}
+
+/*************MENU*******************/
+.welcome-title {
+  margin-top: 2.5rem;
+  margin-bottom: 2.5rem;
+  font-size: 2.5rem;
+}
+
+.btn-container {
+  gap: 1.2rem;
+  margin-bottom: 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.custom-btn {
+  background-color: #218838 !important;
+  color: white !important;
+  font-weight: bold;
+  font-size: 1.05rem;
+  transition: transform 0.2s ease-in-out;
+  padding: 0.75rem 2rem;
+  border-radius: 50px;
+  min-width: 180px;
+  text-align: center;
+}
+
+.custom-btn:hover {
+  transform: scale(1.05);
+  background-color: #1a7030 !important;
+}
+
+/* Iconos de los botones con colores distintos */
+.custom-btn i.bi-people-fill {
+  color: #007bff;
+}
+.custom-btn i.bi-tree-fill {
+  color: #17a2b8;
+}
+.custom-btn i.bi-clipboard2-check-fill {
+  color: #fd7e14;
+}
+.custom-btn i.bi-airplane-engines-fill {
+  color: #6f42c1;
+}
+
+.image-container {
+  width: 95%;
+  margin: 1rem auto 0.5rem auto;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.image-container img {
+  width: 100%;
+  height: auto;
+  max-height: 480px;
+  object-fit: cover;
+  display: block;
+}
+/* Para pantallas grandes: una sola fila de botones */
+@media (min-width: 992px) {
+  .btn-container {
+    flex-wrap: nowrap;
+    justify-content: center;
+  }
+
+  .custom-btn {
+    width: auto !important;
+    min-width: 200px;
+  }
+}
+
+/* Para pantallas pequeñas: columna y ancho como la imagen */
+@media (max-width: 991px) {
+  .btn-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .custom-btn {
+    padding: 0.6rem 1.5rem;
+    font-size: 0.95rem;
+    width: 95% !important;
+    margin-bottom: 0.5rem;
+  }
+}
+
+  .welcome-title {
+    font-size: 2rem;
+  }
+
+
+footer {
+  margin-top: auto;
+  padding: 1rem 0 0.5rem 0;
+  background-color: #2e7d32;
+  color: white;
+  text-align: center;
+}
+
+   /*************LISTAR*******************/
+   

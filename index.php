@@ -5,7 +5,9 @@ session_start();
 $error = "";
 
 if (isset($_POST['enviar'])) {
-    $correo = trim($_POST['usu']);
+    $conexion = conectar();
+
+    $correo = mysqli_real_escape_string($conexion, trim($_POST['usu']));
     $password = trim($_POST['con']);
 
     if (empty($correo) || empty($password)) {
@@ -14,8 +16,7 @@ if (isset($_POST['enviar'])) {
         $error = "❌ El formato del correo no es válido.";
     } else {
         $hash = base64_encode(hash('sha256', $password, true));
-        $conexion = conectar();
-        $sql = "SELECT * FROM usuarios WHERE email = '$correo' AND contrasena = '$hash'";
+        $sql = "select * from usuarios where email = '$correo' and contrasena = '$hash'";
         $resultado = mysqli_query($conexion, $sql);
 
         if (mysqli_num_rows($resultado) === 1) {
@@ -28,7 +29,6 @@ if (isset($_POST['enviar'])) {
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -76,7 +76,6 @@ if (isset($_POST['enviar'])) {
             </form>
 
             <a href="./fun/recuperar.php">🔁 Recuperar contraseña</a>
-
         </div>
     </div>
 
