@@ -6,6 +6,7 @@ $conexion = conectar();
 if (!isset($_SESSION['usuario'])) {
     echo '⛔ Acceso denegado';
     session_destroy();
+    header('Location: ../index.php');
     exit();
 }
 
@@ -15,156 +16,143 @@ $rolQuery = "SELECT r.nombre_rol FROM usuarios_roles ur JOIN roles r ON ur.id_ro
 $rolResult = mysqli_query($conexion, $rolQuery);
 $rol = mysqli_fetch_assoc($rolResult)['nombre_rol'];
 
-// Solicitud AJAX para actualizar datos
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['usuarioId'])) {
-    header('Content-Type: application/json');
+$consultaUsuario = "SELECT * FROM usuarios WHERE id_usr = '$idUsuario'";
+$resultadoUsuario = mysqli_query($conexion, $consultaUsuario);
+$datosUsuario = mysqli_fetch_assoc($resultadoUsuario);
 
-    $usuarioId = mysqli_real_escape_string($conexion, $_POST['usuarioId']);
-    $nombre = mysqli_real_escape_string($conexion, $_POST['nuevoNombre']);
-    $apellidos = mysqli_real_escape_string($conexion, $_POST['nuevoApellidos']);
-    $telefono = mysqli_real_escape_string($conexion, $_POST['nuevoTelefono']);
-    $email = mysqli_real_escape_string($conexion, $_POST['nuevoEmail']);
-    $contraNueva = $_POST['conNuev'];
-    $confirmacion = $_POST['confirmCon'];
+$consultaParcela = "SELECT p.ubicacion FROM parcelas p INNER JOIN parcelas_usuarios pu ON p.id_parcela = pu.id_parcela WHERE pu.id_usr = '$idUsuario'";
+$resultadoParcela = mysqli_query($conexion, $consultaParcela);
+$datosParcela = mysqli_fetch_assoc($resultadoParcela);
 
-    $errores = [];
+$mensajeJS = "";
 
-    if (!preg_match('/^[0-9]{9}$/', $telefono)) {
-        $errores[] = "El teléfono debe tener exactamente 9 números.";
-    }
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['actualizar'])) {
+    $nuevaContrasena = $_POST['nuevaContrasena'];
+    $confirmarContrasena = $_POST['confirmarContrasena'];
 
-    if ($rol === 'Admin' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $errores[] = "Formato de email inválido.";
-    }
+    if (!empty($nuevaContrasena)) {
+        if ($nuevaContrasena !== $confirmarContrasena) {
+            $mensajeJS = "error|Las contraseñas no coinciden.";
+        } else {
+            $hashNueva = base64_encode(hash('sha256', $nuevaContrasena, true));
+            $consulta = "UPDATE usuarios SET contrasena='$hashNueva' WHERE id_usr='$idUsuario'";
 
-    if (!empty($contraNueva) && $contraNueva !== $confirmacion) {
-        $errores[] = "Las contraseñas no coinciden.";
-    }
-
-    if (!empty($errores)) {
-        echo json_encode(['mensaje' => implode(" ", $errores)]);
-        exit();
-    }
-
-    $campos = [
-        "nombre='$nombre'",
-        "apellidos='$apellidos'",
-        "telefono='$telefono'"
-    ];
-
-    if ($rol === 'Admin') {
-        $campos[] = "email='$email'";
-    }
-
-    if (!empty($contraNueva) && $contraNueva === $confirmacion) {
-        $hashNueva = base64_encode(hash('sha256', $contraNueva, true));
-        $campos[] = "contrasena='$hashNueva'";
-    }
-
-    $consulta = "UPDATE usuarios SET " . implode(", ", $campos) . " WHERE id_usr='$usuarioId'";
-
-    if (mysqli_query($conexion, $consulta)) {
-        echo json_encode(['mensaje' => '✅ Datos actualizados correctamente']);
+            if (mysqli_query($conexion, $consulta)) {
+                $mensajeJS = "success|Contraseña actualizada correctamente.";
+            } else {
+                $mensajeJS = "error|Error al actualizar la contraseña.";
+            }
+        }
     } else {
-        echo json_encode(['mensaje' => '❌ Error al actualizar los datos: ' . mysqli_error($conexion)]);
+        $mensajeJS = "error|Debes introducir una nueva contraseña.";
     }
-    exit();
 }
-
-// Consultar usuarios
-$termino = $_POST['buscador'] ?? '';
-$usuariosQuery = $rol === 'Admin' ? 
-    ($termino ? "SELECT * FROM usuarios WHERE nombre LIKE '%$termino%' OR email LIKE '%$termino%'" : "SELECT * FROM usuarios") : 
-    "SELECT * FROM usuarios WHERE id_usr = '$idUsuario'";
-$usuariosResult = mysqli_query($conexion, $usuariosQuery);
 ?>
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>🔐 Configuración de Cuenta - AgroSky</title>
-    <link rel="stylesheet" href="../css/cuenta.css">
-</head>
-<body>
-    <h1>🔐 GESTIÓN DE CUENTA</h1>
+<?php include '../componentes/header.php'; ?>
+<link rel="stylesheet" href="../../css/style.css">
 
-    <div class="formulario-cuenta wide">
-        <?php if ($rol === 'Admin'): ?>
-            <form method="post" class="buscador">
-                <input type="text" id="buscador" name="buscador" placeholder="Buscar usuario">
-                <button type="submit">Buscar</button>
-            </form>
-        <?php endif; ?>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Apellidos</th>
-                    <th>Email</th>
-                    <th>Teléfono</th>
-                    <th>Nueva Contraseña</th>
-                    <th>Confirmar Contraseña</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody id="usuariosTabla">
-                <?php while ($row = mysqli_fetch_assoc($usuariosResult)): ?>
-                    <tr>
-                        <td><input type="text" value="<?= htmlspecialchars($row['nombre']) ?>" name="nuevoNombre"></td>
-                        <td><input type="text" value="<?= htmlspecialchars($row['apellidos']) ?>" name="nuevoApellidos"></td>
-                        <td><input type="email" value="<?= htmlspecialchars($row['email']) ?>" <?= $rol !== 'Admin' ? 'readonly' : '' ?> name="nuevoEmail"></td>
-                        <td><input type="tel" maxlength="9" value="<?= htmlspecialchars($row['telefono']) ?>" name="nuevoTelefono"></td>
-                        <td><input type="password" name="conNuev"></td>
-                        <td><input type="password" name="confirmCon"></td>
-                        <td>
-                            <button class="btn-actualizar" onclick="actualizarUsuario(this, <?= $row['id_usr'] ?>)">Actualizar</button>
-                        </td>
-                    </tr>
-                <?php endwhile; ?>
-            </tbody>
-        </table>
-        <a href="../menu/menu.php" class="btn">🔙 Volver al menú</a>
-    </div>
 
-    <div id="modal" class="modal" style="display:none;">
-        <div class="modal-content">
-            <p id="modalMensaje"></p>
-            <button class="close-modal" onclick="cerrarModal()">Cerrar</button>
+<main class="cuenta py-5">
+  <h1 class="titulo-listado text-center mb-4">
+    <i class="bi bi-person-gear me-2" style="color:#9ccc65;"></i>Configuración de cuenta
+  </h1>
+
+  <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="POST" class="formulario-cuenta" autocomplete="off">
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+      <!-- Columna izquierda -->
+      <div class="col">
+        <label class="form-label">Nombre</label>
+        <div class="input-group mb-3">
+          <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
+          <input type="text" class="form-control" readonly value="<?php echo htmlspecialchars($datosUsuario['nombre']); ?>">
         </div>
+
+        <label class="form-label">Apellidos</label>
+        <div class="input-group mb-3">
+          <span class="input-group-text"><i class="bi bi-person-badge-fill"></i></span>
+          <input type="text" class="form-control" readonly value="<?php echo htmlspecialchars($datosUsuario['apellidos']); ?>">
+        </div>
+
+        <label class="form-label">Correo electrónico</label>
+        <div class="input-group mb-3">
+          <span class="input-group-text"><i class="bi bi-envelope-fill"></i></span>
+          <input type="text" class="form-control" readonly value="<?php echo htmlspecialchars($datosUsuario['email']); ?>">
+        </div>
+
+        <label class="form-label">Teléfono</label>
+        <div class="input-group mb-3">
+          <span class="input-group-text"><i class="bi bi-telephone-fill"></i></span>
+          <input type="text" class="form-control" readonly value="<?php echo htmlspecialchars($datosUsuario['telefono']); ?>">
+        </div>
+      </div>
+
+      <!-- Columna derecha -->
+      <div class="col">
+        <label class="form-label">Parcela asignada</label>
+        <div class="input-group mb-3">
+          <span class="input-group-text"><i class="bi bi-geo-alt-fill"></i></span>
+          <input type="text" class="form-control" readonly value="<?php echo $datosParcela ? htmlspecialchars($datosParcela['ubicacion']) : 'Sin parcela asignada'; ?>">
+        </div>
+
+        <label for="nuevaContrasena" class="form-label">Nueva contraseña</label>
+        <div class="input-group mb-3">
+          <span class="input-group-text"><i class="bi bi-key-fill"></i></span>
+          <input type="password" id="nuevaContrasena" name="nuevaContrasena" class="form-control" placeholder="••••••••" required autocomplete="new-password">
+          <span class="input-group-text password-toggle" onclick="togglePassword('nuevaContrasena', this)"><i class="bi bi-eye-slash-fill"></i></span>
+        </div>
+
+        <label for="confirmarContrasena" class="form-label">Confirmar nueva contraseña</label>
+        <div class="input-group mb-3">
+          <span class="input-group-text"><i class="bi bi-shield-lock-fill"></i></span>
+          <input type="password" id="confirmarContrasena" name="confirmarContrasena" class="form-control" placeholder="••••••••" required autocomplete="new-password">
+          <span class="input-group-text password-toggle" onclick="togglePassword('confirmarContrasena', this)"><i class="bi bi-eye-slash-fill"></i></span>
+        </div>
+      </div>
     </div>
 
+    <div class="text-center mt-4 d-flex justify-content-center gap-3">
+        <a href="menu.php" class="btn btn-danger px-4">Volver</a>
+      <button type="submit" name="actualizar" value="1" class="btn btn-success px-4">Actualizar contraseña</button>
+    </div>
+  </form>
+</main>
+
+<?php include '../componentes/footer.php'; ?>
+
+<?php if (!empty($mensajeJS)): ?>
 <script>
-function actualizarUsuario(btn, usuarioId) {
-    event.preventDefault();
-    let fila = btn.closest('tr');
-    let datos = new FormData();
-    datos.append('usuarioId', usuarioId);
-    datos.append('nuevoNombre', fila.querySelector('[name=nuevoNombre]').value);
-    datos.append('nuevoApellidos', fila.querySelector('[name=nuevoApellidos]').value);
-    datos.append('nuevoEmail', fila.querySelector('[name=nuevoEmail]').value);
-    datos.append('nuevoTelefono', fila.querySelector('[name=nuevoTelefono]').value);
-    datos.append('conNuev', fila.querySelector('[name=conNuev]').value);
-    datos.append('confirmCon', fila.querySelector('[name=confirmCon]').value);
+  document.addEventListener('DOMContentLoaded', function () {
+    const mensaje = <?php echo json_encode($mensajeJS); ?>.split('|');
+    Swal.fire({
+      icon: mensaje[0],
+      title: mensaje[0] === 'success' ? '¡Éxito!' : 'Error',
+      text: mensaje[1],
+      confirmButtonColor: '#218838',
+      showClass: {
+        popup: 'animate__animated animate__fadeInDown'
+      },
+      hideClass: {
+        popup: 'animate__animated animate__fadeOutUp'
+      }
+    });
+  });
 
-    fetch('', { 
-        method: 'POST',
-        body: datos
-    })
-    .then(resp => resp.json())
-    .then(res => mostrarModal(res.mensaje))
-    .catch(err => mostrarModal('Error inesperado'));
-}
-
-function mostrarModal(mensaje) {
-    document.getElementById('modalMensaje').textContent = mensaje;
-    document.getElementById('modal').style.display = 'flex';
-}
-
-function cerrarModal() {
-    document.getElementById('modal').style.display = 'none';
-}
+  function togglePassword(id, el) {
+    const input = document.getElementById(id);
+    const icon = el.querySelector('i');
+    if (input.type === "password") {
+      input.type = "text";
+      icon.classList.remove("bi-eye-slash-fill");
+      icon.classList.add("bi-eye-fill");
+    } else {
+      input.type = "password";
+      icon.classList.remove("bi-eye-fill");
+      icon.classList.add("bi-eye-slash-fill");
+    }
+  }
 </script>
+<?php endif; ?>
 </body>
 </html>

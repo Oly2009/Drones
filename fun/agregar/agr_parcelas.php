@@ -3,6 +3,7 @@ include '../../lib/functiones.php';
 session_start();
 
 include '../../componentes/header.php'; ?>
+<link rel="stylesheet" href="../../css/style.css">
 <?php
 if (isset($_SESSION['usuario'])) {
     if (isset($_POST['anhadir'])) {
@@ -257,9 +258,9 @@ echo $mensajeExito;
                     <textarea id="observaciones" name="observaciones" rows="3" class="form-control"></textarea>
                 </div>
                 <input type="hidden" name="geojson" id="geojson">
-                <div class="d-flex justify-content-end gap-2">
-                    <a href="../../menu/parcelas.php" class="btn btn-outline-success">Volver</a>
-                    <input type="submit" name="anhadir" value="Insertar parcela" class="btn btn-success">
+                <div class="text-center mt-4 d-flex justify-content-center gap-3">
+                    <a href="../../menu/parcelas.php"" class="btn btn-danger px-4">Volver</a>
+                <input type="submit" name="anhadir" value="Insertar parcela" class="btn btn-success">
                 </div>
             </div>
         </div>

@@ -24,87 +24,86 @@ $trabajos_q = "SELECT t.fecha, t.hora, t.estado_general, p.ubicacion AS parcela,
 $trabajos = mysqli_query($con, $trabajos_q);
 ?>
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Listado de trabajos</title>
-     <link rel="stylesheet" href="../../css/listarUsuarios.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body>
-    <h1 class="titulo">📋 Listado de todos los trabajos</h1>
+    <link rel="stylesheet" href="../../css/style.css">
+   
+<body class="d-flex flex-column min-vh-100">
+<?php include '../../componentes/header.php'; ?>
 
-    <div class="contenedor">
-        <form class="busqueda-form" onsubmit="event.preventDefault(); filtrarTabla();">
-            <input type="text" id="filtro" placeholder="🔍 Buscar por cualquier campo...">
-            <button type="submit">Buscar</button>
-        </form>
+<main class="flex-grow-1 container py-5">
+  <section>
+    <h1 class="titulo-listado">
+      <i class="bi bi-journal-text me-2" style="color: #6f42c1;"></i>Listado de Trabajos
+    </h1>
 
-        <div class="tabla-responsive">
-            <table id="tablaTrabajos">
-                <thead>
-                    <tr>
-                        <th>Fecha</th>
-                        <th>Hora</th>
-                        <th>Parcela</th>
-                        <th>Marca/Modelo</th>
-                        <th>Nº Serie</th>
-                        <th>Tarea(s)</th>
-                        <th>Usuario</th>
-                        <th>Estado</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php while ($trabajo = mysqli_fetch_assoc($trabajos)) { ?>
-                        <tr>
-                            <td><?= $trabajo['fecha'] ?></td>
-                            <td><?= $trabajo['hora'] ?></td>
-                            <td><?= $trabajo['parcela'] ?></td>
-                            <td><?= $trabajo['dron'] . ' ' . $trabajo['modelo'] ?></td>
-                            <td><?= $trabajo['numero_serie'] ?></td>
-                            <td><?= $trabajo['tareas'] ?></td>
-                            <td>
-                                <?= $trabajo['nombre_usuario'] ? htmlspecialchars($trabajo['nombre_usuario'] . ' ' . $trabajo['apellidos_usuario']) : 'Desconocido' ?>
-                            </td>
-                            <td>
-                                <span class="estado-<?= strtolower(str_replace(' ', '-', $trabajo['estado_general'])) ?>">
-                                    <?= ucfirst($trabajo['estado_general']) ?>
-                                </span>
-                            </td>
-                        </tr>
-                    <?php } ?>
-                </tbody>
-            </table>
-        </div>
+    <form class="busqueda-form d-flex" onsubmit="event.preventDefault(); filtrarTabla();">
+      <input type="text" id="filtro" class="form-control me-2" placeholder="🔍 Buscar por cualquier campo...">
+      <button type="submit" class="btn btn-success">Buscar</button>
+    </form>
 
-        <div id="mensajeNoResultados" class="sin-resultados" style="display: none;">
-            ❌ No se encontraron resultados.
-        </div>
-
-        <a href="../../menu/trabajos.php" class="btn">⬅ Volver</a>
+    <div class="table-responsive">
+      <table id="tablaTrabajos" class="table align-middle">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Parcela</th>
+            <th>Marca/Modelo</th>
+            <th>Nº Serie</th>
+            <th>Tarea(s)</th>
+            <th>Usuario</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php while ($trabajo = mysqli_fetch_assoc($trabajos)) { ?>
+          <tr>
+            <td><?= $trabajo['fecha'] ?></td>
+            <td><?= $trabajo['hora'] ?></td>
+            <td><?= $trabajo['parcela'] ?></td>
+            <td><?= $trabajo['dron'] . ' ' . $trabajo['modelo'] ?></td>
+            <td><?= $trabajo['numero_serie'] ?></td>
+            <td><?= $trabajo['tareas'] ?></td>
+            <td><?= $trabajo['nombre_usuario'] ? htmlspecialchars($trabajo['nombre_usuario'] . ' ' . $trabajo['apellidos_usuario']) : 'Desconocido' ?></td>
+            <td><span class="estado-<?= strtolower(str_replace(' ', '-', $trabajo['estado_general'])) ?>"><?= ucfirst($trabajo['estado_general']) ?></span></td>
+          </tr>
+          <?php } ?>
+        </tbody>
+      </table>
     </div>
 
-    <script>
-    function filtrarTabla() {
-        const input = document.getElementById("filtro").value.toLowerCase();
-        const filas = document.querySelectorAll("#tablaTrabajos tbody tr");
-        let coincidencias = 0;
+    <div id="mensajeNoResultados" class="alert alert-warning text-center mt-4" style="display: none;">
+      ❌ No se encontraron resultados.
+    </div>
 
-        filas.forEach(fila => {
-            let textoFila = '';
-            fila.querySelectorAll('td').forEach(td => {
-                textoFila += td.innerText.toLowerCase() + ' ';
-            });
+    <div class="text-center mt-4">
+      <a href="../../menu/trabajos.php" class="btn btn-danger rounded-pill px-4">
+        <i class="bi bi-arrow-left-circle me-2"></i>Volver al menú de trabajos
+      </a>
+    </div>
+  </section>
+</main>
 
-            const coincide = textoFila.includes(input);
-            fila.style.display = coincide ? "" : "none";
-            if (coincide) coincidencias++;
-        });
+<?php include '../../componentes/footer.php'; ?>
+<script>
+function filtrarTabla() {
+  const input = document.getElementById("filtro").value.toLowerCase();
+  const filas = document.querySelectorAll("#tablaTrabajos tbody tr");
+  let coincidencias = 0;
 
-        const mensaje = document.getElementById("mensajeNoResultados");
-        mensaje.style.display = coincidencias === 0 ? "block" : "none";
-    }
-    </script>
+  filas.forEach(fila => {
+    let textoFila = '';
+    fila.querySelectorAll('td').forEach(td => {
+      textoFila += td.innerText.toLowerCase() + ' ';
+    });
+
+    const coincide = textoFila.includes(input);
+    fila.style.display = coincide ? "" : "none";
+    if (coincide) coincidencias++;
+  });
+
+  const mensaje = document.getElementById("mensajeNoResultados");
+  mensaje.style.display = coincidencias === 0 ? "block" : "none";
+}
+</script>
 </body>
 </html>

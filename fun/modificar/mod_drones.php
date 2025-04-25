@@ -3,247 +3,159 @@ include '../../lib/functiones.php';
 session_start();
 
 if (!isset($_SESSION['usuario'])) {
-    $_SESSION['mensaje'] = "Acceso denegado";
-    $_SESSION['tipo'] = "error";
     header("Location: ../../index.php");
     exit();
 }
 
-$conexion = conectar();
-$idUsr = $_SESSION['usuario']['id_usr'];
+function eliminarUsuario($id_usuario) {
+    $conexion = conectar();
+    mysqli_begin_transaction($conexion);
 
-$esAdmin = false;
-$rolCheck = mysqli_query($conexion, "select id_rol from usuarios_roles where id_usr = $idUsr");
-while ($rol = mysqli_fetch_assoc($rolCheck)) {
-    if ($rol['id_rol'] == 1) {
-        $esAdmin = true;
-        break;
-    }
-}
+    try {
+        mysqli_query($conexion, "DELETE FROM usuarios_roles WHERE id_usr = $id_usuario");
+        mysqli_query($conexion, "DELETE FROM parcelas_usuarios WHERE id_usr = $id_usuario");
 
-if (!$esAdmin) {
-    $_SESSION['mensaje'] = "Acceso denegado. Solo los administradores pueden modificar drones.";
-    $_SESSION['tipo'] = "error";
-    header("Location: ../menu.php");
-    exit();
-}
-
-$mensaje = '';
-$tipo = '';
-
-if (isset($_SESSION['mensaje'])) {
-    $mensaje = $_SESSION['mensaje'];
-    $tipo = $_SESSION['tipo'];
-    unset($_SESSION['mensaje'], $_SESSION['tipo']);
-}
-
-if (isset($_POST['confirmar_modificacion'])) {
-    $id_dron = intval($_POST['id_dron']);
-
-    $res = mysqli_query($conexion, "select estado from drones where id_dron = $id_dron");
-    $actual = mysqli_fetch_assoc($res);
-    $estado_actual = $actual['estado'];
-
-    if ($estado_actual == 'en uso') {
-        $_SESSION['mensaje'] = "🚫 No se puede modificar un dron que está en uso actualmente.";
-        $_SESSION['tipo'] = "error";
-    } elseif ($estado_actual == 'fuera de servicio') {
-        $_SESSION['mensaje'] = "⚠ Este dron está fuera de servicio y no se puede modificar.";
-        $_SESSION['tipo'] = "error";
-    } else {
-        $estado = $_POST['estado'];
-        $id_parcela = intval($_POST['parcela']);
-        $id_tarea = intval($_POST['tarea']);
-
-        $query = "update drones set estado = '$estado', id_parcela = $id_parcela, id_tarea = $id_tarea where id_dron = $id_dron";
-        if (mysqli_query($conexion, $query)) {
-            $_SESSION['mensaje'] = "✅ Dron actualizado correctamente.";
-            $_SESSION['tipo'] = "exito";
-        } else {
-            $_SESSION['mensaje'] = "❌ Error al actualizar el dron.";
-            $_SESSION['tipo'] = "error";
+        $drones = [];
+        $consultaDrones = mysqli_query($conexion, "SELECT id_dron FROM drones WHERE id_usr = $id_usuario");
+        while ($row = mysqli_fetch_assoc($consultaDrones)) {
+            $drones[] = $row['id_dron'];
         }
-    }
 
-    header("Location: mod_drones.php");
+        if (!empty($drones)) {
+            $idsDrones = implode(",", $drones);
+            mysqli_query($conexion, "DELETE tt FROM trabajos_tareas tt INNER JOIN trabajos t ON tt.id_trabajo = t.id_trabajo WHERE t.id_dron IN ($idsDrones)");
+            mysqli_query($conexion, "DELETE FROM trabajos WHERE id_dron IN ($idsDrones)");
+        }
+
+        mysqli_query($conexion, "UPDATE drones SET id_usr = NULL WHERE id_usr = $id_usuario");
+        mysqli_query($conexion, "DELETE FROM usuarios WHERE id_usr = $id_usuario");
+
+        mysqli_commit($conexion);
+        return ['success' => true, 'mensaje' => '✅ Usuario eliminado correctamente. Drones desvinculados.'];
+    } catch (Exception $e) {
+        mysqli_rollback($conexion);
+        return ['success' => false, 'mensaje' => '❌ Error al eliminar usuario: ' . $e->getMessage()];
+    }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_usuario'])) {
+    $resultado = eliminarUsuario(intval($_POST['id_usuario']));
+    $_SESSION['mensaje'] = $resultado['mensaje'];
+    $_SESSION['mensaje_tipo'] = $resultado['success'] ? 'exito' : 'error';
+    header('Location: ' . $_SERVER['PHP_SELF']);
     exit();
 }
 
-$drones = mysqli_query($conexion, "select * from drones");
-$parcelas = mysqli_query($conexion, "select * from parcelas");
-$tareas = mysqli_query($conexion, "select * from tareas");
+$conexion = conectar();
+$usuarios = mysqli_query($conexion, "
+    SELECT u.id_usr, u.nombre, u.apellidos, u.email, u.telefono,
+        (SELECT GROUP_CONCAT(r.nombre_rol SEPARATOR ', ') FROM usuarios_roles ur JOIN roles r ON ur.id_rol = r.id_rol WHERE ur.id_usr = u.id_usr AND ur.id_rol != 1) AS rol,
+        (SELECT GROUP_CONCAT(p.ubicacion SEPARATOR ', ') FROM parcelas_usuarios pu JOIN parcelas p ON pu.id_parcela = p.id_parcela WHERE pu.id_usr = u.id_usr) AS parcelas
+    FROM usuarios u
+    WHERE u.id_usr NOT IN (SELECT id_usr FROM usuarios_roles WHERE id_rol = 1)
+");
 ?>
 
-<!DOCTYPE html>
-<html lang="es">
+
 <head>
-    <meta charset="UTF-8">
-    <title>Modificar Drones</title>
-    <link rel="stylesheet" href="../../css/listarUsuarios.css">
-    <script>
-        let droneEstados = {};
 
-        function filtrarTabla() {
-            let input = document.getElementById('buscar').value.toLowerCase();
-            let filas = document.querySelectorAll('tbody tr');
-            filas.forEach(fila => {
-                fila.style.display = fila.textContent.toLowerCase().includes(input) ? '' : 'none';
-            });
-        }
+  <title>👤 Eliminar Usuarios - AgroSky</title>
+  
+  <link rel="stylesheet" href="../../css/style.css">
 
-        function confirmarActualizacion(id) {
-            let estado = droneEstados[id];
-            const modal = document.getElementById("confirmModal");
-            const modalMsg = document.getElementById("confirmText");
-
-            if (estado === 'en uso') {
-                modalMsg.textContent = "🚫 No se puede modificar un dron que está en uso actualmente.";
-                document.getElementById("confirmAceptar").style.display = "none";
-            } else if (estado === 'fuera de servicio') {
-                modalMsg.textContent = "⚠ Este dron está fuera de servicio y no se puede modificar.";
-                document.getElementById("confirmAceptar").style.display = "none";
-            } else {
-                modalMsg.textContent = "¿Estás seguro de que quieres modificar este dron?";
-                document.getElementById("confirmAceptar").style.display = "inline-block";
-                document.getElementById("confirmAceptar").onclick = function () {
-                    document.getElementById('form_' + id).submit();
-                };
-            }
-
-            modal.style.display = "flex";
-        }
-
-        window.onload = function () {
-            document.getElementById("confirmCancelar").onclick = function () {
-                document.getElementById("confirmModal").style.display = "none";
-            };
-
-            // Mostrar modal de mensaje si existe
-            const msg = <?= json_encode($mensaje) ?>;
-            const tipo = <?= json_encode($tipo) ?>;
-            if (msg) {
-                const alertBox = document.getElementById("alertModal");
-                const alertText = document.getElementById("alertText");
-                const alertInner = document.getElementById("alertBox");
-
-                alertText.textContent = msg;
-
-                if (tipo === 'exito') {
-                    alertInner.style.borderColor = "#66bb6a";
-                    alertText.style.color = "#2e7d32";
-                } else {
-                    alertInner.style.borderColor = "#e57373";
-                    alertText.style.color = "#c62828";
-                }
-
-                alertBox.style.display = "flex";
-            }
-
-            document.getElementById("alertCerrar").onclick = function () {
-                document.getElementById("alertModal").style.display = "none";
-            };
-        };
-    </script>
 </head>
-<body>
-    <h1 class="titulo">Modificar Drones</h1>
+<body class="d-flex flex-column min-vh-100">
+<?php include '../../componentes/header.php'; ?>
 
-    <div class="tabla-container contenedor">
-        <form class="busqueda-form" onsubmit="event.preventDefault(); filtrarTabla();">
-            <input type="text" id="buscar" placeholder="Buscar por marca, modelo o serie...">
-            <button type="submit" class="btn">Buscar</button>
-        </form>
+<main class="container py-5 flex-grow-1">
+  <h1 class="titulo-listado text-center mb-4">
+    <i class="bi bi-person-x me-2"></i>Eliminar Usuarios
+  </h1>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Marca</th>
-                    <th>Modelo</th>
-                    <th>N.º Serie</th>
-                    <th>Estado</th>
-                    <th>Parcela</th>
-                    <th>Tarea</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php while ($dron = mysqli_fetch_assoc($drones)): ?>
-                    <?php
-                        $id = $dron['id_dron'];
-                        $estado = $dron['estado'];
-                        $esEnUso = $estado === 'en uso';
-                        $esFueraServicio = $estado === 'fuera de servicio';
-                        $disabled = ($esEnUso || $esFueraServicio) ? 'disabled' : '';
-                    ?>
-                    <script>droneEstados[<?= $id ?>] = '<?= $estado ?>';</script>
-                    <tr>
-                        <form id="form_<?= $id ?>" method="post">
-                            <input type="hidden" name="confirmar_modificacion" value="1">
-                            <input type="hidden" name="id_dron" value="<?= $id ?>">
-                            <td><?= htmlspecialchars($dron['marca']) ?></td>
-                            <td><?= htmlspecialchars($dron['modelo']) ?></td>
-                            <td><?= htmlspecialchars($dron['numero_serie']) ?></td>
-                            <td>
-                                <?php if ($esEnUso || $esFueraServicio): ?>
-                                    <span class="estado-fijo"><?= ucfirst($estado) ?></span>
-                                    <input type="hidden" name="estado" value="<?= $estado ?>">
-                                <?php else: ?>
-                                    <select name="estado">
-                                        <option value="disponible" <?= $estado == 'disponible' ? 'selected' : '' ?>>Disponible</option>
-                                        <option value="en reparación" <?= $estado == 'en reparación' ? 'selected' : '' ?>>En reparación</option>
-                                        <option value="fuera de servicio" <?= $estado == 'fuera de servicio' ? 'selected' : '' ?>>Fuera de servicio</option>
-                                    </select>
-                                <?php endif; ?>
-                            </td>
-                            <td>
-                                <select name="parcela" <?= $disabled ?>>
-                                    <?php mysqli_data_seek($parcelas, 0); ?>
-                                    <?php while ($parcela = mysqli_fetch_assoc($parcelas)): ?>
-                                        <option value="<?= $parcela['id_parcela'] ?>" <?= $parcela['id_parcela'] == $dron['id_parcela'] ? 'selected' : '' ?>>
-                                            <?= htmlspecialchars($parcela['ubicacion']) ?>
-                                        </option>
-                                    <?php endwhile; ?>
-                                </select>
-                            </td>
-                            <td>
-                                <select name="tarea" <?= $disabled ?>>
-                                    <?php mysqli_data_seek($tareas, 0); ?>
-                                    <?php while ($tarea = mysqli_fetch_assoc($tareas)): ?>
-                                        <option value="<?= $tarea['id_tarea'] ?>" <?= $tarea['id_tarea'] == $dron['id_tarea'] ? 'selected' : '' ?>>
-                                            <?= htmlspecialchars($tarea['nombre_tarea']) ?>
-                                        </option>
-                                    <?php endwhile; ?>
-                                </select>
-                            </td>
-                            <td>
-                                <button type="button" class="btn btn-secundario" onclick="confirmarActualizacion(<?= $id ?>)">Actualizar</button>
-                            </td>
-                        </form>
-                    </tr>
-                <?php endwhile; ?>
-            </tbody>
-        </table>
-    </div>
+  <form class="busqueda-form d-flex flex-column flex-md-row gap-2 mb-4 justify-content-center" onsubmit="event.preventDefault();">
+    <input type="text" class="form-control" placeholder="Buscar por nombre o correo" id="buscarUsuario">
+    <button class="btn btn-success" type="submit">Buscar</button>
+  </form>
 
-    <div class="volver-contenedor">
-        <a href="../../menu/drones.php" class="btn btn-secundario">Volver</a>
-    </div>
+  <div class="table-responsive">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Apellidos</th>
+          <th>Email</th>
+          <th>Teléfono</th>
+          <th>Rol</th>
+          <th>Parcelas</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php while ($u = mysqli_fetch_assoc($usuarios)): ?>
+        <tr>
+          <td><?= htmlspecialchars($u['nombre']) ?></td>
+          <td><?= htmlspecialchars($u['apellidos']) ?></td>
+          <td><?= htmlspecialchars($u['email']) ?></td>
+          <td><?= htmlspecialchars($u['telefono']) ?></td>
+          <td><?= htmlspecialchars($u['rol'] ?? 'Sin asignar') ?></td>
+          <td><?= htmlspecialchars($u['parcelas'] ?? 'Ninguna') ?></td>
+          <td>
+            <form method="post" class="form-eliminar">
+              <input type="hidden" name="id_usuario" value="<?= $u['id_usr'] ?>">
+              <button type="button" class="btn btn-outline-danger btn-sm" onclick="confirmarEliminacion(this)">Eliminar</button>
+            </form>
+          </td>
+        </tr>
+        <?php endwhile; ?>
+      </tbody>
+    </table>
+  </div>
 
-    <!-- Modal Confirmación -->
-    <div id="confirmModal">
-        <div class="modal-content">
-            <p id="confirmText">¿Estás seguro de que quieres modificar este dron?</p>
-            <button id="confirmAceptar" class="btn">Aceptar</button>
-            <button id="confirmCancelar" class="btn btn-secundario">Cancelar</button>
-        </div>
-    </div>
+  <div class="text-center mt-4">
+    <a href="../../menu/usuarios.php" class="btn btn-danger rounded-pill px-4">
+      <i class="bi bi-arrow-left-circle me-2"></i>Volver al menú de usuarios
+    </a>
+  </div>
+</main>
 
-    <!-- Modal de Mensajes -->
-    <div id="alertModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:999; justify-content:center; align-items:center;">
-        <div id="alertBox" style="background:white; padding:30px 40px; border-radius:15px; text-align:center; max-width:500px; box-shadow:0 0 15px rgba(0,0,0,0.3); border:2px solid;">
-            <p id="alertText" style="font-weight:bold; font-size:1rem; margin-bottom:20px;"></p>
-            <button id="alertCerrar" class="btn">Cerrar</button>
-        </div>
-    </div>
-</body>
-</html>
+<?php include '../../componentes/footer.php'; ?>
+
+<script>
+let formEliminar = null;
+
+function confirmarEliminacion(btn) {
+  formEliminar = btn.closest('form');
+  Swal.fire({
+    title: '¿Estás seguro?',
+    text: 'Esta acción no se puede deshacer.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: 'Sí, eliminar',
+    cancelButtonText: 'Cancelar'
+  }).then((result) => {
+    if (result.isConfirmed && formEliminar) {
+      formEliminar.submit();
+    }
+  });
+}
+
+document.getElementById('buscarUsuario').addEventListener('input', function () {
+  const filtro = this.value.toLowerCase();
+  document.querySelectorAll('.table tbody tr').forEach(fila => {
+    fila.style.display = fila.textContent.toLowerCase().includes(filtro) ? '' : 'none';
+  });
+});
+
+<?php if (isset($_SESSION['mensaje'])): ?>
+window.onload = function () {
+  Swal.fire({
+    title: <?= json_encode($_SESSION['mensaje_tipo'] === 'exito' ? '✅ Éxito' : '❌ Error') ?>,
+    text: <?= json_encode($_SESSION['mensaje']) ?>,
+    icon: <?= json_encode($_SESSION['mensaje_tipo'] === 'exito' ? 'success' : 'error') ?>,
+    confirmButtonColor: '#218838'
+  });
+};
+<?php unset($_SESSION['mensaje'], $_SESSION['mensaje_tipo']); endif; ?>
+</script>

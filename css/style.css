@@ -10,6 +10,131 @@ html {
   margin: 0;
 }
 
+
+
+/************* LOGIN INDEX *************/
+.index-body {
+  font-family: 'Poppins', sans-serif;
+  background: url('../img/index.png') no-repeat center center fixed;
+  background-size: cover;
+  color: #fff;
+}
+
+.bg-login {
+  background-color: transparent;
+}
+
+.login-form {
+  background-color: #1a1a1a;
+  border: 3px solid #218838;
+  padding: 3rem;
+  border-radius: 1rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  max-width: 400px;
+  width: 100%;
+}
+
+.login-form h2 {
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.login-form .form-control {
+  background-color: #1a1a1a;
+  color: #fff;
+  border: 1px solid #218838;
+}
+
+.login-form .form-control::placeholder {
+  color: #bbb;
+}
+
+.login-form .form-control:focus {
+  border-color: #1b5e20;
+  box-shadow: 0 0 0 0.2rem rgba(33, 136, 56, 0.25);
+  outline: none;
+}
+
+.login-form .input-group-text {
+  background-color: #218838;
+  color: white;
+  border: none;
+}
+
+.login-form .form-check-label {
+  color: #ccc;
+}
+
+.login-form .btn-success {
+  background-color: #218838;
+  border: none;
+}
+
+.login-form .btn-success:hover {
+  background-color: #1a7030;
+}
+
+.login-form a {
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.login-form a:hover {
+  color: #a9d6a3;
+}
+
+.logo-box {
+  margin-top: 1.5rem;
+  margin-left: 1rem;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.logo-box img {
+  width: 80px;
+  margin-bottom: 0.5rem;
+}
+
+.logo-box p {
+  display: flex;
+  align-items: center;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #2e7d32;
+}
+
+.logo-box p i {
+  font-size: 1.5rem;
+  color: #9ccc65;
+  margin-right: 0.5rem;
+}
+
+/* Responsive: para móvil */
+@media (max-width: 768px) {
+  .bg-img-login {
+    display: none;
+  }
+
+  .index-body {
+    background: url('../img/index.png') no-repeat center center fixed;
+    background-size: cover;
+  }
+
+  .logo-box {
+    align-items: center !important;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .login-form {
+    margin: 1rem auto;
+  }
+}
+
+
 /*************HEADER*******************/
 header .dropdown-toggle {
   border-radius: 8px;
@@ -122,5 +247,77 @@ footer {
   text-align: center;
 }
 
-   /*************LISTAR*******************/
-   
+   /*************LISTAR/MODIFICAR*******************/
+    .table thead th {
+        background-color: #a9d6a3;
+        color: #1b5e20;
+        font-weight: bold;
+        text-align: center;
+      }
+
+      .table {
+        border: 2px solid #2e7d32;
+        width: 100%;
+        background-color: white;
+      }
+
+      .table td, .table th {
+        border: 2px solid #2e7d32 !important;
+        padding: 0.75rem;
+      }
+
+      .table tbody tr td {
+        vertical-align: middle;
+      }
+
+      .table-responsive {
+        overflow-x: auto;
+      }
+
+      .titulo-listado {
+        text-align: center;
+        font-size: 2.5rem;
+        color: #1b5e20;
+        font-weight: bold;
+        margin-bottom: 2rem;
+      }
+
+      .busqueda-form {
+        max-width: 600px;
+        margin: 0 auto 2rem auto;
+      }
+      
+
+      /*************CUENTA*******************/
+      
+       .formulario-cuenta {
+    background-color: #ffffff;
+    color: #000;
+    padding: 2.5rem;
+    border-radius: 1rem;
+    border: 3px solid #218838;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .row-cols-2 > .col {
+    margin-bottom: 1rem;
+  }
+  .formulario-cuenta .form-control,
+  .formulario-cuenta .input-group-text {
+    border: 2px solid #218838 !important;
+    border-radius: 0.75rem;
+  }
+  .formulario-cuenta .form-control[readonly] {
+    background-color: #f3f3f3;
+    color: #000;
+  }
+  
+
+    .cuenta {
+    min-height: calc(100vh - 160px); 
+  }
+  .password-toggle {
+    cursor: pointer;
+    user-select: none;
+  }

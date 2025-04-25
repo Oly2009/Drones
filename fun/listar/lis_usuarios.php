@@ -2,9 +2,7 @@
 session_start();
 include '../../lib/functiones.php';
 ?>
-
- 
-</head>
+  <link rel="stylesheet" href="../../css/style.css">
 <body class="d-flex flex-column min-vh-100">
 <?php include '../../componentes/header.php'; ?>
 
@@ -51,18 +49,18 @@ if (isset($_SESSION['usuario'])) {
     ?>
 
     <section>
-        <h1 class="text-success fw-bold fs-2">
+        <h1 class="titulo-listado">
           <i class="bi bi-person-lines-fill me-2" style="color: #6f42c1;"></i>Listado de Usuarios
         </h1>
 
-        <form method="post" class="mb-5 d-flex justify-content-center">
+        <form method="post" class="busqueda-form d-flex">
             <input type="text" name="keywords" class="form-control me-2" placeholder="🔍 Buscar por nombre o apellidos" required>
             <button type="submit" name="buscar" class="btn btn-success"><i class="bi bi-search"></i> Buscar</button>
         </form>
 
         <?php if (mysqli_num_rows($resultado) > 0): ?>
         <div class="table-responsive">
-            <table class="table table-bordered align-middle bg-white">
+            <table class="table align-middle">
                 <thead>
                     <tr>
                         <th>Nombre</th>
@@ -88,7 +86,7 @@ if (isset($_SESSION['usuario'])) {
             </table>
         </div>
         <?php else: ?>
-            <div class="alert alert-warning">No se encontraron usuarios.</div>
+            <div class="alert alert-warning text-center">No se encontraron usuarios.</div>
         <?php endif; ?>
 
         <div class="text-center mt-4">
@@ -108,3 +106,5 @@ if (isset($_SESSION['usuario'])) {
 </main>
 
 <?php include '../../componentes/footer.php'; ?>
+</body>
+</html>
