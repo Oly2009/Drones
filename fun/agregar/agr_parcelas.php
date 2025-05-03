@@ -12,7 +12,12 @@ if (isset($_SESSION['usuario'])) {
         $idUsr = $_SESSION['usuario']['id_usr'];
         $errores = [];
 
-        // Validaciones del formulario
+        // Captura de datos adicionales del formulario
+        $nombre = trim($_POST['nombre'] ?? '');
+        $tipo_cultivo = trim($_POST['tipo_cultivo'] ?? '');
+        $observaciones = trim($_POST['observaciones'] ?? '');
+
+        // Validaciones básicas
         if ($ubicacion === "") {
             $errores[] = "Debes indicar una ubicación";
         }
@@ -25,7 +30,6 @@ if (isset($_SESSION['usuario'])) {
             foreach ($errores as $error) {
                 $erroresHtml .= "<li>$error</li>";
             }
-            // Mostramos un alert con los errores
             echo "<script>
                 document.addEventListener('DOMContentLoaded', function() {
                     Swal.fire({
@@ -96,8 +100,8 @@ if (isset($_SESSION['usuario'])) {
                 $area_m2 = calcularAreaM2($coordinates);
 
                 $conexion = conectar();
-                $stmt = $conexion->prepare("INSERT INTO parcelas (ubicacion, fichero, latitud, longitud, area_m2) VALUES (?, ?, ?, ?, ?)");
-                $stmt->bind_param("ssddd", $ubicacion, $nombreFichero, $latitud, $longitud, $area_m2);
+                $stmt = $conexion->prepare("INSERT INTO parcelas (nombre, ubicacion, tipo_cultivo, area_m2, latitud, longitud, fichero, observaciones) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt->bind_param("sssdddss", $nombre, $ubicacion, $tipo_cultivo, $area_m2, $latitud, $longitud, $nombreFichero, $observaciones);
                 $stmt->execute();
                 $id_parcela = $stmt->insert_id;
                 $stmt->close();
@@ -108,16 +112,13 @@ if (isset($_SESSION['usuario'])) {
                 $stmt2->close();
 
                 $mensajeExito = <<<HTML
+
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     Swal.fire({
         title: 'Parcela insertada correctamente',
-        html: `<ul class="text-start">
-            <li><strong>Ubicación:</strong> {$ubicacion}</li>
-            <li><strong>Área estimada:</strong> " . number_format($area_m2, 2) . " m²</li>
-            <li><strong>Coordenadas:</strong> Lat: " . number_format($latitud, 5) . " | Lon: " . number_format($longitud, 5) . "</li>
-            <li><strong>Archivo:</strong> <a href="{$directorioRelativo}{$nombreFichero}" target="_blank">{$nombreFichero}</a></li>
-        </ul>`,
+        text: 'La parcela ha sido registrada en el sistema con exito',
         icon: 'success',
         confirmButtonText: 'Continuar',
         confirmButtonColor: '#28a745'
@@ -127,6 +128,8 @@ document.addEventListener('DOMContentLoaded', function() {
 HTML;
 
 echo $mensajeExito;
+
+
 
            echo "
 <style>
@@ -222,50 +225,67 @@ echo $mensajeExito;
         }
     } else {
 ?>
-<div class="container py-5">
-    <h2 class="text-center mb-4">Agregar nueva parcela</h2>
-    <form action="agr_parcelas.php" method="post" onsubmit="return validarFormulario();">
-        <div class="row g-4">
-            <div class="col-md-6">
-                <label for="ubicacion" class="form-label fw-bold">Ubicación:</label>
-                <div class="d-flex">
-                    <input type="text" class="form-control me-2" id="ubicacion" name="ubicacion" placeholder="Calle, número, ciudad" onkeydown="if(event.key === 'Enter'){event.preventDefault(); buscarUbicacion();}">
-                    <button type="button" onclick="buscarUbicacion()" class="btn btn-success">Buscar</button>
-                </div>
-                <div class="bg-success-subtle p-3 mt-3 rounded">
-                    <strong>Dirección exacta:</strong>
-                    <div id="direccionExacta" class="mb-2"></div>
-                    <strong>Coordenadas:</strong>
-                    <div id="coordenadas"></div>
-                </div>
-                <div id="map" class="mt-4 rounded" style="height: 400px;"></div>
-            </div>
-            <div class="col-md-6">
-                <div class="mb-3">
-                    <label for="nombre" class="form-label fw-bold">Nombre:</label>
-                    <input type="text" id="nombre" name="nombre" class="form-control">
-                </div>
-                <div class="mb-3">
-                    <label for="tipo_cultivo" class="form-label fw-bold">Tipo de cultivo:</label>
-                    <input type="text" id="tipo_cultivo" name="tipo_cultivo" class="form-control">
-                </div>
-                <div class="mb-3">
-                    <label for="area_m2" class="form-label fw-bold">Área (m²):</label>
-                    <input type="number" id="area_m2" name="area_m2" step="0.01" class="form-control">
-                </div>
-                <div class="mb-3">
-                    <label for="observaciones" class="form-label fw-bold">Observaciones:</label>
-                    <textarea id="observaciones" name="observaciones" rows="3" class="form-control"></textarea>
-                </div>
-                <input type="hidden" name="geojson" id="geojson">
-                <div class="text-center mt-4 d-flex justify-content-center gap-3">
-                    <a href="../../menu/parcelas.php"" class="btn btn-danger px-4">Volver</a>
-                <input type="submit" name="anhadir" value="Insertar parcela" class="btn btn-success">
-                </div>
-            </div>
+
+<body class="d-flex flex-column min-vh-100">
+<main class="agregar-parcela py-2 flex-grow-1">
+  <h2 class="text-center text-success mb-4"><i class="bi bi-plus-circle-fill"></i> Agregar nueva parcela</h2>
+
+  <form action="agr_parcelas.php" method="post" onsubmit="return validarFormulario();">
+    <section class="contenedor-formulario container d-flex flex-wrap gap-4 justify-content-center">
+
+      <!-- Sección del mapa con buscador -->
+      <section style="flex: 1; min-width: 350px;">
+        <!-- Buscador arriba del mapa -->
+        <div class="d-flex mb-3">
+          <input type="text" class="form-control me-2" id="ubicacion" name="ubicacion" placeholder="Calle, número, ciudad" onkeydown="if(event.key === 'Enter'){event.preventDefault(); buscarUbicacion();}">
+          <button type="button" onclick="buscarUbicacion()" class="btn btn-success"><i class="bi bi-search"></i></button>
         </div>
-    </form>
-</div>
+
+        <div class="bg-success-subtle p-3 rounded mb-3">
+          <strong>📍 Dirección exacta:</strong>
+          <div id="direccionExacta" class="mb-2"></div>
+          <strong>🧭 Coordenadas:</strong>
+          <div id="coordenadas"></div>
+        </div>
+
+        <div id="map" class="rounded shadow-sm" style="height: 400px;"></div>
+      </section>
+
+      <!-- Formulario de datos -->
+      <section style="flex: 1; min-width: 350px;">
+        <div class="mb-3">
+          <label for="nombre" class="form-label fw-bold"><i class="bi bi-tag-fill text-info"></i> Nombre:</label>
+          <input type="text" id="nombre" name="nombre" class="form-control">
+        </div>
+
+        <div class="mb-3">
+          <label for="tipo_cultivo" class="form-label fw-bold"><i class="bi bi-seedling text-success"></i> Tipo de cultivo:</label>
+          <input type="text" id="tipo_cultivo" name="tipo_cultivo" class="form-control">
+        </div>
+
+        <div class="mb-3">
+          <label for="area_m2" class="form-label fw-bold"><i class="bi bi-bounding-box text-secondary"></i> Área (m²):</label>
+          <input type="number" id="area_m2" name="area_m2" step="0.01" class="form-control">
+        </div>
+
+        <div class="mb-3">
+          <label for="observaciones" class="form-label fw-bold"><i class="bi bi-pencil-square text-warning"></i> Observaciones:</label>
+          <textarea id="observaciones" name="observaciones" rows="3" class="form-control"></textarea>
+        </div>
+
+        <input type="hidden" name="geojson" id="geojson">
+
+        <div class="d-flex justify-content-center gap-3 mt-4">
+          <a href="../../menu/parcelas.php" class="btn btn-danger px-4"><i class="bi bi-arrow-left-circle"></i> Volver</a>
+          <button type="submit" name="anhadir" class="btn btn-success px-4"><i class="bi bi-plus-circle-fill"></i> Insertar parcela</button>
+        </div>
+      </section>
+
+    </section>
+  </form>
+</main>
+
+
 <script>
     
     
@@ -472,3 +492,4 @@ function validarFormulario() {
 }
 ?>
 <?php include '../../componentes/footer.php'; ?>
+</body>

@@ -4,11 +4,6 @@ DROP DATABASE IF EXISTS agricultura;
 CREATE DATABASE agricultura CHARACTER SET utf8mb4 COLLATE=utf8mb4_spanish_ci;
 USE agricultura;
 
--- Eliminar y recrear la base de datos
-DROP DATABASE IF EXISTS agricultura;
-CREATE DATABASE agricultura CHARACTER SET utf8mb4 COLLATE utf8mb4_spanish_ci;
-USE agricultura;
-
 -- Crear tabla: roles
 CREATE TABLE roles (
   id_rol INT(11) NOT NULL AUTO_INCREMENT,
@@ -31,8 +26,6 @@ CREATE TABLE usuarios (
   PRIMARY KEY (id_usr)
 );
 
-
-
 -- Crear tabla: usuarios_roles
 CREATE TABLE usuarios_roles (
   id_usr INT(11) NOT NULL,
@@ -42,27 +35,21 @@ CREATE TABLE usuarios_roles (
   FOREIGN KEY (id_rol) REFERENCES roles(id_rol) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-INSERT INTO usuarios_roles (id_usr, id_rol) VALUES
-
-
-
-CREATE TABLE `parcelas` (
-  `id_parcela` INT(11) NOT NULL AUTO_INCREMENT,
-  `nombre` VARCHAR(100) DEFAULT NULL, -- Nombre corto o identificador de la parcela
-  `ubicacion` VARCHAR(150) NOT NULL,  -- Dirección más detallada
-  `tipo_cultivo` VARCHAR(100) DEFAULT NULL, -- Tipo de cultivo: trigo, maíz, olivar, etc.
-  `area_m2` DECIMAL(10,2) DEFAULT NULL, -- Superficie estimada en metros cuadrados
-  `latitud` DECIMAL(10,8) DEFAULT NULL,
-  `longitud` DECIMAL(11,8) DEFAULT NULL,
-  `fichero` VARCHAR(100) NOT NULL, -- Archivo GeoJSON
-  `estado` ENUM('activa','inactiva','en descanso') DEFAULT 'activa', -- Estado de la parcela
-  `fecha_registro` DATETIME DEFAULT CURRENT_TIMESTAMP, -- Registro de alta
-  `observaciones` TEXT DEFAULT NULL, -- Notas adicionales
-  PRIMARY KEY (`id_parcela`)
+-- Crear tabla: parcelas
+CREATE TABLE parcelas (
+  id_parcela INT(11) NOT NULL AUTO_INCREMENT,
+  nombre VARCHAR(100) DEFAULT NULL,
+  ubicacion VARCHAR(150) NOT NULL,
+  tipo_cultivo VARCHAR(100) DEFAULT NULL,
+  area_m2 DECIMAL(10,2) DEFAULT NULL,
+  latitud DECIMAL(10,8) DEFAULT NULL,
+  longitud DECIMAL(11,8) DEFAULT NULL,
+  fichero VARCHAR(100) NOT NULL,
+  estado ENUM('activa','inactiva','en descanso') DEFAULT 'activa',
+  fecha_registro DATETIME DEFAULT CURRENT_TIMESTAMP,
+  observaciones TEXT DEFAULT NULL,
+  PRIMARY KEY (id_parcela)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_spanish_ci;
-
-
--- (Aquí puedes insertar todos los datos de parcelas que compartiste...)
 
 -- Crear tabla: parcelas_usuarios
 CREATE TABLE parcelas_usuarios (

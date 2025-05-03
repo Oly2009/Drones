@@ -12,88 +12,19 @@ Yamaha	RMAX	YMH-RMAX-0012
 DJI	Agras T10	DJI-T10-AGRO-0013
 
 <script>
-let map = L.map('map').setView([40.4168, -3.7038], 6);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
-let drawnItems = new L.FeatureGroup();
-map.addLayer(drawnItems);
-let ultimaCapa = null;
-
-let drawControl = new L.Control.Draw({
-    draw: {
-        polygon: { shapeOptions: { color: '#45f3ff', weight: 3, opacity: 0.7, fillColor: '#45f3ff', fillOpacity: 0.3 } },
-        rectangle: { shapeOptions: { color: '#45f3ff', weight: 3, opacity: 0.7, fillColor: '#45f3ff', fillOpacity: 0.3 } },
-        circle: false, polyline: false, marker: false, circlemarker: false
-    },
-    edit: { featureGroup: drawnItems, remove: true }
-});
-map.addControl(drawControl);
-
-map.on('draw:created', function (e) {
-    drawnItems.clearLayers();
-    drawnItems.addLayer(e.layer);
-    ultimaCapa = e.layer;
-    let bounds = e.layer.getBounds();
-    let center = bounds.getCenter();
-    document.getElementById('coordenadas').innerText = `Lat: ${center.lat.toFixed(5)} | Lon: ${center.lng.toFixed(5)}`;
-});
-
-map.on('moveend', function () {
-    let center = map.getCenter();
-    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${center.lat}&lon=${center.lng}&zoom=18&addressdetails=1`)
-        .then(res => res.json())
-        .then(data => {
-            if (data && data.display_name) {
-                document.getElementById('ubicacion').value = data.display_name;
-                document.getElementById('direccionExacta').innerText = data.display_name;
-                document.getElementById('coordenadas').innerText = `Lat: ${center.lat.toFixed(5)} | Lon: ${center.lng.toFixed(5)}`;
-            }
-        })
-        .catch(err => console.error("Error al obtener dirección desde centro del mapa:", err));
-});
-
-function buscarUbicacion() {
-    let ciudad = document.getElementById('ubicacion').value;
-    if (!ciudad) return alert("Introduce una ubicación para buscar");
-    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(ciudad)}&addressdetails=1`)
-        .then(res => res.json())
-        .then(data => {
-            if (data.length > 0) {
-                let lat = parseFloat(data[0].lat);
-                let lon = parseFloat(data[0].lon);
-                let displayName = data[0].display_name;
-                map.setView([lat, lon], 17);
-                L.marker([lat, lon]).addTo(map);
-                document.getElementById('coordenadas').innerText = `Lat: ${lat.toFixed(5)} | Lon: ${lon.toFixed(5)}`;
-                document.getElementById('direccionExacta').innerText = displayName;
-            } else {
-                alert("Ubicación no encontrada. Intenta con otra dirección completa.");
-            }
-        })
-        .catch(err => console.error("Error al buscar ubicación:", err));
-}
-
-function guardarGeoJSON() {
-    let ubicacion = document.getElementById('ubicacion').value.trim();
-    if (!ubicacion) return alert("Debes indicar una ubicación."), false;
-    if (!ultimaCapa) return alert("Debes dibujar una zona en el mapa."), false;
-    try {
-        const feature = ultimaCapa.toGeoJSON();
-        const collection = { type: "FeatureCollection", features: [feature] };
-        document.getElementById("geojson").value = JSON.stringify(collection);
-        return true;
-    } catch (error) {
-        console.error("Error al generar GeoJSON:", error);
-        alert("Error al procesar la parcela. Intenta dibujar nuevamente.");
-        return false;
+    
+    
+    
+    
+// Agregar SweetAlert2 al head
+document.addEventListener('DOMContentLoaded', function() {
+    if (!document.querySelector('script[src*="sweetalert2"]')) {
+        const sweetalertScript = document.createElement('script');
+        sweetalertScript.src = 'https://cdn.jsdelivr.net/npm/sweetalert2@11';
+        document.head.appendChild(sweetalertScript);
     }
-}
-</script>
+});
 
-
-
-//////////////////////////////////////////////////////////////////////////
-
-<script>
 let map = L.map('map').setView([40.4168, -3.7038], 6);
 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
     attribution: 'Tiles &copy; Esri',
@@ -149,7 +80,15 @@ map.on('moveend', function () {
 
 function buscarUbicacion() {
     let ciudad = document.getElementById('ubicacion').value;
-    if (!ciudad) return alert("Introduce una ubicación para buscar");
+    if (!ciudad) {
+        Swal.fire({
+            title: 'Campo vacío',
+            text: 'Introduce una ubicación para buscar',
+            icon: 'warning',
+            confirmButtonColor: '#ffc107'
+        });
+        return;
+    }
     fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(ciudad)}&addressdetails=1`)
         .then(res => res.json())
         .then(data => {
@@ -162,23 +101,80 @@ function buscarUbicacion() {
                 document.getElementById('coordenadas').innerText = `Lat: ${lat.toFixed(5)} | Lon: ${lon.toFixed(5)}`;
                 document.getElementById('direccionExacta').innerText = displayName;
             } else {
-                alert("Ubicación no encontrada.");
+                Swal.fire({
+                    title: 'Error de ubicación',
+                    text: 'Ubicación no encontrada. Intenta con otra dirección.',
+                    icon: 'error',
+                    confirmButtonColor: '#dc3545'
+                });
             }
+        })
+        .catch(error => {
+            Swal.fire({
+                title: 'Error de conexión',
+                text: 'No se pudo conectar al servicio de geocodificación.',
+                icon: 'error',
+                confirmButtonColor: '#dc3545'
+            });
         });
 }
 
-function guardarGeoJSON() {
+function validarFormulario() {
     let ubicacion = document.getElementById('ubicacion').value.trim();
-    if (!ubicacion) return alert("Debes indicar una ubicación."), false;
-    if (!ultimaCapa) return alert("Debes dibujar una zona en el mapa."), false;
+    let errores = [];
+    
+    if (!ubicacion) {
+        errores.push("Debes indicar una ubicación");
+    }
+    
+    if (!ultimaCapa) {
+        errores.push("Debes dibujar una zona en el mapa");
+    }
+    
+    if (errores.length > 0) {
+        let mensaje = '<ul class="text-start">';
+        errores.forEach(error => {
+            mensaje += `<li>${error}</li>`;
+        });
+        mensaje += '</ul>';
+        
+        Swal.fire({
+            title: 'Error de validación',
+            html: mensaje,
+            icon: 'error',
+            confirmButtonText: 'Entendido',
+            confirmButtonColor: '#dc3545'
+        });
+        
+        return false;
+    }
+    
     try {
         const feature = ultimaCapa.toGeoJSON();
         const collection = { type: "FeatureCollection", features: [feature] };
         document.getElementById("geojson").value = JSON.stringify(collection);
+        
+        // Mostrar alerta de procesando
+        Swal.fire({
+            title: 'Procesando',
+            text: 'Guardando la información de la parcela...',
+            icon: 'info',
+            showConfirmButton: false,
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+        
         return true;
     } catch (error) {
         console.error("Error al generar GeoJSON:", error);
-        alert("Error al procesar la parcela.");
+        Swal.fire({
+            title: 'Error técnico',
+            text: 'Error al procesar la parcela. Detalles: ' + error.message,
+            icon: 'error',
+            confirmButtonColor: '#dc3545'
+        });
         return false;
     }
 }

@@ -1,4 +1,5 @@
 <?php
+include '../../componentes/header.php'; 
 include '../../lib/functiones.php';
 session_start();
 ?>
@@ -8,10 +9,10 @@ session_start();
 <head>
     <meta charset="UTF-8">
     <title>➕ Agregar Dron - AgroSky</title>
-    <link rel="stylesheet" href="../../css/agregarDrones.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap">
+    <link rel="stylesheet" href="../../css/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.min.css" rel="stylesheet">
 </head>
-<body>
+<body class="registro-body" style="background-image: url('../../img/dron_fondo.png');">
 
 <?php
 $mensaje = null;
@@ -31,8 +32,14 @@ if (isset($_SESSION['usuario'])) {
     }
 
     if (!$esAdmin) {
-        echo "<div class='mensaje-error'>⛔ Acceso denegado. Solo los administradores pueden agregar drones.</div>";
-        echo '<div class="botones"><a href="../menu.php" class="btn-secundario">Volver al menú</a></div>';
+        echo "<script>
+            Swal.fire({
+                icon: 'error',
+                title: '⛔ Acceso denegado',
+                text: 'Solo los administradores pueden agregar drones.',
+                confirmButtonText: 'Volver al menú'
+            }).then(() => { window.location.href = '../menu.php'; });
+        </script>";
         exit();
     }
 
@@ -44,7 +51,6 @@ if (isset($_SESSION['usuario'])) {
         $id_parcela = intval($_POST['parcela']);
         $id_tarea = intval($_POST['tarea']);
 
-        // Validaciones
         $existeSerie = mysqli_query($conexion, "SELECT * FROM drones WHERE numero_serie='$numero_serie'");
         if (mysqli_num_rows($existeSerie) > 0) {
             $mensaje = "⚠ Ya existe un dron con ese número de serie.";
@@ -54,7 +60,7 @@ if (isset($_SESSION['usuario'])) {
                        VALUES ('$marca', '$modelo', '$numero_serie', '$tipo_dron', $idUsr, $id_parcela, $id_tarea, 'disponible')";
             if (mysqli_query($conexion, $insert)) {
                 $mensaje = "✅ Dron añadido correctamente.";
-                $tipo = "exito";
+                $tipo = "success";
             } else {
                 $mensaje = "❌ Error al insertar el dron.";
                 $tipo = "error";
@@ -66,18 +72,19 @@ if (isset($_SESSION['usuario'])) {
     $tareas = mysqli_query($conexion, "SELECT * FROM tareas");
 ?>
 
-<div class="formulario-container">
-    <h1>🛸 Agregar Dron</h1>
+<main class="registro-main">
+  <div class="formulario-registro">
+    <h2>🛸 Agregar Dron<br><span style="color: #2e7d32;">- AgroSky -</span></h2>
 
-    <form action="agr_drones.php" method="post" class="formulario">
-        <label>🏷️ Marca</label>
+    <form action="agr_drones.php" method="post">
+        <label>✏️ Marca</label>
         <input type="text" name="marca" required placeholder="Marca del dron">
 
         <label>📦 Modelo</label>
         <input type="text" name="modelo" required placeholder="Modelo del dron">
 
         <label>🔢 Número de serie</label>
-        <input type="text" name="numero_serie" required placeholder="Número de serie único">
+        <input type="text" name="numero_serie" required placeholder="Número único">
 
         <label>🧬 Tipo</label>
         <select name="tipo" required>
@@ -87,7 +94,7 @@ if (isset($_SESSION['usuario'])) {
             <option value="híbrido">Híbrido</option>
         </select>
 
-        <label>📍 Asignar a parcela</label>
+        <label>📍 Parcela</label>
         <select name="parcela" required>
             <option value="">-- Selecciona una parcela --</option>
             <?php while ($fila = mysqli_fetch_array($parcelas)) {
@@ -95,7 +102,7 @@ if (isset($_SESSION['usuario'])) {
             } ?>
         </select>
 
-        <label>🛠️ Tarea específica</label>
+        <label>🛠️ Tarea</label>
         <select name="tarea" required>
             <option value="">-- Selecciona una tarea --</option>
             <?php while ($fila = mysqli_fetch_array($tareas)) {
@@ -108,29 +115,33 @@ if (isset($_SESSION['usuario'])) {
             <a href="../../menu/drones.php" class="btn btn-secundario">Volver</a>
         </div>
     </form>
-</div>
+  </div>
+</main>
 
 <?php if ($mensaje): ?>
-<div class="modal" id="modalMensaje">
-  <div class="modal-contenido <?= $tipo === 'exito' ? 'exito' : 'error' ?>">
-    <h2><?= $mensaje ?></h2>
-    <button onclick="cerrarModal()">Cerrar</button>
-  </div>
-</div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-function cerrarModal() {
-    document.getElementById("modalMensaje").style.display = "none";
-}
+    Swal.fire({
+        icon: '<?= $tipo ?>',
+        title: <?= json_encode($mensaje) ?>,
+        confirmButtonText: 'Aceptar'
+    });
 </script>
 <?php endif; ?>
 
 <?php
 } else {
-    echo "<p class='mensaje-error'>⛔ Acceso denegado</p>";
-    echo '<a href="../../index.php" class="btn-secundario">Volver</a>';
+    echo "<script>
+        Swal.fire({
+            icon: 'error',
+            title: '⛔ Acceso denegado',
+            text: 'Debes iniciar sesión para acceder.',
+            confirmButtonText: 'Volver'
+        }).then(() => { window.location.href = '../../index.php'; });
+    </script>";
     session_destroy();
 }
-?>
 
+include '../../componentes/footer.php'; ?>
 </body>
 </html>

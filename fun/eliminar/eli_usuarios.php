@@ -55,33 +55,30 @@ $usuarios = mysqli_query($conexion, "
     WHERE u.id_usr NOT IN (SELECT id_usr FROM usuarios_roles WHERE id_rol = 1)
 ");
 ?>
-
-
+<!DOCTYPE html>
+<html lang="es">
 <head>
-
-  <title>👤 Eliminar Usuarios - AgroSky</title>
- 
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eliminar Usuarios</title>
   <link rel="stylesheet" href="../../css/style.css">
-
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.all.min.js"></script>
 </head>
 <body class="d-flex flex-column min-vh-100">
 <?php include '../../componentes/header.php'; ?>
-
-<main class="container py-5 flex-grow-1">
+<main class="container flex-grow-1 py-5">
   <h1 class="titulo-listado text-center mb-4">
-  <i class="bi bi-person-x me-2" style="color:#d33;"></i>Eliminar Usuarios
-</h1>
-
-
-
-  <form class="busqueda-form d-flex flex-column flex-md-row gap-2 mb-4 justify-content-center" onsubmit="event.preventDefault();">
-    <input type="text" class="form-control" placeholder="Buscar por nombre o correo" id="buscarUsuario">
-    <button class="btn btn-success" type="submit">Buscar</button>
+    <i class="bi bi-person-x me-2" style="color:#d33;"></i>Eliminar Usuarios
+  </h1>
+    <form method="get" class="d-flex justify-content-center mb-4">
+    <input type="text" id="buscarUsuario" class="form-control w-50 me-2" placeholder="🔍 Buscar por nombre, correo o teléfono">
+    <button class="btn btn-success" type="button" onclick="filtrarUsuarios()">Buscar</button>
   </form>
-
   <div class="table-responsive">
-    <table class="table">
-      <thead>
+    <table class="table align-middle">
+      <thead class="table-danger text-center">
         <tr>
           <th>Nombre</th>
           <th>Apellidos</th>
@@ -101,10 +98,10 @@ $usuarios = mysqli_query($conexion, "
           <td><?= htmlspecialchars($u['telefono']) ?></td>
           <td><?= htmlspecialchars($u['rol'] ?? 'Sin asignar') ?></td>
           <td><?= htmlspecialchars($u['parcelas'] ?? 'Ninguna') ?></td>
-          <td>
-            <form method="post" class="form-eliminar">
+          <td class="text-center">
+            <form method="post" class="form-eliminar d-inline">
               <input type="hidden" name="id_usuario" value="<?= $u['id_usr'] ?>">
-              <button type="button" class="btn btn-outline-danger btn-sm" onclick="confirmarEliminacion(this)">Eliminar</button>
+              <button type="button" class="btn btn-danger btn-sm" onclick="confirmarEliminacion(this)">Eliminar</button>
             </form>
           </td>
         </tr>
@@ -112,21 +109,16 @@ $usuarios = mysqli_query($conexion, "
       </tbody>
     </table>
   </div>
-
   <div class="text-center mt-4">
     <a href="../../menu/usuarios.php" class="btn btn-danger rounded-pill px-4">
       <i class="bi bi-arrow-left-circle me-2"></i>Volver al menú de usuarios
     </a>
   </div>
 </main>
-
 <?php include '../../componentes/footer.php'; ?>
-
 <script>
-let formEliminar = null;
-
 function confirmarEliminacion(btn) {
-  formEliminar = btn.closest('form');
+  const formEliminar = btn.closest('form');
   Swal.fire({
     title: '¿Estás seguro?',
     text: 'Esta acción no se puede deshacer.',
@@ -137,18 +129,18 @@ function confirmarEliminacion(btn) {
     confirmButtonText: 'Sí, eliminar',
     cancelButtonText: 'Cancelar'
   }).then((result) => {
-    if (result.isConfirmed && formEliminar) {
+    if (result.isConfirmed) {
       formEliminar.submit();
     }
   });
 }
 
-document.getElementById('buscarUsuario').addEventListener('input', function () {
-  const filtro = this.value.toLowerCase();
+function filtrarUsuarios() {
+  const filtro = document.getElementById('buscarUsuario').value.toLowerCase();
   document.querySelectorAll('.table tbody tr').forEach(fila => {
     fila.style.display = fila.textContent.toLowerCase().includes(filtro) ? '' : 'none';
   });
-});
+}
 
 <?php if (isset($_SESSION['mensaje'])): ?>
 window.onload = function () {
@@ -161,4 +153,5 @@ window.onload = function () {
 };
 <?php unset($_SESSION['mensaje'], $_SESSION['mensaje_tipo']); endif; ?>
 </script>
-
+</body>
+</html>

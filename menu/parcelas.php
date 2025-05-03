@@ -16,14 +16,14 @@ session_start();
           <a href="../fun/agregar/agr_parcelas.php" class="btn custom-btn shadow rounded-pill px-4 py-2">
             <i class="bi bi-plus-circle-fill me-2 text-success"></i>Añadir
           </a>
-          <a href="../fun/modificar/mod_parcelas.php" class="btn custom-btn shadow rounded-pill px-4 py-2">
+            <a href="../fun/listar/lis_parcelas.php" class="btn custom-btn shadow rounded-pill px-4 py-2">
             <i class="bi bi-pencil-square me-2 text-warning"></i>Modificar
           </a>
           <a href="../fun/eliminar/eli_parcelas.php" class="btn custom-btn shadow rounded-pill px-4 py-2">
             <i class="bi bi-trash-fill me-2 text-danger"></i>Eliminar
           </a>
           <a href="../fun/listar/ver_parcelas.php" class="btn custom-btn shadow rounded-pill px-4 py-2">
-            <i class="bi bi-geo-alt-fill me-2 text-primary"></i>Agregar ruta
+            <i class="bi bi-geo-alt-fill me-2 text-primary"></i>Ver Parcelas
           </a>
           <a href="../menu/menu.php" class="btn btn-danger shadow rounded-pill px-4 py-2">
             <i class="bi bi-arrow-left-circle-fill me-2"></i>Volver

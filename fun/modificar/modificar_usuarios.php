@@ -1,6 +1,6 @@
 <?php
-include '../../lib/functiones.php';
 session_start();
+include '../../lib/functiones.php';
 
 if (!isset($_SESSION['usuario'])) {
     header("Location: ../../index.php");
@@ -64,40 +64,35 @@ $usuarios = mysqli_query($conexion, "
     WHERE u.id_usr NOT IN (SELECT id_usr FROM usuarios_roles WHERE id_rol = 1)
 ");
 
-if (!$usuarios) {
-    die("Error al consultar usuarios: " . mysqli_error($conexion));
-}
-
 $roles = mysqli_query($conexion, "SELECT * FROM roles WHERE id_rol != 1");
 $parcelas = mysqli_query($conexion, "SELECT * FROM parcelas");
 ?>
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>👤 Modificar Usuarios - AgroSky</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modificar Usuarios</title>
+  <link rel="stylesheet" href="../../css/style.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-  <link rel="stylesheet" href="../../css/style.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.all.min.js"></script>
 </head>
 <body class="d-flex flex-column min-vh-100">
 <?php include '../../componentes/header.php'; ?>
-
-<main class="container py-5 flex-grow-1">
+<main class="container flex-grow-1 py-5">
   <h1 class="titulo-listado text-center mb-4">
     <i class="bi bi-person-gear me-2" style="color:#6f42c1;"></i>Modificar Usuarios
   </h1>
 
-  <form class="busqueda-form d-flex flex-column flex-md-row gap-2 mb-4 justify-content-center" onsubmit="event.preventDefault();">
-    <input type="text" class="form-control" placeholder="Buscar por nombre, correo o teléfono" id="buscarUsuario">
-    <button class="btn btn-success" type="submit">Buscar</button>
+  <form method="get" class="d-flex justify-content-center mb-4">
+    <input type="text" id="buscarUsuario" class="form-control w-50 me-2" placeholder="🔍 Buscar por nombre, correo o teléfono">
+    <button class="btn btn-success" type="button" onclick="filtrarUsuarios()">Buscar</button>
   </form>
 
   <div class="table-responsive">
     <table class="table">
-      <thead>
+      <thead class="table-success text-center">
         <tr>
           <th>Nombre</th>
           <th>Apellidos</th>
@@ -153,12 +148,12 @@ $parcelas = mysqli_query($conexion, "SELECT * FROM parcelas");
 <?php include '../../componentes/footer.php'; ?>
 
 <script>
-document.getElementById('buscarUsuario').addEventListener('input', function () {
-  const filtro = this.value.toLowerCase();
+function filtrarUsuarios() {
+  const filtro = document.getElementById('buscarUsuario').value.toLowerCase();
   document.querySelectorAll('.table tbody tr').forEach(fila => {
     fila.style.display = fila.textContent.toLowerCase().includes(filtro) ? '' : 'none';
   });
-});
+}
 
 function validarFormulario(form) {
   const emailInput = form.querySelector('input[name="email"]');

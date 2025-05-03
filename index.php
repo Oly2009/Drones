@@ -34,25 +34,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enviar'])) {
 <head>
     <meta charset="UTF-8">
     <title>Inicio de Sesión</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.min.css">
     <link rel="stylesheet" href="./css/style.css">
+    <style>
+        @media (max-width: 768px) {
+            .login-form {
+                margin-top: 2rem !important;
+            }
+            .logo-box {
+                margin-top: 0.5rem !important;
+            }
+        }
+    </style>
 </head>
 <body class="index-body bg-login">
 <main class="container-fluid min-vh-100">
     <div class="row w-100 h-100">
         <section class="col-md-6 d-flex flex-column justify-content-start align-items-start ps-md-5 ps-3 pt-4">
-            <div class="logo-box d-flex flex-column align-items-start mb-5 ms-md-3">
+            <div class="logo-box d-flex flex-column align-items-start mb-4 ms-md-3">
                 <img src="img/logo.png" alt="AgroSky Logo" width="80" class="mb-2 mx-auto d-block">
-                <p class="text-success fw-semibold fs-5 mt-1 d-flex align-items-center">
-                    <i class="bi bi-flower2 me-2" style="color: #218838; font-size: 1.8rem;"></i>
-                    <span style="font-size: 1.4rem">Cultiva desde el cielo, <br>
-                        gestiona con inteligencia.</span>
-                </p>
+              <p class="text-white fw-semibold fs-5 mt-1 d-flex align-items-center">
+    <span style="font-size: 1.8rem; margin-right: 0.5rem;">🌿</span>
+    <span style="font-size: 1.4rem">
+        Cultiva desde el cielo, <br>
+        gestiona con inteligencia.
+    </span>
+</p>
             </div>
 
-            <section class="login-form animate__animated animate__fadeInUp mt-5 ms-md-3">
+            <section class="login-form animate__animated animate__fadeInUp mt-4 ms-md-3">
                 <h2 class="text-center mb-4">Iniciar Sesión</h2>
                 <form action="index.php" method="post">
                     <div class="mb-3 input-group">
@@ -72,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enviar'])) {
                     </div>
                     <div class="text-center">
                         <a href="./fun/recuperar.php" class="text-white text-decoration-underline">
-                            <i class="bi bi-arrow-clockwise"></i> Recuperar contraseña
+                            🔁 Recuperar contraseña
                         </a>
                     </div>
                 </form>

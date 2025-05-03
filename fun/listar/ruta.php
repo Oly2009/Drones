@@ -1,143 +1,218 @@
 <?php
 include '../../lib/functiones.php';
 session_start();
+
+if (!isset($_SESSION['usuario'])) {
+    echo '<script>
+        document.addEventListener("DOMContentLoaded", function() {
+            Swal.fire({
+                title: "Acceso denegado",
+                text: "Debes iniciar sesión para acceder a esta página",
+                icon: "error",
+                confirmButtonText: "Volver",
+                confirmButtonColor: "#dc3545"
+            }).then(() => window.location.href = "../../index.php");
+        });
+    </script>';
+    exit;
+}
+
+$conexion = conectar();
+$id_parcela = $_GET['id'] ?? null;
+
+if (!$id_parcela) {
+    header('Location: ../../menu/parcelas.php');
+    exit;
+}
+
+$consulta = mysqli_query($conexion, "SELECT * FROM parcelas WHERE id_parcela = $id_parcela");
+$parcela = mysqli_fetch_assoc($consulta);
+
+if (!$parcela) {
+    echo "Parcela no encontrada.";
+    exit;
+}
+
+$ruta_existente = mysqli_query($conexion, "SELECT * FROM ruta WHERE id_parcela = $id_parcela");
+$puntos_guardados = mysqli_fetch_all($ruta_existente, MYSQLI_ASSOC);
+$existe_ruta = count($puntos_guardados) > 0;
+
+include '../../componentes/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agregar ruta</title>
-    <link rel="stylesheet" href="/Proyecto_Drones_v3-CSS/css/ruta.css">
-    <script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
-</head>
-<body>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<link rel="stylesheet" href="../../css/style.css">
+
+<body class="d-flex flex-column min-vh-100">
+<main class="container py-4 flex-grow-1">
+    <h2 class="text-center mb-4"><i class="fas fa-route"></i> Agregar Ruta al Dron</h2>
+
+    <?php if ($existe_ruta): ?>
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Ruta ya existente',
+                html: '<p>Esta parcela ya tiene una ruta guardada.</p><p>Haz clic en el mapa para definir una nueva. La anterior se mostrará como referencia y se reemplazará al guardar.</p>',
+                confirmButtonText: '<i class="bi bi-check-circle"></i> Entendido',
+                confirmButtonColor: '#ffc107'
+            });
+        });
+        </script>
+    <?php endif; ?>
+
+    <div class="contenedor-formulario">
+        <div id="mapa" class="bg-light"></div>
+
+        <div class="formulario">
+            <div>
+                <div class="mb-4 text-center p-3" style="background-color: #dcedc8; border-radius: 10px;">
+                    <h4 class="text-success fw-bold mb-2">Ubicación</h4>
+                    <p style="background: #fffde7; padding: 0.7rem; border-radius: 8px;">
+                        <?= htmlspecialchars($parcela['ubicacion']) ?>
+                    </p>
+                </div>
+
+                <div class="text-center p-3" style="background-color: #e8f5e9; border-radius: 10px;">
+                    <h5 class="text-success">Puntos seleccionados: <span id="contadorPuntos">0</span></h5>
+                </div>
+            </div>
+
+            <form method="post" class="d-flex gap-3 mt-4">
+                <input type="hidden" name="datos_ruta" id="datosRuta">
+                <button type="submit" class="btn btn-success w-100 btn-sm"><i class="bi bi-save me-2"></i>Guardar ruta</button>
+                <button type="button" class="btn btn-warning w-100 btn-sm" onclick="location.reload();"><i class="bi bi-arrow-clockwise me-2"></i>Seleccionar otra</button>
+                <a href="lis_parcelas.php" class="btn btn-danger w-100 btn-sm d-inline-flex align-items-center justify-content-center">
+                    <i class="bi bi-box-arrow-left me-2"></i>Volver
+                </a>
+            </form>
+        </div>
+    </div>
+</main>
+
+<script>
+let mapa = L.map('mapa').setView([<?= $parcela['latitud'] ?>, <?= $parcela['longitud'] ?>], 16);
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    attribution: 'Leaflet | Tiles © Esri',
+    maxZoom: 19
+}).addTo(mapa);
+
+let parcelaPoligono = null;
+fetch('../agregar/parcelas/<?= $parcela['fichero'] ?>')
+.then(response => response.json())
+.then(data => {
+    parcelaPoligono = L.geoJSON(data, {
+        style: {
+            color: '#28a745',
+            fillColor: '#81c784',
+            fillOpacity: 0.3,
+            weight: 2
+        }
+    }).addTo(mapa);
+    mapa.fitBounds(parcelaPoligono.getBounds());
+});
+
+let puntos = [];
+let linea;
+let primeraModificacion = true;
+
+<?php if ($existe_ruta): ?>
+    const puntosGuardados = <?= json_encode($puntos_guardados) ?>;
+    const coordsAntiguos = puntosGuardados.map(p => [parseFloat(p.latitud), parseFloat(p.longitud)]);
+    L.polyline(coordsAntiguos, {
+        color: '#d32f2f',
+        dashArray: '5, 10',
+        weight: 2
+    }).addTo(mapa);
+<?php endif; ?>
+
+mapa.on('click', function(e) {
+    const { lat, lng } = e.latlng;
+
+    if (!parcelaPoligono || !leafletPuntoDentroDePoligono(e.latlng, parcelaPoligono)) {
+        Swal.fire('Punto fuera de la parcela', '', 'warning');
+        return;
+    }
+
+    if (primeraModificacion) {
+        puntos = [];
+        document.querySelectorAll('.leaflet-marker-icon').forEach(el => el.remove());
+        if (linea) mapa.removeLayer(linea);
+        primeraModificacion = false;
+    }
+
+    const numero = puntos.length + 1;
+    const marcador = L.marker([lat, lng], {
+        icon: L.divIcon({
+            className: 'custom-icon',
+            html: `<div style="background:#4caf50;color:white;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;">${numero}</div>`,
+            iconSize: [24, 24]
+        })
+    }).addTo(mapa);
+
+    puntos.push({ lat, lng });
+
+    if (linea) mapa.removeLayer(linea);
+    linea = L.polyline(puntos.map(p => [p.lat, p.lng]), {
+        color: '#388e3c',
+        weight: 3
+    }).addTo(mapa);
+
+    document.getElementById('contadorPuntos').textContent = puntos.length;
+    document.getElementById('datosRuta').value = JSON.stringify(puntos);
+});
+
+function leafletPuntoDentroDePoligono(punto, geojsonLayer) {
+    let dentro = false;
+    geojsonLayer.eachLayer(layer => {
+        if (layer instanceof L.Polygon && layer.getBounds().contains(punto)) {
+            dentro = true;
+        }
+    });
+    return dentro;
+}
+</script>
+
 <?php
-if (isset($_SESSION['usuario'])) {
-    if (isset($_REQUEST['ruta'])) {
-        $parcela = $_REQUEST['parcela'];
-        $vacio = $_REQUEST['vacio'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['datos_ruta'])) {
+    $puntos = json_decode($_POST['datos_ruta'], true);
+    if (is_array($puntos) && count($puntos) >= 2) {
+        mysqli_query($conexion, "DELETE FROM ruta WHERE id_parcela = $id_parcela");
 
-        if ($vacio == 0) {
-            echo "<div class='mensaje-error'><h3>No has seleccionado ninguna ruta</h3></div>";
-        } else {
-            $entrar = true;
-            if (isset($_REQUEST['latitud'], $_REQUEST['longitud']) && is_array($_REQUEST['latitud']) && is_array($_REQUEST['longitud'])) {
-                $latitud = $_REQUEST['latitud'];
-                $longitud = $_REQUEST['longitud'];
-                $nfilas = count($latitud);
-
-                if (count($longitud) != $nfilas) {
-                    echo "<div class='mensaje-error'><h3>Error: El número de latitudes y longitudes no coincide</h3></div>";
-                } else {
-                    $rutaExistente = false;
-                    $checkRuta = mysqli_query(conectar(), "SELECT * FROM ruta WHERE id_parcela = $parcela");
-                    if (mysqli_num_rows($checkRuta) > 0) {
-                        $rutaExistente = true;
-                        echo "<div class='mensaje-actualizado'><h3>Ya existe una ruta, pero se ha actualizado</h3></div>";
-                        mysqli_query(conectar(), "DELETE FROM ruta WHERE id_parcela = $parcela") or die("Fallo al eliminar ruta");
-                    }
-
-                    $latitudes = [];
-                    $longitudes = [];
-
-                    for ($i = 0; $i < $nfilas; $i++) {
-                        $lat = floatval($latitud[$i]);
-                        $lon = floatval($longitud[$i]);
-                        mysqli_query(conectar(), "INSERT INTO ruta (latitud, longitud, id_parcela) VALUES ($lat, $lon, $parcela)") or die("Fallo insertando ruta");
-                        $latitudes[] = $lat;
-                        $longitudes[] = $lon;
-                    }
-
-                    $datosParcela = mysqli_fetch_assoc(mysqli_query(conectar(), "SELECT ubicacion, fichero FROM parcelas WHERE id_parcela = $parcela"));
-                    $geojson = 'null';
-                    $archivo = '../agregar/parcelas/' . $datosParcela['fichero'];
-                    if (file_exists($archivo)) {
-                        $contenido = file_get_contents($archivo);
-                        json_decode($contenido);
-                        if (json_last_error() === JSON_ERROR_NONE) $geojson = $contenido;
-                    }
-
-                    echo "<div class='contenedor-flex'>";
-                    // Bloque Izquierdo
-                    echo "<div class='bloque'>";
-                    echo "<h2 class='titulo'>Ruta guardada correctamente</h2>";
-                    echo "<table class='tabla'>";
-                    echo "<tr><th>Orden</th><th>Latitud</th><th>Longitud</th></tr>";
-                    for ($i = 0; $i < $nfilas; $i++) {
-                        echo "<tr><td>" . ($i+1) . "</td><td>{$latitudes[$i]}</td><td>{$longitudes[$i]}</td></tr>";
-                    }
-                    echo "</table>";
-                    echo "<p><strong>Parcela:</strong> {$datosParcela['ubicacion']} (ID: $parcela)</p>";
-                    echo "<p>Se han guardado <strong>$nfilas puntos</strong> para la ruta del dron.</p>";
-                    echo "</div>";
-
-                    // Bloque Derecho
-                    echo "<div class='bloque'>";
-                    echo "<h3 class='subtitulo'>Visualización de la ruta</h3>";
-                    echo "<div id='map'></div>";
-                    echo "</div>"; // Fin del segundo bloque
-echo "</div>"; // Fin del contenedor-flex
-
-// Botones centrados abajo del todo
-echo "<div class='botones-globales'>";
-echo "<form action='ver_parcelas.php' method='post'><input type='submit' value='Seleccionar otra parcela'></form>";
-echo "<form action='../../menu/parcelas.php' method='post'><input type='submit' value='Volver al menú principal'></form>";
-echo "</div>";
-
-
-                    // Script del mapa
-                    $latJS = json_encode($latitudes);
-                    $lonJS = json_encode($longitudes);
-                    echo "<script>
-                        let map = L.map('map').setView([40.24, -3.7038], 6);
-                        let originalBounds = null;
-                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                            maxZoom: 19,
-                            attribution: '© OpenStreetMap contributors'
-                        }).addTo(map);
-
-                        setTimeout(() => {
-                            map.invalidateSize();
-                            let geojsonData = $geojson;
-                            if (geojsonData) {
-                                let layer = L.geoJSON(geojsonData, {
-                                    style: { color: '#45f3ff', weight: 3, opacity: 0.7, fillColor: '#45f3ff', fillOpacity: 0.3 }
-                                }).addTo(map);
-                                originalBounds = layer.getBounds();
-                                map.fitBounds(originalBounds);
-                            }
-
-                            let lat = $latJS, lon = $lonJS, points = lat.map((l, i) => [l, lon[i]]);
-                            let line = L.polyline(points, { color: '#4caf50', weight: 4, opacity: 0.8 }).addTo(map);
-                            points.forEach((pt, i) => {
-                                L.marker(pt).addTo(map).bindTooltip((i+1).toString(), {
-                                    permanent: true, direction: 'center', className: 'marker-number'
-                                });
-                            });
-
-                            let resetBtn = L.control({position: 'topleft'});
-                            resetBtn.onAdd = function(map) {
-                                let div = L.DomUtil.create('div', 'leaflet-bar leaflet-control reset-view');
-                                div.innerHTML = '<a href=\"#\" title=\"Restablecer vista\">🏠</a>';
-                                div.onclick = () => { if (originalBounds) map.fitBounds(originalBounds); return false; };
-                                return div;
-                            };
-                            resetBtn.addTo(map);
-                        }, 100);
-                    </script>";
-                }
-            } else {
-                echo "<div class='mensaje-error'><h3>Error: No se recibieron coordenadas válidas</h3></div>";
+        $stmt = mysqli_prepare($conexion, "INSERT INTO ruta (latitud, longitud, id_parcela) VALUES (?, ?, ?)");
+        foreach ($puntos as $p) {
+            $lat = $p['lat'] ?? null;
+            $lng = $p['lng'] ?? null;
+            if ($lat && $lng) {
+                mysqli_stmt_bind_param($stmt, 'ddi', $lat, $lng, $id_parcela);
+                mysqli_stmt_execute($stmt);
             }
         }
+        mysqli_stmt_close($stmt);
+
+        echo "<script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Ruta guardada con éxito',
+                    confirmButtonText: 'Ver ruta',
+                    confirmButtonColor: '#28a745'
+                }).then(() => {
+                    window.location.href = 'guardar_ruta.php?id_parcela=$id_parcela';
+                });
+            });
+        </script>";
+    } else {
+        echo "<script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire('Debes seleccionar al menos 2 puntos.', '', 'warning');
+            });
+        </script>";
     }
-} else {
-    echo "<div class='mensaje-error'><h2>Acceso denegado</h2><p>Inicia sesión para continuar</p></div>";
-    echo "<div class='volver-form'><a href='javascript:history.back()'><button>Volver</button></a></div>";
-    session_destroy();
 }
 ?>
+
+<?php include '../../componentes/footer.php'; ?>
 </body>
-</html>
