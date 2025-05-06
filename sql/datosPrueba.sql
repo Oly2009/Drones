@@ -100,11 +100,11 @@ CREATE TABLE ruta (
   FOREIGN KEY (id_parcela) REFERENCES parcelas(id_parcela) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
--- Crear tabla: trabajos
 CREATE TABLE trabajos (
   id_trabajo INT(11) NOT NULL AUTO_INCREMENT,
-  fecha DATE DEFAULT NULL,
-  hora TIME DEFAULT NULL,
+  fecha_asignacion DATE NOT NULL, -- fecha cuando se asigna el trabajo
+  fecha_ejecucion DATE DEFAULT NULL, -- se actualiza al ejecutar el trabajo
+  hora TIME DEFAULT NULL, -- hora opcional de ejecución
   id_dron INT(11) DEFAULT NULL,
   id_parcela INT(11) NOT NULL,
   id_usr INT(11) DEFAULT NULL,

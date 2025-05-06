@@ -9,23 +9,39 @@ if (!isset($_SESSION['usuario'])) {
 
 $con = conectar();
 
-$trabajos_q = "SELECT t.fecha, t.hora, t.estado_general, p.ubicacion AS parcela, d.marca AS dron, d.modelo, d.numero_serie,
-                      GROUP_CONCAT(ta.nombre_tarea SEPARATOR ', ') AS tareas,
-                      u.nombre AS nombre_usuario, u.apellidos AS apellidos_usuario
-               FROM trabajos t
-               JOIN parcelas p ON t.id_parcela = p.id_parcela
-               JOIN drones d ON t.id_dron = d.id_dron
-               LEFT JOIN trabajos_tareas tt ON t.id_trabajo = tt.id_trabajo
-               LEFT JOIN tareas ta ON ta.id_tarea = tt.id_tarea
-               LEFT JOIN usuarios u ON t.id_usr = u.id_usr
-               GROUP BY t.id_trabajo
-               ORDER BY t.fecha DESC, t.hora DESC";
+// Consulta completa con fechas nuevas
+$trabajos_q = "SELECT 
+    t.fecha_asignacion,
+    t.fecha_ejecucion,
+    t.hora,
+    t.estado_general,
+    p.ubicacion AS parcela,
+    d.marca AS dron,
+    d.modelo,
+    d.numero_serie,
+    GROUP_CONCAT(ta.nombre_tarea SEPARATOR ', ') AS tareas,
+    u.nombre AS nombre_usuario,
+    u.apellidos AS apellidos_usuario
+ FROM trabajos t
+ JOIN parcelas p ON t.id_parcela = p.id_parcela
+ JOIN drones d ON t.id_dron = d.id_dron
+ LEFT JOIN trabajos_tareas tt ON t.id_trabajo = tt.id_trabajo
+ LEFT JOIN tareas ta ON ta.id_tarea = tt.id_tarea
+ LEFT JOIN usuarios u ON t.id_usr = u.id_usr
+ GROUP BY t.id_trabajo
+ ORDER BY t.fecha_asignacion DESC, t.hora DESC";
 
 $trabajos = mysqli_query($con, $trabajos_q);
 ?>
 
-    <link rel="stylesheet" href="../../css/style.css">
-   
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>📋 Listado de Trabajos - AgroSky</title>
+  <link rel="stylesheet" href="../../css/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
 <body class="d-flex flex-column min-vh-100">
 <?php include '../../componentes/header.php'; ?>
 
@@ -44,7 +60,8 @@ $trabajos = mysqli_query($con, $trabajos_q);
       <table id="tablaTrabajos" class="table align-middle">
         <thead>
           <tr>
-            <th>Fecha</th>
+            <th>Asignado</th>
+            <th>Ejecutado</th>
             <th>Hora</th>
             <th>Parcela</th>
             <th>Marca/Modelo</th>
@@ -57,12 +74,13 @@ $trabajos = mysqli_query($con, $trabajos_q);
         <tbody>
           <?php while ($trabajo = mysqli_fetch_assoc($trabajos)) { ?>
           <tr>
-            <td><?= $trabajo['fecha'] ?></td>
-            <td><?= $trabajo['hora'] ?></td>
-            <td><?= $trabajo['parcela'] ?></td>
-            <td><?= $trabajo['dron'] . ' ' . $trabajo['modelo'] ?></td>
-            <td><?= $trabajo['numero_serie'] ?></td>
-            <td><?= $trabajo['tareas'] ?></td>
+            <td><?= htmlspecialchars($trabajo['fecha_asignacion']) ?></td>
+            <td><?= $trabajo['fecha_ejecucion'] ?? '<em>—</em>' ?></td>
+            <td><?= $trabajo['hora'] ?? '<em>—</em>' ?></td>
+            <td><?= htmlspecialchars($trabajo['parcela']) ?></td>
+            <td><?= htmlspecialchars($trabajo['dron'] . ' ' . $trabajo['modelo']) ?></td>
+            <td><?= htmlspecialchars($trabajo['numero_serie']) ?></td>
+            <td><?= htmlspecialchars($trabajo['tareas']) ?></td>
             <td><?= $trabajo['nombre_usuario'] ? htmlspecialchars($trabajo['nombre_usuario'] . ' ' . $trabajo['apellidos_usuario']) : 'Desconocido' ?></td>
             <td><span class="estado-<?= strtolower(str_replace(' ', '-', $trabajo['estado_general'])) ?>"><?= ucfirst($trabajo['estado_general']) ?></span></td>
           </tr>
@@ -84,6 +102,7 @@ $trabajos = mysqli_query($con, $trabajos_q);
 </main>
 
 <?php include '../../componentes/footer.php'; ?>
+
 <script>
 function filtrarTabla() {
   const input = document.getElementById("filtro").value.toLowerCase();

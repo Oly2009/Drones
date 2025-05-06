@@ -3,10 +3,10 @@
     function conectar()
     {
         //Dato 
-        $host = "localhost";
-        $basededatos = "agricultura";
-        $usuariodb = "olyz";
-        $clavedb = "";
+        $host = "sql309.infinityfree.com";
+        $basededatos = "if0_38716721_agricultura";
+        $usuariodb = "if0_38716721";
+        $clavedb = "bpQQS0Rmdb7l5";
         
         // Conexion.
         $conexion = mysqli_connect($host, $usuariodb, $clavedb, $basededatos) 

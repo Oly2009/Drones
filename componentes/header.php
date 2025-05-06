@@ -1,6 +1,74 @@
 <?php
-// Calcula la ruta base hacia la raíz del proyecto
+// Ruta base según ubicación
 $rutaBase = str_contains($_SERVER['PHP_SELF'], '/fun/') ? '../../' : (str_contains($_SERVER['PHP_SELF'], '/menu/') ? '../' : './');
+
+// Mapeo de archivos a secciones
+$mapaSecciones = [
+  'usuarios.php'             => 'Usuarios',
+  'registro.php'             => 'Usuarios',
+  'modificar_usuarios.php'   => 'Usuarios',
+  'eli_usuarios.php'         => 'Usuarios',
+  'lis_usuarios.php'         => 'Usuarios',
+
+  'parcelas.php'             => 'Parcelas',
+  'mod_parcelas.php'         => 'Parcelas',
+  'agr_parcelas.php'         => 'Parcelas',
+  'eli_parcelas.php'         => 'Parcelas',
+  'lis_parcelas.php'         => 'Parcelas',
+
+  'drones.php'               => 'Drones',
+  'mod_drones.php'           => 'Drones',
+  'agr_drones.php'           => 'Drones',
+  'eli_drones.php'           => 'Drones',
+  'lis_drones.php'           => 'Drones',
+
+  'trabajos.php'             => 'Trabajos',
+  'agr_trabajos.php'         => 'Trabajos',
+  'eli_trabajos.php'         => 'Trabajos',
+  'eje_trabajos.php'         => 'Trabajos',
+  'lis_trabajos.php'         => 'Trabajos',
+];
+
+// Detectar archivo actual
+$archivoActual = basename($_SERVER['PHP_SELF']);
+$seccion = '';
+$pagina = '';
+
+// Asignar sección
+if (isset($mapaSecciones[$archivoActual])) {
+  $seccion = $mapaSecciones[$archivoActual];
+}
+
+// Asignar tipo de página
+switch (true) {
+  case str_starts_with($archivoActual, 'agr_'):
+    $pagina = 'Añadir';
+    break;
+  case str_starts_with($archivoActual, 'mod_'):
+    $pagina = 'Modificar';
+    break;
+  case str_starts_with($archivoActual, 'eli_'):
+    $pagina = 'Eliminar';
+    break;
+  case str_starts_with($archivoActual, 'lis_'):
+    $pagina = 'Listar';
+    break;
+  case str_starts_with($archivoActual, 'eje_'):
+    $pagina = 'Ejecutar';
+    break;
+  case str_starts_with($archivoActual, 'ver_'):
+    $pagina = 'Ver';
+    break;
+  case $archivoActual === 'registro.php':
+    $pagina = 'Alta';
+    break;
+  case $archivoActual === 'menu.php':
+    $pagina = 'Inicio';
+    break;
+  default:
+    $pagina = ucfirst(str_replace(['_', '.php'], [' ', ''], $archivoActual));
+    break;
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -47,3 +115,18 @@ $rutaBase = str_contains($_SERVER['PHP_SELF'], '/fun/') ? '../../' : (str_contai
     </div>
   </div>
 </header>
+
+<!-- Migas de pan -->
+<?php if ($pagina !== 'Inicio'): ?>
+  <nav aria-label="breadcrumb" class="bg-light border-bottom py-2">
+    <div class="container">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="<?= $rutaBase ?>menu/menu.php">Inicio</a></li>
+        <?php if ($seccion): ?>
+          <li class="breadcrumb-item"><a href="<?= $rutaBase ?>menu/<?= strtolower($seccion) ?>.php"><?= $seccion ?></a></li>
+        <?php endif; ?>
+        <li class="breadcrumb-item active text-dark fw-semibold" aria-current="page"><?= $pagina ?></li>
+      </ol>
+    </div>
+  </nav>
+<?php endif; ?>

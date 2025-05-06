@@ -84,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['enviar'])) {
                         <button type="submit" name="enviar" class="btn btn-success">Entrar</button>
                     </div>
                     <div class="text-center">
-                        <a href="./fun/recuperar.php" class="text-white text-decoration-underline">
+                        <a href="menu/recuperacion.php" class="text-white text-decoration-underline">
                             🔁 Recuperar contraseña
                         </a>
                     </div>

@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'])) {
         $nombre = trim($_POST['nombre'] ?? '');
         $tipo_cultivo = trim($_POST['tipo_cultivo'] ?? '');
         $observaciones = trim($_POST['observaciones'] ?? '');
-        $geojsonRaw = $_POST['geojson'] ?? null; // Capture GeoJSON here
+        $geojsonRaw = $_POST['geojson'] ?? null;
 
         if ($ubicacion === '') {
             $mensaje = "❌ Error: La ubicación es obligatoria";
@@ -24,7 +24,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'])) {
             $stmt->execute();
             $mensaje_datos = "✅ Datos actualizados correctamente";
 
-            // If GeoJSON was also submitted, process it
             if ($geojsonRaw) {
                 $decoded = json_decode($geojsonRaw, true);
                 if ($decoded && isset($decoded['features'][0]['geometry']['coordinates'][0])) {
@@ -46,6 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'])) {
                     $ruta = __DIR__ . "/../agregar/parcelas/" . $fichero;
                     if (file_exists($ruta)) {
                         file_put_contents($ruta, json_encode($decoded, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+
                         function calcularAreaM2($coords) {
                             $radioTierra = 6371000;
                             $lat0 = deg2rad($coords[0][1]);
@@ -65,6 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'])) {
                             }
                             return abs($total / 2);
                         }
+
                         $area_m2 = calcularAreaM2($coords);
                         $stmt = $conexion->prepare("UPDATE parcelas SET latitud=?, longitud=?, area_m2=? WHERE id_parcela=?");
                         $stmt->bind_param("dddi", $lat, $lon, $area_m2, $id);
@@ -85,66 +86,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'])) {
                 $tipo = "success";
             }
         }
-    } elseif ($_POST['accion'] === 'modificar_geojson') {
-        $geojsonRaw = $_POST['geojson'];
-        $decoded = json_decode($geojsonRaw, true);
-        if ($decoded && isset($decoded['features'][0]['geometry']['coordinates'][0])) {
-            $coords = $decoded['features'][0]['geometry']['coordinates'][0];
-            $lat = $lon = 0;
-            foreach ($coords as $coord) {
-                $lon += $coord[0];
-                $lat += $coord[1];
-            }
-            $lat /= count($coords);
-            $lon /= count($coords);
-
-            $stmt = $conexion->prepare("SELECT fichero FROM parcelas WHERE id_parcela=?");
-            $stmt->bind_param("i", $id);
-            $stmt->execute();
-            $fichero = $stmt->get_result()->fetch_assoc()['fichero'];
-            $stmt->close();
-
-            $ruta = __DIR__ . "/../agregar/parcelas/" . $fichero;
-            if (file_exists($ruta)) {
-                file_put_contents($ruta, json_encode($decoded, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-                function calcularAreaM2($coords) {
-                    $radioTierra = 6371000;
-                    $lat0 = deg2rad($coords[0][1]);
-                    $total = 0.0;
-                    for ($i = 0; $i < count($coords) - 1; $i++) {
-                        $lon1 = deg2rad($coords[$i][0]);
-                        $lat1 = deg2rad($coords[$i][1]);
-                        $lon2 = deg2rad($coords[$i + 1][0]);
-                        $lat2 = deg2rad($coords[$i + 1][1]);
-
-                        $x1 = $radioTierra * $lon1 * cos($lat0);
-                        $y1 = $radioTierra * $lat1;
-                        $x2 = $radioTierra * $lon2 * cos($lat0);
-                        $y2 = $radioTierra * $lat2;
-
-                        $total += ($x1 * $y2 - $x2 * $y1);
-                    }
-                    return abs($total / 2);
-                }
-                $area_m2 = calcularAreaM2($coords);
-                $stmt = $conexion->prepare("UPDATE parcelas SET latitud=?, longitud=?, area_m2=? WHERE id_parcela=?");
-                $stmt->bind_param("dddi", $lat, $lon, $area_m2, $id);
-                $stmt->execute();
-                $stmt->close();
-                $mensaje = "✅ Geometría actualizada correctamente";
-                $tipo = "success";
-            } else {
-                $mensaje = "❌ Error: El archivo GeoJSON no existe";
-                $tipo = "error";
-            }
-        } else {
-            $mensaje = "❌ Error: GeoJSON inválido o vacío";
-            $tipo = "error";
-        }
     }
 }
 
 include '../../componentes/header.php';
+
 ?>
 <link rel="stylesheet" href="../../css/style.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

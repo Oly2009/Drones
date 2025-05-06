@@ -1,7 +1,7 @@
-<?php 
+<?php
+include '../../componentes/header.php'; 
+include '../../lib/functiones.php';
 session_start();
-include '../lib/functiones.php';
-include '../componentes/header.php';
 ?>
 
 <!DOCTYPE html>
@@ -97,7 +97,7 @@ if (isset($_POST['enviarReg'])) {
       </div>
       <div class="d-flex justify-content-center gap-3">
         <input type="submit" name="enviarReg" value="Registrar" class="btn btn-success px-4">
-        <a href="usuarios.php" class="btn btn-danger px-4">Volver</a>
+        <a href="../../menu/usuarios.php" class="btn btn-danger px-4">Volver</a>
       </div>
     </form>
   </div>
@@ -116,6 +116,6 @@ if (isset($_POST['enviarReg'])) {
 </script>
 <?php endif; ?>
 
-<?php include '../componentes/footer.php'; ?>
+<?php include '../../componentes/footer.php'; ?>
 </body>
 </html>

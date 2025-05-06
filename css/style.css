@@ -29,6 +29,82 @@ html {
   margin: 0;
 }
 
+
+/*==============================*/
+/*           HEADER             */
+/*==============================*/
+
+/* HEADER MÁS BAJO */
+header.bg-success {
+  padding: 0.3rem 0 !important; /* altura reducida */
+}
+
+header .container-fluid {
+  align-items: center;
+  min-height: 50px; /* controla la altura total */
+}
+
+header .fs-5 {
+  font-size: 1rem; /* tamaño más compacto para el título */
+}
+
+header .h6 {
+  font-size: 0.9rem !important; /* lema más pequeño */
+}
+
+header .dropdown-toggle {
+  border-radius: 6px;
+  font-weight: 500;
+  padding: 4px 8px;
+  font-size: 0.9rem;
+}
+
+header .dropdown-menu {
+  min-width: 160px;
+  font-size: 0.9rem;
+}
+header {
+  background-color: #2e7d32 !important; /* igual que el footer */
+  color: white;
+  padding: 0.5rem 0; /* altura más fina */
+  border-bottom: 3px solid #1b5e20; /* línea inferior como el footer */
+}
+/* MIGAS DE PAN ELEGANTES */
+.breadcrumb-bar {
+  background-color: #f4fbf4;
+  border-bottom: 1px solid #d0ecd0;
+  padding: 0.4rem 0;
+}
+
+.breadcrumb {
+  justify-content: center;
+  background: none;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+  color: #66bb6a;
+  font-weight: normal;
+}
+
+.breadcrumb-item a {
+  color: #388e3c;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.breadcrumb-item a:hover {
+  color: #2e7d32;
+  text-decoration: underline;
+}
+
+.breadcrumb-item.active {
+  color: #1b5e20;
+  font-weight: 600;
+}
+
 /*==============================*/
 /*         LOGIN INDEX         */
 /*==============================*/
@@ -176,19 +252,6 @@ html {
 }
 
 
-
-/*==============================*/
-/*           HEADER             */
-/*==============================*/
-
-header .dropdown-toggle {
-  border-radius: 8px;
-  font-weight: 500;
-}
-
-header .dropdown-menu {
-  min-width: 180px;
-}
 
 /*==============================*/
 /*            MENU              */
@@ -488,19 +551,23 @@ header .dropdown-menu {
 /*           FOOTER             */
 /*==============================*/
 
-footer {
+.footer-custom {
   margin-top: auto;
-  padding: 1rem 0 0.5rem 0;
   background-color: #2e7d32;
   color: white;
   text-align: center;
+  font-size: 0.85rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-top: 3px solid #1b5e20;
 }
 
+
 /*==============================*/
-/*     Modificar Parcelas       */
+/* Modificar Parcelas        */
 /*==============================*/
 .modificar-parcelas h2 {
-  margin-top: 2.5rem;       
+  margin-top: 2.5rem;        
   margin-bottom: 2.4rem;    
   font-size: 2.2rem;
   color: #1b5e20;
@@ -520,7 +587,7 @@ footer {
 /* Mapa fijo */
 #mapa {
   width: 520px;
-  height: 480px; 
+  height: 480px;  /* ¡Aquí está la altura! */
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
@@ -549,7 +616,6 @@ footer {
   font-weight: bold;
   border-radius: 6px;
 }
-
 /*==============================*/
 /*         VER DATOS PARCELA    */
 /*==============================*/
@@ -655,4 +721,69 @@ footer {
   font-weight: bold;
   border: 2px solid white;
   box-shadow: 0 0 3px rgba(0,0,0,0.6);
+}
+
+
+
+
+/*==============================*/
+/* EJECUTAR TRABAJO (MAPA)     */
+/*==============================*/
+#mapa-contenedor {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+
+
+#estado-vuelo {
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #28a745;
+    margin-bottom: 1rem;
+}
+
+/*==============================*/
+/* LISTADO DE TRABAJOS        */
+/*==============================*/
+.table-responsive {
+    margin-top: 1.5rem;
+}
+
+.table {
+    background-color: #f8f9fa;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.table th {
+    background-color: #e9ecef;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.table td, .table th {
+    padding: 0.75rem;
+    vertical-align: middle;
+}
+
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+    border-radius: 0.25rem;
+    color: #fff;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+
+.estado-pendiente {
+    color: #ffc107;
+    font-weight: bold;
 }

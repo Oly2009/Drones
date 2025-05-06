@@ -1,11 +1,10 @@
-
-
-<footer class="bg-success text-white mt-5 py-3">
-    <div class="container text-center">
-        <p class="mb-0 fw-light"><strong>© <?= date("Y") ?> AgroSky. Todos los derechos.</strong></p>
-    </div>
+<footer class="footer-custom bg-success text-white">
+  <div class="container text-center py-2">
+    <p class="mb-0 fw-light small">
+      <strong>© <?= date("Y") ?> AgroSky. Todos los derechos reservados.</strong>
+    </p>
+  </div>
 </footer>
-
 
 
 

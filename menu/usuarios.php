@@ -16,7 +16,7 @@ session_start();
           <a href="../fun/listar/lis_usuarios.php" class="btn custom-btn shadow rounded-pill px-4 py-2">
             <i class="bi bi-card-list me-2 text-primary"></i>Listar
           </a>
-          <a href="../menu/registro.php" class="btn custom-btn shadow rounded-pill px-4 py-2">
+          <a href="../fun/agregar/registro.php" class="btn custom-btn shadow rounded-pill px-4 py-2">
             <i class="bi bi-person-plus-fill me-2 text-success"></i>Alta
           </a>
           <a href="../fun/modificar/modificar_usuarios.php" class="btn custom-btn shadow rounded-pill px-4 py-2">
