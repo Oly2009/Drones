@@ -787,3 +787,39 @@ header {
     color: #ffc107;
     font-weight: bold;
 }
+/* ============================== */
+/* LISTAR PARCELAS – RESPONSIVE */
+/* ============================== */
+
+html, body {
+  height: auto !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+
+/* Móvil */
+@media (max-width: 768px) {
+  #buscarParcela {
+    width: 100% !important;
+    margin-bottom: 0.2rem;
+  }
+
+  
+  .card-title {
+    font-size: 1.1rem;
+  }
+
+  .card-text {
+    font-size: 0.9rem;
+  }
+
+  .d-grid .btn {
+    font-size: 0.9rem;
+    padding: 0.4rem 0.6rem;
+  }
+
+  .titulo-listado {
+    font-size: 2rem;
+  }
+}

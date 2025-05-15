@@ -2,9 +2,9 @@
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-require '../lib/PHPMailer/src/Exception.php';
-require '../lib/PHPMailer/src/PHPMailer.php';
-require '../lib/PHPMailer/src/SMTP.php';
+require '../lib/phpmailer/src/Exception.php';
+require '../lib/phpmailer/src/PHPMailer.php';
+require '../lib/phpmailer/src/SMTP.php';
 
 session_start();
 include '../lib/functiones.php';
@@ -42,8 +42,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['correo'])) {
                     // Producción (Gmail o SMTP real)
                     $mail->Host = 'smtp.gmail.com';
                     $mail->SMTPAuth = true;
-                    $mail->Username = 'TUCORREO@gmail.com'; // cámbialo
-                    $mail->Password = 'TUPASSAPLICACION';    // cámbialo
+                    $mail->Username = 'olydaw2022@gmail.com'; // cámbialo
+                    $mail->Password = 'xvmf misg ygyg dxwx';    // cámbialo
                     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
                     $mail->Port = 587;
                 }
@@ -53,20 +53,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['correo'])) {
                 $mail->isHTML(true);
                 $mail->Subject = 'Recuperación de contraseña - AgroSky';
                 $mail->Body = "
-                    <p>Hola <strong>{$usuario['nombre']}</strong>,</p>
-                    <p>Tu nueva contraseña es: <strong>$nuevaPass</strong></p>
-                    <p>Inicia sesión y cámbiala lo antes posible.</p>
+                    <p>Estimado/a <strong>{$usuario['nombre']}</strong>,</p>
+                    <p>Hemos recibido una solicitud para restablecer la contraseña de su cuenta en AgroSky.</p>
+                    <p>Su nueva contraseña temporal es: <strong>$nuevaPass</strong></p>
+                    <p>Por favor, inicie sesión utilizando esta nueva contraseña y le recomendamos cambiarla lo antes posible por una de su elección.</p>
+                    <p style='text-align: center;'>
+                        <a href='https://agrosky.infinityfreeapp.com/index.php' style='display: inline-block; padding: 10px 20px; font-size: 16px; text-align: center; text-decoration: none; border-radius: 5px; background-color: #28a745; color: white;'>
+                            Iniciar Sesión en AgroSky
+                        </a>
+                    </p>
+                    <p>Si usted no solicitó este restablecimiento de contraseña, puede ignorar este correo electrónico. Su contraseña actual seguirá siendo válida.</p>
+                    <p>Atentamente,<br>El equipo de AgroSky</p>
                 ";
 
                 $mail->send();
-                $mensaje = '✅ Se ha enviado una nueva contraseña a tu correo.';
+                $mensaje = '✅ Se ha enviado una nueva contraseña a su correo electrónico.';
                 $tipoMensaje = 'success';
             } catch (Exception $e) {
                 $mensaje = '❌ No se pudo enviar el correo. Error: ' . $mail->ErrorInfo;
                 $tipoMensaje = 'error';
             }
         } else {
-            $mensaje = '❌ No se encontró ninguna cuenta con ese correo.';
+            $mensaje = '❌ No se encontró ninguna cuenta con ese correo electrónico.';
             $tipoMensaje = 'warning';
         }
     }
@@ -93,8 +101,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['correo'])) {
       <input type="email" class="form-control" id="correo" name="correo" required>
     </div>
     <div class="d-grid gap-2">
-      <button type="submit" class="btn btn-success">Enviar nueva contraseña</button>
-      <a href="../index.php" class="btn btn-danger">Volver al inicio</a>
+      <button type="submit" class="btn btn-success btn-lg">Enviar nueva contraseña</button>
+      <a href="../index.php" class="btn btn-danger btn-lg">Volver al inicio</a>
     </div>
   </form>
 </main>
@@ -105,7 +113,7 @@ Swal.fire({
   title: <?= json_encode($tipoMensaje === 'success' ? '✅ Éxito' : '⚠️ Aviso') ?>,
   text: <?= json_encode($mensaje) ?>,
   icon: <?= json_encode($tipoMensaje) ?>,
-  confirmButtonColor: '#218838'
+  confirmButtonColor: '#28a745'
 });
 </script>
 <?php endif; ?>

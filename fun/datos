@@ -179,3 +179,7 @@ function validarFormulario() {
     }
 }
 </script>
+
+
+C:\xampp\mailhog\mailhog.exe
+http://localhost:8025

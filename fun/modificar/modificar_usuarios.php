@@ -26,33 +26,33 @@ if (!$esAdmin) {
 $mensaje = "";
 $tipo = "";
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['usuario'])) {
-    $idUsuario = intval($_POST['usuario']);
-    $nombre = mysqli_real_escape_string($conexion, $_POST['nombre']);
-    $apellidos = mysqli_real_escape_string($conexion, $_POST['apellidos']);
-    $email = mysqli_real_escape_string($conexion, $_POST['email']);
-    $telefono = mysqli_real_escape_string($conexion, $_POST['telefono']);
-    $rol = intval($_POST['rol']);
-    $parcela = intval($_POST['parcela']);
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['usuarios'])) {
+    foreach ($_POST['usuarios'] as $usuarioData) {
+        $idUsuario = intval($usuarioData['id']);
+        $nombre = mysqli_real_escape_string($conexion, $usuarioData['nombre']);
+        $apellidos = mysqli_real_escape_string($conexion, $usuarioData['apellidos']);
+        $email = mysqli_real_escape_string($conexion, $usuarioData['email']);
+        $telefono = mysqli_real_escape_string($conexion, $usuarioData['telefono']);
+        $rol = intval($usuarioData['rol']);
+        $parcela = intval($usuarioData['parcela']);
 
-    try {
-        mysqli_begin_transaction($conexion);
+        try {
+            mysqli_begin_transaction($conexion);
 
-        mysqli_query($conexion, "UPDATE usuarios SET nombre = '$nombre', apellidos = '$apellidos', email = '$email', telefono = '$telefono' WHERE id_usr = $idUsuario");
+            mysqli_query($conexion, "UPDATE usuarios SET nombre = '$nombre', apellidos = '$apellidos', email = '$email', telefono = '$telefono' WHERE id_usr = $idUsuario");
+            mysqli_query($conexion, "DELETE FROM usuarios_roles WHERE id_usr = $idUsuario");
+            mysqli_query($conexion, "INSERT INTO usuarios_roles (id_usr, id_rol) VALUES ($idUsuario, $rol)");
+            mysqli_query($conexion, "DELETE FROM parcelas_usuarios WHERE id_usr = $idUsuario");
+            mysqli_query($conexion, "INSERT INTO parcelas_usuarios (id_usr, id_parcela) VALUES ($idUsuario, $parcela)");
 
-        mysqli_query($conexion, "DELETE FROM usuarios_roles WHERE id_usr = $idUsuario");
-        mysqli_query($conexion, "INSERT INTO usuarios_roles (id_usr, id_rol) VALUES ($idUsuario, $rol)");
-
-        mysqli_query($conexion, "DELETE FROM parcelas_usuarios WHERE id_usr = $idUsuario");
-        mysqli_query($conexion, "INSERT INTO parcelas_usuarios (id_usr, id_parcela) VALUES ($idUsuario, $parcela)");
-
-        mysqli_commit($conexion);
-        $mensaje = "✅ Usuario modificado correctamente.";
-        $tipo = "exito";
-    } catch (Exception $e) {
-        mysqli_rollback($conexion);
-        $mensaje = "❌ Error al modificar: " . $e->getMessage();
-        $tipo = "error";
+            mysqli_commit($conexion);
+            $mensaje = "✅ Cambios guardados correctamente.";
+            $tipo = "exito";
+        } catch (Exception $e) {
+            mysqli_rollback($conexion);
+            $mensaje = "❌ Error al modificar: " . $e->getMessage();
+            $tipo = "error";
+        }
     }
 }
 
@@ -90,59 +90,60 @@ $parcelas = mysqli_query($conexion, "SELECT * FROM parcelas");
     <button class="btn btn-success" type="button" onclick="filtrarUsuarios()">Buscar</button>
   </form>
 
-  <div class="table-responsive">
-    <table class="table">
-      <thead class="table-success text-center">
-        <tr>
-          <th>Nombre</th>
-          <th>Apellidos</th>
-          <th>Email</th>
-          <th>Teléfono</th>
-          <th>Rol</th>
-          <th>Parcela</th>
-          <th>Acción</th>
-        </tr>
-      </thead>
-      <tbody>
-        <?php while ($u = mysqli_fetch_assoc($usuarios)): ?>
-        <tr>
-          <form method="post" onsubmit="return validarFormulario(this);">
-            <input type="hidden" name="usuario" value="<?= $u['id_usr'] ?>">
-            <td><input type="text" name="nombre" class="form-control" value="<?= htmlspecialchars($u['nombre']) ?>" required pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{2,50}$" title="Solo letras y espacios, entre 2 y 50 caracteres"></td>
-            <td><input type="text" name="apellidos" class="form-control" value="<?= htmlspecialchars($u['apellidos']) ?>" required pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{2,100}$" title="Solo letras y espacios, entre 2 y 100 caracteres"></td>
-            <td><input type="email" name="email" class="form-control" value="<?= htmlspecialchars($u['email']) ?>" required pattern="^[^\s@]+@[^\s@]+\.[^\s@]{2,}$" title="Introduce un correo válido (ejemplo@dominio.com)"></td>
-            <td><input type="text" name="telefono" class="form-control" value="<?= htmlspecialchars($u['telefono']) ?>" required pattern="^\+?\d{9,12}$" title="Debe contener entre 9 y 12 dígitos, puede incluir prefijo (+34)"></td>
+  <form method="post">
+    <div class="table-responsive">
+      <table class="table">
+        <thead class="table-success text-center">
+          <tr>
+            <th>Nombre</th>
+            <th>Apellidos</th>
+            <th>Email</th>
+            <th>Teléfono</th>
+            <th>Rol</th>
+            <th>Parcela</th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php while ($u = mysqli_fetch_assoc($usuarios)): ?>
+          <tr>
+            <td><input type="text" name="usuarios[<?= $u['id_usr'] ?>][nombre]" class="form-control" value="<?= htmlspecialchars($u['nombre']) ?>" required></td>
+            <td><input type="text" name="usuarios[<?= $u['id_usr'] ?>][apellidos]" class="form-control" value="<?= htmlspecialchars($u['apellidos']) ?>" required></td>
+            <td><input type="email" name="usuarios[<?= $u['id_usr'] ?>][email]" class="form-control" value="<?= htmlspecialchars($u['email']) ?>" required></td>
+            <td><input type="text" name="usuarios[<?= $u['id_usr'] ?>][telefono]" class="form-control" value="<?= htmlspecialchars($u['telefono']) ?>" required></td>
             <td>
-              <select name="rol" class="form-select" required>
+              <select name="usuarios[<?= $u['id_usr'] ?>][rol]" class="form-select">
                 <?php mysqli_data_seek($roles, 0); while ($r = mysqli_fetch_assoc($roles)): ?>
-                  <option value="<?= $r['id_rol'] ?>" <?= $r['id_rol'] == $u['id_rol'] ? 'selected' : '' ?>>
-                    <?= htmlspecialchars($r['nombre_rol']) ?>
-                  </option>
+                  <option value="<?= $r['id_rol'] ?>" <?= $r['id_rol'] == $u['id_rol'] ? 'selected' : '' ?>><?= $r['nombre_rol'] ?></option>
                 <?php endwhile; ?>
               </select>
             </td>
             <td>
-              <select name="parcela" class="form-select w-100" required>
+              <select name="usuarios[<?= $u['id_usr'] ?>][parcela]" class="form-select">
+                <option value="">Ninguna</option>
                 <?php mysqli_data_seek($parcelas, 0); while ($p = mysqli_fetch_assoc($parcelas)): ?>
-                  <option value="<?= $p['id_parcela'] ?>" <?= $p['id_parcela'] == $u['id_parcela'] ? 'selected' : '' ?>>
-                    <?= htmlspecialchars($p['ubicacion']) ?>
-                  </option>
+                  <option value="<?= $p['id_parcela'] ?>" <?= $p['id_parcela'] == $u['id_parcela'] ? 'selected' : '' ?>><?= $p['ubicacion'] ?></option>
                 <?php endwhile; ?>
               </select>
             </td>
-            <td><button class="btn btn-outline-success btn-sm">Actualizar</button></td>
-          </form>
-        </tr>
-        <?php endwhile; ?>
-      </tbody>
-    </table>
-  </div>
+            <input type="hidden" name="usuarios[<?= $u['id_usr'] ?>][id]" value="<?= $u['id_usr'] ?>">
+          </tr>
+          <?php endwhile; ?>
+        </tbody>
+      </table>
+    </div>
 
-  <div class="text-center mt-4">
-    <a href="../../menu/usuarios.php" class="btn btn-danger rounded-pill px-4">
+   <div class="text-center mt-4">
+  <div class="d-flex flex-column flex-sm-row justify-content-center align-items-stretch gap-3">
+    <button type="submit" class="btn btn-success w-100 w-sm-auto px-4">
+      <i class="bi bi-floppy me-2"></i>Guardar cambios
+    </button>
+    <a href="../../menu/usuarios.php" class="btn btn-danger w-100 w-sm-auto px-4">
       <i class="bi bi-arrow-left-circle me-2"></i>Volver al menú de usuarios
     </a>
   </div>
+</div>
+
+  </form>
 </main>
 
 <?php include '../../componentes/footer.php'; ?>
@@ -153,38 +154,6 @@ function filtrarUsuarios() {
   document.querySelectorAll('.table tbody tr').forEach(fila => {
     fila.style.display = fila.textContent.toLowerCase().includes(filtro) ? '' : 'none';
   });
-}
-
-function validarFormulario(form) {
-  const emailInput = form.querySelector('input[name="email"]');
-  const emailVal = emailInput.value.trim();
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-
-  if (!emailRegex.test(emailVal)) {
-    Swal.fire({
-      icon: 'error',
-      title: 'Correo inválido',
-      text: 'Por favor, introduce un correo electrónico válido con formato usuario@dominio.com.',
-      confirmButtonColor: '#d33'
-    });
-    return false;
-  }
-
-  const telInput = form.querySelector('input[name="telefono"]');
-  const telVal = telInput.value.trim();
-  const telRegex = /^\+?\d{9,12}$/;
-
-  if (!telRegex.test(telVal)) {
-    Swal.fire({
-      icon: 'error',
-      title: 'Teléfono inválido',
-      text: 'Introduce un número válido con entre 9 y 12 dígitos. Puede incluir prefijo como +34.',
-      confirmButtonColor: '#d33'
-    });
-    return false;
-  }
-
-  return true;
 }
 
 <?php if (!empty($mensaje)): ?>

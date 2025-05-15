@@ -1,148 +1,182 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 include '../../lib/functiones.php';
 session_start();
 
 if (!isset($_SESSION['usuario'])) {
-    header("Location: ../../index.php");
-    exit();
+    echo '<script>
+        document.addEventListener("DOMContentLoaded", function() {
+            Swal.fire({
+                title: "Acceso denegado",
+                text: "Debes iniciar sesión para acceder a esta página",
+                icon: "error",
+                confirmButtonText: "Volver",
+                confirmButtonColor: "#dc3545"
+            }).then(() => window.location.href = "../../index.php");
+        });
+    </script>';
+    exit;
 }
 
 $conexion = conectar();
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['borrar'])) {
-    $ids = $_POST['borrar'];
-    foreach ($ids as $id) {
-        $id = intval($id);
-        mysqli_query($conexion, "DELETE FROM trabajos_tareas WHERE id_trabajo = $id");
-        mysqli_query($conexion, "DELETE FROM trabajos WHERE id_trabajo = $id");
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['eliminar_parcelas']) && !empty($_POST['seleccionadas'])) {
+    $ids_eliminar = array_map('intval', $_POST['seleccionadas']);
+    $eliminadas_count = 0;
+
+    foreach ($ids_eliminar as $id_parcela) {
+        $stmt = $conexion->prepare("SELECT fichero FROM parcelas WHERE id_parcela = ?");
+        $stmt->bind_param("i", $id_parcela);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        if ($row = $res->fetch_assoc()) {
+            $ruta = __DIR__ . "/../agregar/parcelas/" . $row['fichero'];
+            if (file_exists($ruta) && !unlink($ruta)) {
+                $_SESSION['mensaje_error'] = "Error al eliminar el fichero de la parcela ID $id_parcela.";
+                header("Location: eli_parcelas.php");
+                exit;
+            }
+        }
+        $stmt->close();
+
+        $conexion->query("DELETE FROM parcelas_usuarios WHERE id_parcela = $id_parcela");
+        $conexion->query("UPDATE drones SET id_parcela = NULL WHERE id_parcela = $id_parcela");
+        $conexion->query("UPDATE trabajos SET id_parcela = NULL WHERE id_parcela = $id_parcela");
+        $conexion->query("DELETE FROM ruta WHERE id_parcela = $id_parcela");
+
+        if ($conexion->query("DELETE FROM parcelas WHERE id_parcela = $id_parcela")) {
+            $eliminadas_count++;
+        } else {
+            $_SESSION['mensaje_error'] = "Error al eliminar la parcela ID $id_parcela.";
+            header("Location: eli_parcelas.php");
+            exit;
+        }
     }
-    $_SESSION['mensaje'] = "Trabajos eliminados correctamente.";
-    header("Location: eli_trabajos.php");
-    exit();
+
+    $_SESSION['mensaje'] = "$eliminadas_count " . ($eliminadas_count === 1 ? "parcela eliminada" : "parcelas eliminadas") . " correctamente.";
+    header("Location: eli_parcelas.php");
+    exit;
 }
 
-$trabajos = mysqli_query($conexion, "
-    SELECT t.id_trabajo, t.fecha_asignacion AS fecha, p.ubicacion, 
-           CONCAT(d.marca, ' ', d.modelo) AS dron, 
-           GROUP_CONCAT(tar.nombre_tarea SEPARATOR ', ') AS tareas
-    FROM trabajos t
-    JOIN parcelas p ON t.id_parcela = p.id_parcela
-    JOIN drones d ON t.id_dron = d.id_dron
-    LEFT JOIN trabajos_tareas tt ON tt.id_trabajo = t.id_trabajo
-    LEFT JOIN tareas tar ON tar.id_tarea = tt.id_tarea
-    GROUP BY t.id_trabajo
-    ORDER BY t.fecha DESC
-");
+$resultado = $conexion->query("SELECT id_parcela, COALESCE(nombre, ubicacion) AS nombre, ubicacion, tipo_cultivo, area_m2 FROM parcelas ORDER BY fecha_registro DESC");
+$parcelas = $resultado->fetch_all(MYSQLI_ASSOC);
+$conexion->close();
+
+include '../../componentes/header.php';
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>🗑️ Eliminar Trabajos - AgroSky</title>
-  <link rel="stylesheet" href="../../css/style.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.all.min.js"></script>
+    <meta charset="UTF-8">
+    <title>Eliminar Parcelas</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="d-flex flex-column min-vh-100">
-<?php include '../../componentes/header.php'; ?>
 <main class="container py-5 flex-grow-1">
-  <h1 class="titulo-listado text-center mb-4">
-    <i class="bi bi-journal-x me-2 text-danger"></i>Eliminar Trabajos
-  </h1>
+    <h1 class="titulo-listado">
+        <i class="bi bi-x-circle-fill me-2 text-danger"></i>Eliminar Parcelas
+    </h1>
 
-  <form method="get" class="d-flex justify-content-center mb-4">
-    <input type="text" id="buscarTrabajo" class="form-control w-50 me-2" placeholder="🔍 Buscar por parcela o dron...">
-    <button class="btn btn-success" type="button" onclick="filtrarTrabajos()">Buscar</button>
-  </form>
+    <form method="post" id="formEliminarParcelas">
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Ubicación</th>
+                        <th>Tipo</th>
+                        <th>Área</th>
+                        <th>Eliminar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($parcelas as $p): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($p['nombre']) ?></td>
+                            <td><?= htmlspecialchars($p['ubicacion']) ?></td>
+                            <td><?= htmlspecialchars($p['tipo_cultivo']) ?></td>
+                            <td><?= number_format($p['area_m2'], 2) ?> m²</td>
+                            <td class="text-center">
+                                <input type="checkbox" name="seleccionadas[]" value="<?= $p['id_parcela'] ?>">
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
 
-  <form method="post" onsubmit="return confirmarEliminacion(event)">
-    <div class="table-responsive">
-      <table class="table table-bordered table-hover align-middle" id="tablaTrabajos">
-        <thead class="table-success text-center">
-          <tr>
-            <th>Fecha</th>
-            <th>Parcela</th>
-            <th>Dron</th>
-            <th>Tarea(s)</th>
-            <th>Eliminar</th>
-          </tr>
-        </thead>
-        <tbody>
-          <?php while ($t = mysqli_fetch_assoc($trabajos)): ?>
-          <tr>
-            <td><?= htmlspecialchars($t['fecha']) ?></td>
-            <td><?= htmlspecialchars($t['ubicacion']) ?></td>
-            <td><?= htmlspecialchars($t['dron']) ?></td>
-            <td><?= htmlspecialchars($t['tareas']) ?></td>
-            <td class="text-center">
-              <input type="checkbox" name="borrar[]" value="<?= $t['id_trabajo'] ?>">
-            </td>
-          </tr>
-          <?php endwhile; ?>
-        </tbody>
-      </table>
-    </div>
-    <div class="text-center mt-4">
-      <div class="d-flex flex-column flex-sm-row justify-content-center align-items-stretch gap-3">
-        <button type="submit" class="btn btn-danger w-100 w-sm-auto px-4">
-          <i class="bi bi-trash me-2"></i>Eliminar seleccionados
+       <div class="text-center mt-4">
+    <div class="d-flex flex-column flex-sm-row justify-content-center align-items-stretch gap-3">
+        <!-- Botón visible con SweetAlert -->
+        <button type="button" onclick="confirmarEliminar()" class="btn btn-danger w-100 w-sm-auto px-4">
+            <i class="bi bi-trash"></i> Eliminar seleccionados
         </button>
-        <a href="../../menu/trabajos.php" class="btn btn-success w-100 w-sm-auto px-4">
-          <i class="bi bi-arrow-left-circle me-2"></i>Volver al menú de trabajos
-        </a>
-      </div>
-    </div>
-  </form>
-</main>
-<?php include '../../componentes/footer.php'; ?>
-<script>
-function filtrarTrabajos() {
-  const filtro = document.getElementById('buscarTrabajo').value.toLowerCase();
-  document.querySelectorAll('#tablaTrabajos tbody tr').forEach(fila => {
-    fila.style.display = fila.textContent.toLowerCase().includes(filtro) ? '' : 'none';
-  });
-}
 
-function confirmarEliminacion(e) {
-  e.preventDefault();
-  const seleccionados = document.querySelectorAll('input[name="borrar[]"]:checked');
-  if (seleccionados.length === 0) {
-    Swal.fire({
-      icon: 'warning',
-      title: '⚠️ Aviso',
-      text: 'No has seleccionado ningún trabajo.',
-      confirmButtonColor: '#d33'
-    });
-    return false;
-  }
-  Swal.fire({
-    title: '¿Eliminar trabajos seleccionados?',
-    text: 'Esta acción eliminará los registros de trabajos y sus tareas asociadas.',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#d33',
-    cancelButtonColor: '#6c757d',
-    confirmButtonText: 'Sí, eliminar',
-    cancelButtonText: 'Cancelar'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      e.target.submit();
+        <!-- Botón oculto que dispara el POST real -->
+        <button type="submit" name="eliminar_parcelas" id="submitOculto" style="display: none;"></button>
+
+        <a href="../../menu/parcelas.php" class="btn btn-success w-100 w-sm-auto px-4">
+            <i class="bi bi-arrow-left-circle"></i> Volver al menú de parcelas
+        </a>
+    </div>
+</div>
+    </form>
+</main>
+
+<?php include '../../componentes/footer.php'; ?>
+
+<script>
+function confirmarEliminar() {
+    const seleccionados = document.querySelectorAll('input[name="seleccionadas[]"]:checked');
+    if (seleccionados.length === 0) {
+        Swal.fire({
+            icon: 'warning',
+            title: '⚠️ Atención',
+            text: 'Debes seleccionar al menos una parcela para eliminar.',
+            confirmButtonColor: '#dc3545'
+        });
+        return;
     }
-  });
-  return false;
+
+    Swal.fire({
+        icon: 'warning',
+        title: '¿Estás seguro?',
+        html: 'Las parcelas seleccionadas serán eliminadas.<br>Esta acción no se puede deshacer.',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#dc3545',
+        cancelButtonColor: '#6c757d'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById('submitOculto').click();
+        }
+    });
 }
 
 <?php if (isset($_SESSION['mensaje'])): ?>
-window.onload = function () {
-  Swal.fire({
+Swal.fire({
+    icon: 'success',
     title: '✅ Éxito',
     text: <?= json_encode($_SESSION['mensaje']) ?>,
-    icon: 'success',
-    confirmButtonColor: '#218838'
-  });
-};
+    confirmButtonColor: '#28a745'
+});
 <?php unset($_SESSION['mensaje']); endif; ?>
+
+<?php if (isset($_SESSION['mensaje_error'])): ?>
+Swal.fire({
+    icon: 'error',
+    title: '❌ Error',
+    text: <?= json_encode($_SESSION['mensaje_error']) ?>,
+    confirmButtonColor: '#dc3545'
+});
+<?php unset($_SESSION['mensaje_error']); endif; ?>
 </script>
 </body>
 </html>
