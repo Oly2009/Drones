@@ -24,10 +24,52 @@ body {
   height: 100%; /* Ocupa toda la altura de la pantalla */
 }
 
-html {
-  height: 100%;
-  margin: 0;
+@media (max-width: 768px) {
+  html, body {
+    height: 100vh;
+    overflow-y: hidden;
+  }
+
+  main.container-fluid {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding-top: 1rem;
+  }
+
+  .logo-box {
+    margin-top: 0.5rem !important;
+    margin-bottom: 0.5rem !important;
+    text-align: center;
+    align-items: center !important;
+  }
+
+  .logo-box img {
+    width: 70px;
+    margin-bottom: 0.3rem;
+  }
+
+  .logo-box p {
+    font-size: 1rem;
+    line-height: 1.3;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .login-form {
+    margin-top: 1rem !important;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  .bg-img-login {
+    display: none;
+  }
 }
+
+
+
 
 
 /*==============================*/
@@ -207,11 +249,6 @@ header {
   margin-right: 0.5rem;
 }
 
-@media (max-width: 768px) {
-  html, body {
-    height: 100vh;
-    overflow-y: hidden;
-  }
 
   main.container-fluid {
     height: 100vh;

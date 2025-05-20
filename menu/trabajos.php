@@ -37,13 +37,16 @@ session_start();
           </a>
         <?php endif; ?>
 
-        <?php if ($esAdmin || $esPiloto): ?>
-          <a href="../fun/eliminar/eje_trabajos.php" class="btn custom-btn shadow rounded-pill px-4 py-2">
-            <i class="bi bi-send-fill me-2 text-primary"></i>Ejecutar
+        <?php if ($esPiloto && !$esAdmin): ?>
+          <a href="../fun/eliminar/eje_trabajos.php?id_usr=<?= $id_usr ?>" class="btn custom-btn shadow rounded-pill px-4 py-2">
+            <i class="bi bi-send-fill me-2 text-primary"></i>Ejecutar trabajos asignados
           </a>
         <?php endif; ?>
 
         <?php if ($esAdmin): ?>
+          <a href="../fun/eliminar/eje_trabajos.php" class="btn custom-btn shadow rounded-pill px-4 py-2">
+            <i class="bi bi-send-fill me-2 text-primary"></i>Ejecutar
+          </a>
           <a href="../fun/eliminar/eli_trabajos.php" class="btn custom-btn shadow rounded-pill px-4 py-2">
             <i class="bi bi-trash-fill me-2 text-danger"></i>Eliminar
           </a>

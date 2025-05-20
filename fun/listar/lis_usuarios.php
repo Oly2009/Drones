@@ -95,9 +95,9 @@ $resultado = mysqli_query($conexion, $sql);
     <?php endif; ?>
 
     <div class="text-center mt-4">
-        <a href="../../menu/usuarios.php" class="btn btn-danger rounded-pill px-4">
-            <i class="bi bi-arrow-left-circle me-2"></i>Volver al menú de usuarios
-        </a>
+        <a href="../../menu/usuarios.php" class="btn btn-danger w-100 w-sm-auto px-4">
+      <i class="bi bi-arrow-left-circle me-2"></i>Volver al menú de usuarios
+    </a>
     </div>
   </section>
 </main>

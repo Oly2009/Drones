@@ -21,8 +21,8 @@ session_start();
     ?>
 
     <section class="container d-flex flex-column justify-content-between align-items-center">
-      <h1 class="fw-bold text-success welcome-title">
-        <i class="bi bi-globe2 me-2"></i> Bienvenido <span class="text-dark"><?php echo $nombre; ?></span>
+      <h1 class="fw-bold welcome-title" style="margin-bottom: 5rem; color: #2c3e50;">
+        <i class="bi bi-globe2 me-2 text-success"></i> Bienvenido <span class="text-dark"><?php echo $nombre; ?></span>
       </h1>
 
       <div class="btn-container d-flex flex-wrap justify-content-center mb-4 w-100 px-3">
@@ -30,11 +30,12 @@ session_start();
           <a href="usuarios.php" class="btn custom-btn shadow rounded-pill px-4 py-2 w-sm-95">
             <i class="bi bi-people-fill me-2 text-primary"></i>Usuarios
           </a>
-        <?php endif; ?>
-        <?php if ($administrador || $piloto): ?>
           <a href="parcelas.php" class="btn custom-btn shadow rounded-pill px-4 py-2 w-sm-95">
             <i class="bi bi-tree-fill me-2 text-info"></i>Parcelas
           </a>
+        <?php endif; ?>
+
+        <?php if ($administrador || $piloto): ?>
           <a href="trabajos.php" class="btn custom-btn shadow rounded-pill px-4 py-2 w-sm-95">
             <i class="bi bi-clipboard2-check-fill me-2 text-warning"></i>Trabajos
           </a>
@@ -61,4 +62,3 @@ session_start();
 
   <?php include '../componentes/footer.php'; ?>
 </div>
-

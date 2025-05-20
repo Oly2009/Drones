@@ -11,7 +11,7 @@ session_start();
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Registro de Usuarios - AgroSky</title>
   <link rel="stylesheet" href="../css/style.css">
- 
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.3/dist/sweetalert2.all.min.js"></script>
 </head>
 <body class="registro-body">
 
@@ -38,7 +38,15 @@ if (isset($_POST['enviarReg'])) {
     } elseif (!preg_match('/^[0-9]{9}$/', $telefono)) {
         $mensaje = "El número de teléfono debe tener exactamente 9 dígitos.";
         $tipoMensaje = 'warning';
-    } elseif ($password !== $confirm) {
+    }
+    /*
+    // VALIDACIÓN DE CONTRASEÑA  ( descomentar para activar en servidor)
+    elseif (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/', $password)) {
+        $mensaje = "La contraseña debe tener al menos 8 caracteres, incluyendo mayúsculas, minúsculas, números y símbolos.";
+        $tipoMensaje = 'warning';
+    }
+    */
+    elseif ($password !== $confirm) {
         $mensaje = "Las contraseñas no coinciden.";
         $tipoMensaje = 'error';
     } else {
@@ -70,7 +78,7 @@ if (isset($_POST['enviarReg'])) {
 <main class="registro-main">
   <div class="formulario-registro">
     <h2 class="text-center mb-4">🛫 Registro de Usuarios <br><span class="text-success">- AgroSky -</span></h2>
-    <form action="registro.php" method="post" autocomplete="off">
+    <form action="registro.php" method="post" autocomplete="off" id="form-registro">
       <div class="mb-3">
         <label class="form-label">👤 Nombre de usuario</label>
         <input type="text" name="usu" class="form-control" required>
@@ -89,11 +97,12 @@ if (isset($_POST['enviarReg'])) {
       </div>
       <div class="mb-3">
         <label class="form-label">🔒 Contraseña</label>
-        <input type="password" name="password" class="form-control" required autocomplete="new-password">
+        <input type="password" name="password" class="form-control" required autocomplete="new-password" id="password">
+        <!-- <small class="form-text text-muted">Mínimo 8 caracteres, incluyendo mayúsculas, minúsculas, números y símbolos.</small> -->
       </div>
       <div class="mb-4">
         <label class="form-label">🔁 Repite la contraseña</label>
-        <input type="password" name="passwordMatchInput" class="form-control" required autocomplete="new-password">
+        <input type="password" name="passwordMatchInput" class="form-control" required autocomplete="new-password" id="confirm-password">
       </div>
       <div class="d-flex justify-content-center gap-3">
         <input type="submit" name="enviarReg" value="Registrar" class="btn btn-success px-4">
@@ -115,6 +124,35 @@ if (isset($_POST['enviarReg'])) {
   });
 </script>
 <?php endif; ?>
+
+<!--  VALIDACIÓN DE CONTRASEÑA  ( descomentar para activar )-->
+<script>
+/*
+document.getElementById('form-registro').addEventListener('submit', function (e) {
+  const pass = document.getElementById('password').value;
+  const confirm = document.getElementById('confirm-password').value;
+  const patron = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+
+  if (!patron.test(pass)) {
+    e.preventDefault();
+    Swal.fire({
+      icon: 'warning',
+      title: 'Contraseña débil',
+      text: 'Debe contener al menos 8 caracteres, incluyendo mayúsculas, minúsculas, números y símbolos.',
+      confirmButtonColor: '#218838'
+    });
+  } else if (pass !== confirm) {
+    e.preventDefault();
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Las contraseñas no coinciden.',
+      confirmButtonColor: '#218838'
+    });
+  }
+});
+*/
+</script>
 
 <?php include '../../componentes/footer.php'; ?>
 </body>
