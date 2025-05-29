@@ -1,6 +1,7 @@
 <?php
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
+setlocale(LC_ALL, 'es_ES.utf8', 'spanish');
 
 require '../lib/phpmailer/src/Exception.php';
 require '../lib/phpmailer/src/PHPMailer.php';

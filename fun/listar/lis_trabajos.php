@@ -8,8 +8,22 @@ if (!isset($_SESSION['usuario'])) {
 }
 
 $con = conectar();
+$email = $_SESSION['usuario']['email'];
+$id_usr_result = mysqli_query($con, "SELECT id_usr FROM usuarios WHERE email = '$email'");
+$id_usr_data = mysqli_fetch_assoc($id_usr_result);
+$id_usr = $id_usr_data['id_usr'];
 
-// Consulta completa con fechas nuevas
+// Comprobar si es admin
+$rol_result = mysqli_query($con, "SELECT id_rol FROM usuarios_roles WHERE id_usr = $id_usr");
+$esAdmin = false;
+while ($rol = mysqli_fetch_assoc($rol_result)) {
+  if ($rol['id_rol'] == 1) {
+    $esAdmin = true;
+    break;
+  }
+}
+
+// Consulta según rol
 $trabajos_q = "SELECT 
     t.fecha_asignacion,
     t.fecha_ejecucion,
@@ -27,8 +41,13 @@ $trabajos_q = "SELECT
  JOIN drones d ON t.id_dron = d.id_dron
  LEFT JOIN trabajos_tareas tt ON t.id_trabajo = tt.id_trabajo
  LEFT JOIN tareas ta ON ta.id_tarea = tt.id_tarea
- LEFT JOIN usuarios u ON t.id_usr = u.id_usr
- GROUP BY t.id_trabajo
+ LEFT JOIN usuarios u ON t.id_usr = u.id_usr";
+
+if (!$esAdmin) {
+  $trabajos_q .= " WHERE t.id_usr = $id_usr";
+}
+
+$trabajos_q .= " GROUP BY t.id_trabajo
  ORDER BY t.fecha_asignacion DESC, t.hora DESC";
 
 $trabajos = mysqli_query($con, $trabajos_q);

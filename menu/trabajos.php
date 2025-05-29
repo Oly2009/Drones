@@ -39,7 +39,10 @@ session_start();
 
         <?php if ($esPiloto && !$esAdmin): ?>
           <a href="../fun/eliminar/eje_trabajos.php?id_usr=<?= $id_usr ?>" class="btn custom-btn shadow rounded-pill px-4 py-2">
-            <i class="bi bi-send-fill me-2 text-primary"></i>Ejecutar trabajos asignados
+            <i class="bi bi-send-fill me-2 text-primary"></i>Ejecutar trabajos 
+          </a>
+          <a href="../fun/listar/lis_trabajos.php?id_usr=<?= $id_usr ?>" class="btn custom-btn shadow rounded-pill px-4 py-2">
+            <i class="bi bi-card-list me-2 text-info"></i>Ver trabajos 
           </a>
         <?php endif; ?>
 

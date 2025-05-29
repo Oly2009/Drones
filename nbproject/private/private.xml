@@ -3,16 +3,12 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/xampp/htdocs/Proyecto_Drones_v3-CSS/css/style.css</file>
-            <file>file:/C:/xampp/htdocs/Proyecto_Drones_v3-CSS/fun/listar/ver_parcelas.php</file>
-            <file>file:/C:/xampp/htdocs/Proyecto_Drones_v3-CSS/index.php</file>
+            <file>file:/C:/xampp/htdocs/Proyecto_Drones_v3-CSS/menu/ayuda.php</file>
+            <file>file:/C:/xampp/htdocs/Proyecto_Drones_v3-CSS/fun/datos</file>
+            <file>file:/C:/xampp/htdocs/Proyecto_Drones_v3-CSS/fun/eliminar/eje_trabajos.php</file>
+            <file>file:/C:/xampp/htdocs/Proyecto_Drones_v3-CSS/menu/menu.php</file>
             <file>file:/C:/xampp/htdocs/Proyecto_Drones_v3-CSS/fun/agregar/agr_parcelas.php</file>
-            <file>file:/C:/xampp/htdocs/Proyecto_Drones_v3-CSS/fun/eliminar/eli_trabajos.php</file>
-            <file>file:/C:/xampp/htdocs/Proyecto_Drones_v3-CSS/componentes/header.php</file>
-            <file>file:/C:/xampp/htdocs/Proyecto_Drones_v3-CSS/sql/datosPrueba.sql</file>
-            <file>file:/C:/xampp/htdocs/Proyecto_Drones_v3-CSS/fun/eliminar/eli_parcelas.php</file>
-            <file>file:/C:/xampp/htdocs/Proyecto_Drones_v3-CSS/componentes/footer.php</file>
-            <file>file:/C:/xampp/htdocs/Proyecto_Drones_v3-CSS/menu/recuperacion.php</file>
+            <file>file:/C:/xampp/htdocs/Proyecto_Drones_v3-CSS/menu/usuarios.php</file>
         </group>
     </open-files>
 </project-private>
